@@ -328,7 +328,7 @@ $users = $userModel
     ->whereRelated([BookModel::class, ColorModel::class], 'name', 'green')
     ->find();
 ```
-To access deep relations, simply put then in an array. 
+To access deep relations, simply put them in an array. 
 
 
 
