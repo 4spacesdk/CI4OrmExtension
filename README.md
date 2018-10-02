@@ -252,3 +252,83 @@ echo json_encode($users->allToArray());
 ```
 
 `toArray()` returns an array with one user's properties. `allToArray()` returns an array of multiple user's properties. These methods are great for json encoding. 
+
+
+### Working with Entities
+Relations can be accessed as magic properties. 
+This will echo null, because the color is an empty entity. It has not yet been retrieved from the database.
+```php
+$userModel = new UserModel();
+$users = $userModel->find(); 
+foreach($users as $user) {
+    echo $user->color->name;
+}
+```
+
+We can retrieve the color with an include:
+```php
+$userModel = new UserModel();
+$users = $userModel
+    ->includeRelated(ColorModel::class)
+    ->find(); 
+foreach($users as $user) {
+    echo $user->color->name;
+}
+```
+This will echo the actual color name, because OrmExtension has prefetched the color from the `find`.
+
+We can also retrieve the color afterwards:
+```php
+$userModel = new UserModel();
+$users = $userModel->find(); 
+foreach($users as $user) {
+    $user->color->find();
+    echo $user->color->name; 
+}
+```
+
+A user 1 has multiple rolesm and we want to access only the role named admin. For this we have to access the model from the entity to do a `where`.
+```php
+$userModel = new UserModel();
+$user = $userModel->find(1); 
+$role = $user->roles->getModel()
+    ->where('name', 'admin')
+    ->find();
+echo $role->admin; // "admin"
+```
+
+
+### Deep relations
+For this purpose we will look at another example. Let's say an `user` has `books` and `books` has `color`. A `book` is shared between many users but can only have one color. A color can be shared between many books.
+```php
+class UserModel {
+    public $hasMany = [
+        BookModel::class
+    ];
+}
+class BookModel {
+    public $hasOne = [
+        ColorModel::class
+    ],
+    public $hasMany = [
+        UserModel::class
+    ];
+}
+class ColorModel {
+    public $hasMany = [
+        BookModel::class
+    ];
+}
+```
+
+We want to select all users with green books.
+```php
+$userModel = new UserModel();
+$users = $userModel
+    ->whereRelated([BookModel::class, ColorModel::class], 'name', 'green')
+    ->find();
+```
+To access deep relations, simply put then in an array. 
+
+
+
