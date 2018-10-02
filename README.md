@@ -33,6 +33,13 @@ Events::on('pre_system', [\OrmExtension\Hooks\PreController::class, 'execute']);
 ## Usage
 Check the Examples folder for inspiration.
 
+### Guidelines
+Follow these guidelines and you will get the cleanest code. 
+1. Entities should be named in singular form, ex. User, Role, UserType.
+2. Models must be named after their corresponding entity and appended `Model`, ex. UserModel, RoleModel, UserTypeModel. 
+3. Table names should be named after the entity in plural form, ex. users, roles, user_types. 
+4. Join tables should be named after the relation names in plural form in alphabetical order, ex. roles_users. 
+
 ### Model
 A basic CodeIgniter 4 model would look something like this
 ```php
@@ -40,12 +47,6 @@ A basic CodeIgniter 4 model would look something like this
 use App\Entities\User;
 use CodeIgniter\Model;
 
-/**
- * Class UserModel
- * @package App\Models
- * @property int $id
- * @property string $name
- */
 class UserModel extends Model {
 
     protected $table = 'users';
@@ -54,22 +55,15 @@ class UserModel extends Model {
 
 }
 ```
-OrmExtension will do the work for you. Your model will look like this
+OrmExtension will do the work for you. Create model will look like this instead:
 ```php
 <?php namespace App\Models;
-
 use OrmExtension\Extensions\Model;
 
-/**
- * Class UserModel
- * @package App\Models
- */
 class UserModel extends Model {
-
 
 }
 ```
-
 
 ### Entity
 
