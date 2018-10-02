@@ -9,7 +9,7 @@ Step 1)
 `composer require 4spacesdk/ci4ormextension`
 
 Step 2)
-Add `OrmExtension.php` to your `application/Config` folder with this content
+Create new file `application/Config/OrmExtension.php` and add this content
 ```
 <?php namespace Config;
 class OrmExtension {
