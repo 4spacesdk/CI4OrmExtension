@@ -55,19 +55,4 @@ class SubQuery extends Controller {
         $this->response->send();
     }
 
-    public function kili() {
-
-        $model = new UserModel();
-        $user = $model
-            ->where('color_id', 'users.id')
-            ->find();
-
-
-        Data::set('user', $user->allToArray());
-        Data::lastQuery();
-
-        $this->response->setJSON(Data::getData());
-        $this->response->send();
-    }
-
 }
