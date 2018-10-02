@@ -41,7 +41,7 @@ Follow these guidelines and you will get the cleanest code.
 4. Join tables should be named after the relation names in plural form in alphabetical order, ex. roles_users. 
 
 ### Model
-A basic CodeIgniter 4 model would look something like this
+A basic CodeIgniter 4 model would typically look like this
 ```php
 <?php namespace App\Models;
 use App\Entities\User;
@@ -55,7 +55,7 @@ class UserModel extends Model {
 
 }
 ```
-OrmExtension will do the work for you. Create model will look like this instead:
+OrmExtension will do the work for you. Create your new models like this:
 ```php
 <?php namespace App\Models;
 use OrmExtension\Extensions\Model;
@@ -64,7 +64,112 @@ class UserModel extends Model {
 
 }
 ```
+If you follewed the guidelines, then OrmExtension will guest which table and entity are associated with the UserModel. You can however specify table and entity name by adding these methods in the UserModel class:
+```php
+public function getTableName() {
+    return "custom_users";
+}
+public function getEntityName() {
+    return "CustomUser";
+}
+```
+OrmExtension doesn't really care about `$allowedFields`. It will submit a `DESCRIBE` statement and use every field in the table.
 
 ### Entity
+A basic CodeIgniter 4 entity would typically look like this
+```php
+<?php namespace App\Entities;
+use CodeIgniter\Entity;
 
+class User extends Entity {
+    public $id, $name;
+}
+```
+OrmExtension doesn't really care about which public variables you specify. It will use the table fields when creating `INSERT` and `UPDATE` statements. So you can let them be or just remove them.
+Create your new entities like this:
+```php 
+<?php namespace App\Entities;
+use OrmExtension\Extensions\Entity;
 
+class User extends Entity {
+
+}
+```
+
+### Relations
+Now to the fun part.
+Every model can have two kind of relationships: `hasOne` and `hasMany`. 
+A user can have one color and many roles. 
+```php
+<?php namespace App\Models;
+
+use OrmExtension\Extensions\Model;
+
+class UserModel extends Model {
+
+    public $hasOne = [
+        ColorModel::class,
+    ];
+
+    public $hasMany = [
+        RoleModel::class
+    ];
+
+}
+```
+A role can have many users.
+```php
+<?php namespace App\Models;
+
+use OrmExtension\Extensions\Model;
+
+class RoleModel extends Model {
+
+    public $hasMany = [
+        UserModel::class
+    ];
+
+}
+```
+A color can have many users.
+```php
+<?php namespace App\Models;
+
+use OrmExtension\Extensions\Model;
+
+class ColorModel extends Model {
+
+    public $hasMany = [
+        UserModel::class
+    ];
+
+}
+```
+Schema for these models:
+```sql
+CREATE TABLE `users` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `color_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) 
+
+CREATE TABLE `roles` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+)
+
+CREATE TABLE `roles_users` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `role_id` int(11) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) 
+
+CREATE TABLE `colors` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(63) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) 
+```
