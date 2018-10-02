@@ -20,7 +20,9 @@ class OrmExtension {
 Update the namespace to fit your project.
 
 Step 3)
-Add this to your `application/Config/Events.php` file
-``Events::on('pre_system', [\OrmExtension\Hooks\PreController::class, 'execute']);``
+Add this line to your `application/Config/Events.php` file 
+```
+Events::on('pre_system', [\OrmExtension\Hooks\PreController::class, 'execute']);
+```
 
 ## Usage
