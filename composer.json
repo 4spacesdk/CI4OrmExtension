@@ -1,0 +1,13 @@
+{
+  "name": "4spacesdk/ci4ormextension",
+  "description": "ORM Extension for CodeIgniter 4",
+  "authors": [
+    {
+      "name": "Martin Hansen",
+      "email": "martin@4spaces.dk"
+    }
+  ],
+  "require": {
+    "php": ">=7.1"
+  }
+}
