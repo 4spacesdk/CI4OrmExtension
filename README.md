@@ -42,7 +42,7 @@ Check the Examples folder for inspiration.
 
 
 ### Model
-A basic CodeIgniter 4 model would typically look like this
+A basic CodeIgniter 4 model would typically look like this:
 ```php
 <?php namespace App\Models;
 use App\Entities\User;
@@ -78,7 +78,7 @@ OrmExtension doesn't really care about `$allowedFields`. It will submit a `DESCR
 
 
 ### Entity
-A basic CodeIgniter 4 entity would typically look like this
+A basic CodeIgniter 4 entity would typically look like this:
 ```php
 <?php namespace App\Entities;
 use CodeIgniter\Entity;
