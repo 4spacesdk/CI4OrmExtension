@@ -65,7 +65,7 @@ class UserModel extends Model {
 
 }
 ```
-If we follewed the guidelines, then OrmExtension will guest which table and entity are associated with the UserModel. We can however specify table and entity name by adding these methods in the UserModel class:
+If we followed the guidelines, then OrmExtension will guess which table and entity are associated with the UserModel. We can however specify table and entity name by adding these methods in the UserModel class:
 ```php
 public function getTableName() {
     return "custom_users";
