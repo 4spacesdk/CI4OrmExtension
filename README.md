@@ -46,7 +46,7 @@ Check the Examples folder for inspiration.
 
 
 ### Model
-A basic CodeIgniter 4 model would typically look like this
+A basic CodeIgniter 4 model would typically look like this:
 ```php
 <?php namespace App\Models;
 use App\Entities\User;
@@ -69,7 +69,7 @@ class UserModel extends Model {
 
 }
 ```
-If we follewed the guidelines, then OrmExtension will guest which table and entity are associated with the UserModel. We can however specify table and entity name by adding these methods in the UserModel class:
+If we followed the guidelines, then OrmExtension will guess which table and entity are associated with the UserModel. We can however specify table and entity name by adding these methods in the UserModel class:
 ```php
 public function getTableName() {
     return "custom_users";
@@ -82,7 +82,7 @@ OrmExtension doesn't really care about `$allowedFields`. It will submit a `DESCR
 
 
 ### Entity
-A basic CodeIgniter 4 entity would typically look like this
+A basic CodeIgniter 4 entity would typically look like this:
 ```php
 <?php namespace App\Entities;
 use CodeIgniter\Entity;
