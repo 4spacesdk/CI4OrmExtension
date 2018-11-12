@@ -30,6 +30,10 @@ Add this line to your `application/Config/Events.php` file
 Events::on('pre_system', [\OrmExtension\Hooks\PreController::class, 'execute']);
 ```
 
+Step 4)
+
+Remember to add composer to CodeIgniter. Check that `application/Config/Constants.php COMPOSER_PATH` is correct.
+
 ## Usage
 Check the Examples folder for inspiration.
 
