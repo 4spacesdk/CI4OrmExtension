@@ -111,7 +111,8 @@ trait EntityTrait {
         if($this->exists()) {
             if(is_null($related))
                 $this->getModel()->delete($this->id);
-            $this->deleteRelation($related);
+            else
+                $this->deleteRelation($related);
         }
     }
 
