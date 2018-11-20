@@ -11,6 +11,7 @@ use Traversable;
  * @package OrmExtension\Extensions
  * @property array $all
  * @property array $stored
+ * @property array $hiddenFields
  *
  * @property int $id
  */
@@ -18,6 +19,7 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
     use EntityTrait;
 
     public $stored = [];
+    public $hiddenFields = [];
 
     private function getSimpleName() {
         return substr(strrchr(get_class($this), '\\'), 1);
