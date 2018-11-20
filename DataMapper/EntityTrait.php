@@ -112,7 +112,7 @@ trait EntityTrait {
         if($this->exists()) {
             if(is_null($related)) {
 
-                if(in_array('deletion_id', $this->getTableFields())) {
+                if(in_array('deletion_id', $this->getModel()->getTableFields())) {
                     $name = OrmExtension::$modelNamespace . 'DeletionEntity';
                     if(class_exists($name)) {
                         /** @var Entity $deletion */
