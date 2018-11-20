@@ -187,7 +187,7 @@ trait EntityTrait {
         $fields = ModelDefinitionCache::getFieldData($this->getSimpleName());
         foreach($fields as $fieldData) {
             $field = $fieldData->name;
-            if(!in_array($field, $this->hiddenFields)) continue;
+            if(in_array($field, $this->hiddenFields)) continue;
 
             switch($fieldData->type) {
                 case 'int':
