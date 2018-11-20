@@ -16,9 +16,12 @@ use OrmExtension\DataMapper\ResultBuilder;
  * @property string $returnType
  * @property string $table
  * @property string[] $allowedFields
+ * @property bool $useTimestamps
  * @property array $afterFind
  * @property array $beforeUpdate
  * @property array $beforeInsert
+ * @property string $createdField
+ * @property string $updatedField
  *
  * Orm Extension
  * @property array $hasOne
@@ -374,6 +377,14 @@ class Model extends \CodeIgniter\Model {
      */
     public function save($entity) {
         $this->entityToSave = $entity;
+
+        if(!$entity->id && $this->useTimestamps && in_array($this->createdField, $this->getTableFields())) {
+            $entity->{$this->createdField} = $this->setDate();
+        }
+        if($entity->id && $this->useTimestamps && in_array($this->updatedField, $this->getTableFields())) {
+            $entity->{$this->updatedField} = $this->setDate();
+        }
+
         $result = parent::save($entity);
         $entity->resetStoredFields();
         return $result;
@@ -443,6 +454,7 @@ class Model extends \CodeIgniter\Model {
         $this->table = $this->getTableName();
         $this->returnType = OrmExtension::$entityNamespace . $this->getEntityName();
         $this->allowedFields = ModelDefinitionCache::getFields($this->getEntityName(), $this->table);
+        $this->useTimestamps = true;
         $this->afterFind[] = 'handleResult';
         $this->beforeUpdate[] = 'modifyUpdateFields';
         $this->beforeInsert[] = 'modifyInsertFields';
