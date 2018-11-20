@@ -22,6 +22,8 @@ use OrmExtension\DataMapper\ResultBuilder;
  * @property array $beforeInsert
  * @property string $createdField
  * @property string $updatedField
+ * @property bool $useSoftDeletes
+ * @property string $deletedField
  *
  * Orm Extension
  * @property array $hasOne
@@ -459,6 +461,10 @@ class Model extends \CodeIgniter\Model {
         $this->afterFind[] = 'handleResult';
         $this->beforeUpdate[] = 'modifyUpdateFields';
         $this->beforeInsert[] = 'modifyInsertFields';
+        if(in_array('deletion_id', $this->allowedFields)) {
+            $this->useSoftDeletes = true;
+            $this->deletedField = 'deletion_id';
+        }
     }
 
     public function getTableName() {

@@ -335,4 +335,45 @@ $users = $userModel
 To access deep relations, simply put them in an array. 
 
 
+### Soft deletion
+OrmExtension provides an extended soft deletion. Create a model an entity for `Deletion`.
+**Entity**
+```
+<?php namespace App\Entities;
+use OrmExtension\Extensions\Entity;
 
+/**
+ * Class User
+ * @package App\Entities
+ * @property int $id
+ * @property int $created_by_id
+ * @property string|double $created_by
+ */
+class Deletion extends Entity {
+
+}
+```
+**Model**
+```
+<?php namespace App\Models;
+use OrmExtension\Extensions\Model;
+
+/**
+ * Class UserModel
+ * @package App\Models
+ */
+class DeletionModel extends Model {
+
+    public $hasOne = [
+        
+    ];
+
+    public $hasMany = [
+        
+    ];
+
+}
+```
+Add a field called `deletion_id` to the models you want to soft delete. OrmExtension will look for this entity at deletion. 
+Insert a `Deletion` and save the relation as `deletion_id` on the deleted entity. This is useful if you want to log who and when the entity was deleted.
+You can overwrite `save()` on `Deletion`-entity and add the desired data. Ex. `user_id/created_by_id`, `ip_address`, `created_at`.  
