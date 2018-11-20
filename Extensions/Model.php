@@ -366,6 +366,7 @@ class Model extends \CodeIgniter\Model {
     // </editor-fold>
 
 
+
     // <editor-fold desc="Saving">
 
     /** @var Entity $entityToSave */

@@ -6,6 +6,7 @@ use OrmExtension\Data;
 use OrmExtension\Extensions\Entity;
 use OrmExtension\Extensions\Model;
 use Traversable;
+use Config\OrmExtension;
 
 trait EntityTrait {
 
@@ -109,9 +110,20 @@ trait EntityTrait {
      */
     public function delete($related = null) {
         if($this->exists()) {
-            if(is_null($related))
-                $this->getModel()->delete($this->id);
-            else
+            if(is_null($related)) {
+
+                if(in_array('deletion_id', $this->getTableFields())) {
+                    $name = OrmExtension::$modelNamespace . 'DeletionEntity';
+                    if(class_exists($name)) {
+                        /** @var Entity $deletion */
+                        $deletion = new $name();
+                        $deletion->save();
+                        $this->deletion_id = $deletion->id;
+                        $this->save();
+                    }
+                } else
+                    $this->getModel()->delete($this->id);
+            } else
                 $this->deleteRelation($related);
         }
     }
