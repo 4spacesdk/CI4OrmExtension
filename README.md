@@ -30,9 +30,10 @@ Add this line to your `application/Config/Events.php` file
 Events::on('pre_system', [\OrmExtension\Hooks\PreController::class, 'execute']);
 ```
 
-Step 4)
+OBS!
 
-Remember to add composer to CodeIgniter. Check that `application/Config/Constants.php COMPOSER_PATH` is correct.
+Remember to add composer to CodeIgniter. Check that `application/Config/Constants.php COMPOSER_PATH` is correct.   
+Remember to add the `/writable/cache`-folder. Unless you will get performance decrease when having many models and relations.  
 
 ## Usage
 Check the Examples folder for inspiration.
