@@ -409,6 +409,7 @@ class Model extends \CodeIgniter\Model {
      * @return array
      */
     public function modifyUpdateFields($data) {
+        return $data; // Let CI Take over
         if($this->entityToSave instanceof Entity) {
             $fields = $data['data'];
             foreach($fields as $field => $value) {
@@ -430,6 +431,7 @@ class Model extends \CodeIgniter\Model {
      * @return array
      */
     public function modifyInsertFields($data) {
+        return $data; // Let CI Take over
         if($this->entityToSave instanceof Entity) {
             $fields = $data['data'];
             foreach($fields as $field => $value) {
