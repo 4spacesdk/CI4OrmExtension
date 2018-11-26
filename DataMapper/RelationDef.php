@@ -37,6 +37,7 @@ class RelationDef {
         } else if(is_array($data)) {
             $this->setName($name);
             if(isset($data['class']))           $this->setClass($data['class']);
+            else $this->setClass($name);
             if(isset($data['otherField']))      $this->setOtherField($data['otherField']);
             if(isset($data['joinSelfAs']))      $this->setJoinSelfAs($data['joinSelfAs']);
             if(isset($data['joinOtherAs']))     $this->setJoinOtherAs($data['joinOtherAs']);

@@ -409,7 +409,6 @@ class Model extends \CodeIgniter\Model {
      * @return array
      */
     public function modifyUpdateFields($data) {
-        return $data; // Let CI Take over
         if($this->entityToSave instanceof Entity) {
             $fields = $data['data'];
             foreach($fields as $field => $value) {
@@ -417,7 +416,8 @@ class Model extends \CodeIgniter\Model {
                     unset($fields[$field]);
             }
             if(empty($fields)) {
-                // TODO What to do, when no changes?
+                // Set the id field, CI dont like empty updates
+                $fields['id'] = $this->id;
             }
             $data['data'] = $fields;
         }
@@ -431,7 +431,6 @@ class Model extends \CodeIgniter\Model {
      * @return array
      */
     public function modifyInsertFields($data) {
-        return $data; // Let CI Take over
         if($this->entityToSave instanceof Entity) {
             $fields = $data['data'];
             foreach($fields as $field => $value) {
@@ -439,7 +438,8 @@ class Model extends \CodeIgniter\Model {
                     unset($fields[$field]);
             }
             if(empty($fields)) {
-                // TODO What to do, when no changes?
+                // Set the id field, CI dont like empty updates
+                $fields['id'] = $this->id;
             }
             $data['data'] = $fields;
         }
@@ -465,7 +465,7 @@ class Model extends \CodeIgniter\Model {
         $this->beforeInsert[] = 'modifyInsertFields';
         if(in_array('deletion_id', $this->allowedFields)) {
             $this->useSoftDeletes = true;
-            $this->deletedField = 'deletion_id';
+            $this->deletedField = $this->table.'.deletion_id';
         }
     }
 

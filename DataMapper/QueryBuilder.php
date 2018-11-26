@@ -404,8 +404,7 @@ trait QueryBuilder {
                 return [$relation];
         }
 
-        // TODO
-        //throw new \Exception("Failed to find relation $name for " . get_class($this));
+        throw new \Exception("Failed to find relation $name for " . get_class($this));
     }
 
     /**
