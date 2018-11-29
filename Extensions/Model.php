@@ -459,7 +459,6 @@ class Model extends \CodeIgniter\Model {
         $this->table = $this->getTableName();
         $this->returnType = OrmExtension::$entityNamespace . $this->getEntityName();
         $this->allowedFields = ModelDefinitionCache::getFields($this->getEntityName(), $this->table);
-        $this->useTimestamps = true;
         $this->afterFind[] = 'handleResult';
         $this->beforeUpdate[] = 'modifyUpdateFields';
         $this->beforeInsert[] = 'modifyInsertFields';
