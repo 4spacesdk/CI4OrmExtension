@@ -191,7 +191,7 @@ trait EntityTrait {
         return $items;
     }
 
-    public function toArray(bool $onlyChanged = false): array {
+    public function toArray(bool $onlyChanged = false, bool $cast = true): array {
         $item = [];
 
         // Fields
