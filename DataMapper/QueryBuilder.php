@@ -389,8 +389,7 @@ trait QueryBuilder {
             foreach($name as $ref) {
                 $relations = $last->getRelation($ref);
                 if(count($relations) == 0) {
-                    // TODO
-                    //throw new \Exception("Failed to find relation $name for " . get_class($this));
+                    throw new \Exception("Failed to find relation $name for " . get_class($this));
                 }
                 $relation = $relations[0];
                 $last = $relation->getRelationClass();
@@ -400,12 +399,12 @@ trait QueryBuilder {
         }
 
         foreach($this->getRelations() as $relation) {
-            if($relation->getName() == $name)
+            if($relation->getName() == $name) {
                 return [$relation];
+            }
         }
 
-        // TODO
-        //throw new \Exception("Failed to find relation $name for " . get_class($this));
+        throw new \Exception("Failed to find relation $name for " . get_class($this));
     }
 
     /**

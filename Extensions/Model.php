@@ -416,7 +416,8 @@ class Model extends \CodeIgniter\Model {
                     unset($fields[$field]);
             }
             if(empty($fields)) {
-                // TODO What to do, when no changes?
+                // Set the id field, CI dont like empty updates
+                $fields['id'] = $this->entityToSave->stored['id'];
             }
             $data['data'] = $fields;
         }
@@ -437,7 +438,8 @@ class Model extends \CodeIgniter\Model {
                     unset($fields[$field]);
             }
             if(empty($fields)) {
-                // TODO What to do, when no changes?
+                // Set the id field, CI dont like empty updates
+                $fields['id'] = $this->entityToSave->stored['id'];
             }
             $data['data'] = $fields;
         }
@@ -457,13 +459,12 @@ class Model extends \CodeIgniter\Model {
         $this->table = $this->getTableName();
         $this->returnType = OrmExtension::$entityNamespace . $this->getEntityName();
         $this->allowedFields = ModelDefinitionCache::getFields($this->getEntityName(), $this->table);
-        $this->useTimestamps = true;
         $this->afterFind[] = 'handleResult';
         $this->beforeUpdate[] = 'modifyUpdateFields';
         $this->beforeInsert[] = 'modifyInsertFields';
         if(in_array('deletion_id', $this->allowedFields)) {
             $this->useSoftDeletes = true;
-            $this->deletedField = 'deletion_id';
+            $this->deletedField = $this->table.'.deletion_id';
         }
     }
 

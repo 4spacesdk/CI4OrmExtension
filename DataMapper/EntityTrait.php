@@ -22,7 +22,6 @@ trait EntityTrait {
         $entity = $this->getModel()->find($id);
         foreach(get_object_vars($entity) as $name => $value)
             $this->{$name} = $value;
-        //$entity = null;
     }
 
     // </editor-fold>
@@ -192,7 +191,7 @@ trait EntityTrait {
         return $items;
     }
 
-    public function toArray(bool $onlyChanged = false): array {
+    public function toArray(bool $onlyChanged = false, bool $cast = true): array {
         $item = [];
 
         // Fields
@@ -259,6 +258,13 @@ trait EntityTrait {
     public function add($item) {
         if(!isset($this->all)) $this->all = [];
         $this->all[] = $item;
+    }
+
+    public function remove($item) {
+        if(!isset($this->all)) $this->all = [];
+        if(($key = array_search($item, $this->all)) !== false) {
+            unset($this->all[$key]);
+        }
     }
 
     /**

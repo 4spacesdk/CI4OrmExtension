@@ -339,7 +339,7 @@ To access deep relations, simply put them in an array.
 ### Soft deletion
 OrmExtension provides an extended soft deletion. Create a model an entity for `Deletion`.
 **Entity**
-```
+```php
 <?php namespace App\Entities;
 use OrmExtension\Extensions\Entity;
 
@@ -355,7 +355,7 @@ class Deletion extends Entity {
 }
 ```
 **Model**
-```
+```php
 <?php namespace App\Models;
 use OrmExtension\Extensions\Model;
 

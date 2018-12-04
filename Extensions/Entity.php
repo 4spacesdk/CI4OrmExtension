@@ -18,6 +18,7 @@ use Traversable;
 class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
     use EntityTrait;
 
+    public $id;
     public $stored = [];
     public $hiddenFields = [];
 

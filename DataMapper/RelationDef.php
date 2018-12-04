@@ -37,6 +37,7 @@ class RelationDef {
         } else if(is_array($data)) {
             $this->setName($name);
             if(isset($data['class']))           $this->setClass($data['class']);
+            else $this->setClass($name);
             if(isset($data['otherField']))      $this->setOtherField($data['otherField']);
             if(isset($data['joinSelfAs']))      $this->setJoinSelfAs($data['joinSelfAs']);
             if(isset($data['joinOtherAs']))     $this->setJoinOtherAs($data['joinOtherAs']);
@@ -63,9 +64,10 @@ class RelationDef {
         $related = $this->getRelationClass();
 
         // See if the relationship is in parent table
-        if(in_array($this->getName(), $parent->hasOne)) {
-            if(in_array($this->getJoinOtherAs(), $parent->getTableFields()))
+        if(array_key_exists($this->getName(), $parent->hasOne)) {
+            if(in_array($this->getJoinOtherAs(), $parent->getTableFields())) {
                 return $parent->getTableName();
+            }
         }
 
         if(in_array($this->getOtherField(), $related->hasOne)) {
