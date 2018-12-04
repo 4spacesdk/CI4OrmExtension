@@ -3,7 +3,7 @@ use ArrayIterator;
 use Config\OrmExtension;
 use IteratorAggregate;
 use DebugTool\Data;
-use DebugTool\DataMapper\EntityTrait;
+use OrmExtension\DataMapper\EntityTrait;
 use Traversable;
 
 /**
