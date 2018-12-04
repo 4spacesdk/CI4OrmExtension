@@ -1,4 +1,4 @@
-<?php namespace DebugTool\DataMapper;
+<?php namespace OrmExtension\DataMapper;
 use CodeIgniter\Cache\CacheInterface;
 use CodeIgniter\Config\Services;
 use Config\Cache;

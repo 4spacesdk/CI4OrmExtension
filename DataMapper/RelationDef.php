@@ -1,4 +1,4 @@
-<?php namespace DebugTool\DataMapper;
+<?php namespace OrmExtension\DataMapper;
 use DebugTool\Data;
 use OrmExtension\Extensions\Model;
 
