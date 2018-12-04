@@ -1,12 +1,12 @@
-<?php namespace OrmExtension\DataMapper;
+<?php namespace DebugTool\DataMapper;
 
-use OrmExtension\Data;
+use DebugTool\Data;
 use OrmExtension\Extensions\Entity;
 use OrmExtension\Extensions\Model;
 
 /**
  * Trait ResultBuilder
- * @package OrmExtension\DataMapper
+ * @package DebugTool\DataMapper
  * @property RelationDef[] $includedRelations
  */
 trait ResultBuilder {

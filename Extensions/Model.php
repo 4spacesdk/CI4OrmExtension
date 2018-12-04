@@ -3,10 +3,10 @@ use CodeIgniter\Database\BaseBuilder;
 use CodeIgniter\Database\ConnectionInterface;
 use CodeIgniter\Validation\ValidationInterface;
 use Config\OrmExtension;
-use OrmExtension\Data;
-use OrmExtension\DataMapper\ModelDefinitionCache;
-use OrmExtension\DataMapper\QueryBuilder;
-use OrmExtension\DataMapper\ResultBuilder;
+use DebugTool\Data;
+use DebugTool\DataMapper\ModelDefinitionCache;
+use DebugTool\DataMapper\QueryBuilder;
+use DebugTool\DataMapper\ResultBuilder;
 
 /**
  * Class Model

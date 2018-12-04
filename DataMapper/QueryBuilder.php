@@ -1,6 +1,6 @@
-<?php namespace OrmExtension\DataMapper;
+<?php namespace DebugTool\DataMapper;
 
-use OrmExtension\Data;
+use DebugTool\Data;
 use OrmExtension\Extensions\Model;
 
 trait QueryBuilder {

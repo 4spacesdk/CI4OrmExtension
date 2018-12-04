@@ -1,8 +1,8 @@
 <?php namespace OrmExtension\Examples\Controllers;
 
 use CodeIgniter\Controller;
-use OrmExtension\Data;
-use OrmExtension\DataMapper\ModelDefinitionCache;
+use DebugTool\Data;
+use DebugTool\DataMapper\ModelDefinitionCache;
 use OrmExtension\Examples\Entities\User;
 use OrmExtension\Examples\Models\UserModel;
 use OrmExtension\Examples\Setup;

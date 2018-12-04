@@ -1,10 +1,10 @@
-<?php namespace OrmExtension\DataMapper;
-use OrmExtension\Data;
+<?php namespace DebugTool\DataMapper;
+use DebugTool\Data;
 use OrmExtension\Extensions\Model;
 
 /**
  * Class RelationDef
- * @package OrmExtension\DataMapper
+ * @package DebugTool\DataMapper
  */
 class RelationDef {
 

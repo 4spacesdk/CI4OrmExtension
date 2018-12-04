@@ -2,8 +2,8 @@
 use ArrayIterator;
 use Config\OrmExtension;
 use IteratorAggregate;
-use OrmExtension\Data;
-use OrmExtension\DataMapper\EntityTrait;
+use DebugTool\Data;
+use DebugTool\DataMapper\EntityTrait;
 use Traversable;
 
 /**

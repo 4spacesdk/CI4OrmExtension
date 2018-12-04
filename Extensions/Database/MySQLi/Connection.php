@@ -38,7 +38,7 @@
 use OrmExtension\Extensions\Database\BaseConnection;
 use CodeIgniter\Database\ConnectionInterface;
 use \CodeIgniter\Database\Exceptions\DatabaseException;
-use OrmExtension\Data;
+use DebugTool\Data;
 
 /**
  * Connection for MySQLi

@@ -1,8 +1,8 @@
-<?php namespace OrmExtension\DataMapper;
+<?php namespace DebugTool\DataMapper;
 
 use ArrayIterator;
 use Config\Database;
-use OrmExtension\Data;
+use DebugTool\Data;
 use OrmExtension\Extensions\Entity;
 use OrmExtension\Extensions\Model;
 use Traversable;
