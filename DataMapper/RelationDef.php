@@ -64,9 +64,10 @@ class RelationDef {
         $related = $this->getRelationClass();
 
         // See if the relationship is in parent table
-        if(in_array($this->getName(), $parent->hasOne)) {
-            if(in_array($this->getJoinOtherAs(), $parent->getTableFields()))
+        if(array_key_exists($this->getName(), $parent->hasOne)) {
+            if(in_array($this->getJoinOtherAs(), $parent->getTableFields())) {
                 return $parent->getTableName();
+            }
         }
 
         if(in_array($this->getOtherField(), $related->hasOne)) {

@@ -417,7 +417,7 @@ class Model extends \CodeIgniter\Model {
             }
             if(empty($fields)) {
                 // Set the id field, CI dont like empty updates
-                $fields['id'] = $this->id;
+                $fields['id'] = $this->entityToSave->stored['id'];
             }
             $data['data'] = $fields;
         }
@@ -439,7 +439,7 @@ class Model extends \CodeIgniter\Model {
             }
             if(empty($fields)) {
                 // Set the id field, CI dont like empty updates
-                $fields['id'] = $this->id;
+                $fields['id'] = $this->entityToSave->stored['id'];
             }
             $data['data'] = $fields;
         }
