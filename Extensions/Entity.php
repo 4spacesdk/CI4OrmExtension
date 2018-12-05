@@ -1,10 +1,9 @@
 <?php namespace OrmExtension\Extensions;
-use ArrayIterator;
 use Config\OrmExtension;
 use IteratorAggregate;
-use DebugTool\Data;
 use OrmExtension\DataMapper\EntityTrait;
-use Traversable;
+use OrmExtension\DataMapper\QueryBuilder;
+use OrmExtension\DataMapper\QueryBuilderInterface;
 
 /**
  * Class Entity
@@ -27,7 +26,11 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
     }
 
     private $_model;
-    public function getModel(): Model {
+
+    /**
+     * @return Model|QueryBuilderInterface
+     */
+    public function getModel() {
         if(!$this->_model) {
             $name = OrmExtension::$modelNamespace . $this->getSimpleName() . 'Model';
             $this->_model = new $name();
@@ -64,6 +67,13 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
      */
     public function __set(string $key, $value = null) {
         return parent::__set($key, $value);
+    }
+
+    /**
+     * @return Entity
+     */
+    public function first() {
+        return reset($this->all);
     }
 
 }

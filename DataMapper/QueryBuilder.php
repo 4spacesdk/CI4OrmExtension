@@ -328,6 +328,7 @@ trait QueryBuilder {
         // If no selects, select this table
         if(!$this->isSelecting()) $this->select($this->getTableName(). '.*');
 
+        //Data::debug($related);
 
         if(($relation->getClass() == $relation->getName()) && ($this->getTableName() != $related->getTableName())) {
             $prefixedParentTable = $prefix . $related->getTableName();
@@ -337,7 +338,6 @@ trait QueryBuilder {
             $prefixedRelatedTable = $prefix . plural($relation->getSimpleName()) . '_' . $relationShipTable;
         }
 
-
         if($relationShipTable == $this->getTableName() && in_array($relation->getJoinOtherAs(), $this->getTableFields())) {
 
             if(!in_array($prefixedParentTable, $this->relatedTablesAdded)) {
@@ -345,6 +345,7 @@ trait QueryBuilder {
                 $this->join("{$related->getTableName()} {$prefixedParentTable}", $cond, 'LEFT OUTER');
 
                 $this->relatedTablesAdded[] = $prefixedParentTable;
+
             }
 
         } else if($relationShipTable == $related->getTableName() && in_array($relation->getJoinSelfAs(), $related->getTableFields())) {
