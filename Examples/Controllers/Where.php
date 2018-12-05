@@ -2,7 +2,7 @@
 
 use CodeIgniter\Controller;
 use DebugTool\Data;
-use DebugTool\DataMapper\ModelDefinitionCache;
+use OrmExtension\DataMapper\ModelDefinitionCache;
 use OrmExtension\Examples\Entities\User;
 use OrmExtension\Examples\Models\UserModel;
 use OrmExtension\Examples\Setup;
