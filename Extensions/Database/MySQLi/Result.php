@@ -37,6 +37,7 @@
  */
 use CodeIgniter\Database\BaseResult;
 use CodeIgniter\Database\ResultInterface;
+use DebugTool\Data;
 
 /**
  * Result for MySQLi

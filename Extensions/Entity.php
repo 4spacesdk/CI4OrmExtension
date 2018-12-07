@@ -1,5 +1,6 @@
 <?php namespace OrmExtension\Extensions;
 use Config\OrmExtension;
+use DebugTool\Data;
 use IteratorAggregate;
 use OrmExtension\DataMapper\EntityTrait;
 use OrmExtension\DataMapper\QueryBuilder;
