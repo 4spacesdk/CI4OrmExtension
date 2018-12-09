@@ -7,6 +7,7 @@ use DebugTool\Data;
 use OrmExtension\DataMapper\ModelDefinitionCache;
 use OrmExtension\DataMapper\QueryBuilder;
 use OrmExtension\DataMapper\ResultBuilder;
+use OrmExtension\Interfaces\OrmEventsInterface;
 
 /**
  * Class Model
@@ -373,6 +374,8 @@ class Model extends \CodeIgniter\Model {
 
     /** @var Entity $entityToSave */
     private $entityToSave;
+    /** @var array $updatedData */
+    private $updatedData;
 
     /**
      * @param Entity $entity
@@ -380,16 +383,28 @@ class Model extends \CodeIgniter\Model {
      */
     public function save($entity) {
         $this->entityToSave = $entity;
+        $isNew = !$entity->id;
 
-        if(!$entity->id && $this->useTimestamps && in_array($this->createdField, $this->getTableFields())) {
+        if($isNew && $this->useTimestamps && in_array($this->createdField, $this->getTableFields())) {
             $entity->{$this->createdField} = $this->setDate();
         }
-        if($entity->id && $this->useTimestamps && in_array($this->updatedField, $this->getTableFields())) {
+        if(!$isNew && $this->useTimestamps && in_array($this->updatedField, $this->getTableFields())) {
             $entity->{$this->updatedField} = $this->setDate();
         }
 
         $result = parent::save($entity);
+        if($result &! $entity->id)
+            $entity->id = $result;
+
         $entity->resetStoredFields();
+
+        if($this instanceof OrmEventsInterface) {
+            if($isNew)
+                $this->postCreation($entity);
+            else
+                $this->postUpdate($entity, $this->updatedData);
+        }
+
         return $result;
     }
 
@@ -409,11 +424,17 @@ class Model extends \CodeIgniter\Model {
      * @return array
      */
     public function modifyUpdateFields($data) {
+        $this->updatedData = [];
         if($this->entityToSave instanceof Entity) {
             $fields = $data['data'];
             foreach($fields as $field => $value) {
-                if($value === $this->entityToSave->stored[$field])
+                if((string)$value === (string)$this->entityToSave->stored[$field])
                     unset($fields[$field]);
+                else
+                    $this->updatedData[$field] = [
+                        'old'   => $this->entityToSave->stored[$field],
+                        'new'   => $fields[$field]
+                    ];
             }
             if(empty($fields)) {
                 // Set the id field, CI dont like empty updates

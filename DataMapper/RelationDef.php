@@ -1,5 +1,6 @@
 <?php namespace OrmExtension\DataMapper;
 use DebugTool\Data;
+use Exception;
 use OrmExtension\Extensions\Model;
 
 /**
@@ -53,6 +54,9 @@ class RelationDef {
             $relationClassName = $this->getClass();
             /** @var Model $relationClass */
             $relationClass = new $relationClassName();
+            if(! $relationClass instanceof Model) {
+                throw new Exception("Invalid relation {$this->getName()} for ".get_class($parent));
+            }
             $joins = [$parent->getTableName(), $relationClass->getTableName()];
             sort($joins);
             $this->setJoinTable(strtolower(implode('_', $joins)));

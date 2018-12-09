@@ -5,6 +5,7 @@ use Config\Database;
 use DebugTool\Data;
 use OrmExtension\Extensions\Entity;
 use OrmExtension\Extensions\Model;
+use OrmExtension\Interfaces\OrmEventsInterface;
 use Traversable;
 use Config\OrmExtension;
 
@@ -13,7 +14,7 @@ trait EntityTrait {
     abstract function getModel(): Model;
 
     public function exists() {
-        return $this->id > 0;
+        return $this->id > 0 || (isset($this->all) && count($this->all));
     }
 
     // <editor-fold desc="Find">
@@ -111,6 +112,7 @@ trait EntityTrait {
         if($this->exists()) {
             if(is_null($related)) {
 
+                $thisModel = $this->getModel();
                 if(in_array('deletion_id', $this->getModel()->getTableFields())) {
                     $name = OrmExtension::$entityNamespace . 'Deletion';
                     if(class_exists($name)) {
@@ -121,9 +123,14 @@ trait EntityTrait {
                         $this->save();
                     }
                 } else
-                    $this->getModel()->delete($this->id);
-            } else
+                    $thisModel->delete($this->id);
+
+                if($thisModel instanceof OrmEventsInterface && $this instanceof Entity)
+                    $thisModel->postDelete($this);
+
+            } else {
                 $this->deleteRelation($related);
+            }
         }
     }
 
@@ -178,6 +185,9 @@ trait EntityTrait {
 
         unset($this->{$relation->getSimpleName()});
         $this->resetStoredFields();
+
+        if($thisModel instanceof OrmEventsInterface && $this instanceof Entity && $related instanceof Entity)
+            $thisModel->postDeleteRelation($this, $related);
     }
 
     // </editor-fold>

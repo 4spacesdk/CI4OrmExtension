@@ -381,6 +381,7 @@ trait QueryBuilder {
     /**
      * @param string|array $name
      * @return RelationDef[]
+     * @throws \Exception
      */
     public function getRelation($name) {
         // Handle deep relations
