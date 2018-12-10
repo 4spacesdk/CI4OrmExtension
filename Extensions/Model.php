@@ -134,6 +134,11 @@ class Model extends \CodeIgniter\Model {
      */
     public function whereIn($key = null, $values = null, $escape = null, $appendTable = true) {
         if($appendTable) $this->appendTable($key);
+        if($values instanceof Entity) {
+            $ids = [];
+            foreach($values as $value) $ids[] = $value->id;
+            $values = $ids;
+        }
         return parent::whereIn($key, $values, $escape);
     }
 

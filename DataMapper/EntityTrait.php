@@ -277,6 +277,13 @@ trait EntityTrait {
         }
     }
 
+    public function getById($id) {
+        foreach($this as $item) {
+            if($item->id == $id) return $item;
+        }
+        return null;
+    }
+
     /**
      * @return ArrayIterator|Traversable|Entity[]
      */
