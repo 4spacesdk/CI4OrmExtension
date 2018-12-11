@@ -334,6 +334,14 @@ class Model extends \CodeIgniter\Model {
 
     // </editor-fold>
 
+    /**
+     * @param null $id
+     * @return array|object|null|Entity
+     */
+    public function find($id = null) {
+        return parent::find($id);
+    }
+
     // </editor-fold>
 
 
@@ -391,7 +399,8 @@ class Model extends \CodeIgniter\Model {
         $isNew = !$entity->id;
 
         if($isNew && $this->useTimestamps && in_array($this->createdField, $this->getTableFields())) {
-            $entity->{$this->createdField} = $this->setDate();
+            if(empty($entity->{$this->createdField}))
+                $entity->{$this->createdField} = $this->setDate();
         }
         if(!$isNew && $this->useTimestamps && in_array($this->updatedField, $this->getTableFields())) {
             $entity->{$this->updatedField} = $this->setDate();
