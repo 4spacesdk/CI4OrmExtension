@@ -2,6 +2,8 @@
 
 use ArrayIterator;
 use Config\Database;
+use DateTime;
+use DateTimeZone;
 use DebugTool\Data;
 use OrmExtension\Extensions\Entity;
 use OrmExtension\Extensions\Model;
@@ -229,6 +231,14 @@ trait EntityTrait {
                     break;
                 case 'datetime':
                     $item[$field] = (string)strtotime($this->{$field});
+
+                    try {
+                        $foo = new DateTime($this->{$field}, new DateTimeZone("Europe/Copenhagen"));
+                        $foo->setTimeZone(new DateTimeZone("UTC"));
+                        $item[$field] = $foo->format('c');
+                    } catch(\Exception $e) {
+                        Data::debug(get_class($this), "ERROR", $e->getMessage());
+                    }
                     break;
                 default:
                     $item[$field] = $this->{$field};
