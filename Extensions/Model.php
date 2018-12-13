@@ -334,6 +334,26 @@ class Model extends \CodeIgniter\Model {
 
     // </editor-fold>
 
+    // <editor-fold desc="Groups">
+
+    /**
+     * @param string $not
+     * @param string $type
+     * @return BaseBuilder|Model
+     */
+    public function groupStart($not = '', $type = 'AND ') {
+        return parent::groupStart($not, $type);
+    }
+
+    /**
+     * @return BaseBuilder|Model
+     */
+    public function groupEnd() {
+        return parent::groupEnd();
+    }
+
+    // </editor-fold>
+
     /**
      * @param null $id
      * @return array|object|null|Entity

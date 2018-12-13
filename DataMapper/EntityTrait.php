@@ -25,6 +25,7 @@ trait EntityTrait {
         $entity = $this->getModel()->find($id);
         foreach(get_object_vars($entity) as $name => $value)
             $this->{$name} = $value;
+        return $entity;
     }
 
     // </editor-fold>
@@ -96,11 +97,6 @@ trait EntityTrait {
                 ]);
 
         }
-    }
-
-    public function resetStoredFields() {
-        foreach($this->getModel()->getTableFields() as $field)
-            $this->stored[$field] = $this->{$field};
     }
 
     // </editor-fold>
@@ -287,11 +283,28 @@ trait EntityTrait {
         }
     }
 
+    public function removeById($id) {
+        $item = $this->getById($id);
+        if($item) $this->remove($item);
+    }
+
+    private $idMap = null; // Initialized when needed
+    private function initIdMap() {
+        $this->idMap = [];
+        foreach($this as $item) $this->idMap[$item->id] = $item;
+    }
     public function getById($id) {
-        foreach($this as $item) {
-            if($item->id == $id) return $item;
-        }
-        return null;
+        if(is_null($this->idMap)) $this->initIdMap();
+        return isset($this->idMap[$id]) ? $this->idMap[$id] : null;
+    }
+
+    public function hasId($id) {
+        if(is_null($this->idMap)) $this->initIdMap();
+        return isset($this->idMap[$id]);
+    }
+
+    public function clear() {
+        $this->all = [];
     }
 
     /**
@@ -302,5 +315,18 @@ trait EntityTrait {
     }
 
     // </editor-fold>
+
+
+    public function getTableFields() {
+        $namespace = explode('\\', get_class($this));
+        $entityName = end($namespace);
+        $fields = ModelDefinitionCache::getFields($entityName);
+        return $fields;
+    }
+
+    public function resetStoredFields() {
+        foreach($this->getTableFields() as $field)
+            $this->stored[$field] = $this->{$field};
+    }
 
 }

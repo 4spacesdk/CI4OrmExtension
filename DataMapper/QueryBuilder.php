@@ -11,9 +11,10 @@ trait QueryBuilder {
 
     /**
      * @param string|array $relationName
+     * @param null $fields
      * @return Model
      */
-    public function includeRelated($relationName): Model {
+    public function includeRelated($relationName, $fields = null): Model {
         $parent = $this->_getModel();
         $relations = $this->getRelation($relationName);
 
@@ -22,7 +23,7 @@ trait QueryBuilder {
         $table = null;
         $prefix = '';
         foreach($relations as $relation) {
-            $table = $last->addRelatedTable($relation, $prefix, $table);
+            $table = $last->addRelatedTable($relation, $prefix, $table, $fields);
             $prefix .= plural($relation->getSimpleName()).'_';
 
             // Prepare next
@@ -35,7 +36,7 @@ trait QueryBuilder {
             $last->relatedTablesAdded =& $relatedTablesAdded;
 
             $parent->addIncludedRelation($prefix, $relation);
-            $this->selectIncludedRelated($parent, $relation, $table, $prefix);
+            $this->selectIncludedRelated($parent, $relation, $table, $prefix, $fields);
         }
 
         return $parent;
@@ -46,15 +47,16 @@ trait QueryBuilder {
      * @param RelationDef $relation
      * @param string $table
      * @param string $prefix
+     * @param null $fields
      */
-    private function selectIncludedRelated($parent, $relation, $table, $prefix) {
+    private function selectIncludedRelated($parent, $relation, $table, $prefix, $fields = null) {
         $selection = [];
 
         $relationClassName = $relation->getClass();
         /** @var Model $related */
         $related = new $relationClassName();
 
-        $fields = $related->getTableFields();
+        if(is_null($fields)) $fields = $related->getTableFields();
         foreach($fields as $field) {
             $new_field = $prefix . $field;
 
@@ -64,7 +66,7 @@ trait QueryBuilder {
             $selection[] = "{$table}.{$field} AS {$new_field}";
         }
 
-        $this->select(implode(', ',$selection));
+        $this->select(implode(', ', $selection));
     }
 
     // </editor-fold>
@@ -381,7 +383,6 @@ trait QueryBuilder {
     /**
      * @param string|array $name
      * @return RelationDef[]
-     * @throws \Exception
      */
     public function getRelation($name) {
         // Handle deep relations
