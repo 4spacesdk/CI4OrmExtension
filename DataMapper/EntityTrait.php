@@ -272,7 +272,7 @@ trait EntityTrait {
     // <editor-fold desc="Entity as an array">
 
     public function count() {
-        return isset($this->all) ? count($this->all) : 1;
+        return isset($this->all) ? count($this->all) : ($this->exists() ? 1 : 0);
     }
 
     public function add($item) {
