@@ -103,6 +103,11 @@ trait EntityTrait {
 
     // <editor-fold desc="Delete">
 
+    public function deleteAll() {
+        /** @var Entity $item */
+        foreach($this as $item) $item->delete();
+    }
+
     /**
      * @param Entity|null $related
      */
