@@ -22,6 +22,25 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
     public $stored = [];
     public $hiddenFields = [];
 
+    /**
+     * Takes an array of key/value pairs and sets them as
+     * class properties, using any `setCamelCasedProperty()` methods
+     * that may or may not exist.
+     *
+     * @param array $data
+     */
+    public function fill(array $data) {
+        foreach ($data as $key => $value) {
+            $method = 'set' . str_replace(' ', '', ucwords(str_replace(['-', '_'], ' ', $key)));
+
+            if(method_exists($this, $method)) {
+                $this->$method($value);
+            } else { // Does not require property to exist, properties are managed by OrmExtension from database columns
+                $this->$key = $value;
+            }
+        }
+    }
+
     private function getSimpleName() {
         return substr(strrchr(get_class($this), '\\'), 1);
     }
