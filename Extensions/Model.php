@@ -359,7 +359,10 @@ class Model extends \CodeIgniter\Model {
      * @return array|object|null|Entity
      */
     public function find($id = null) {
-        return parent::find($id);
+        $result = parent::find($id);
+        // Clear
+        $this->setSelecting(false);
+        return $result;
     }
 
     // </editor-fold>
