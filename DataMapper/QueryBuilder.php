@@ -382,15 +382,17 @@ trait QueryBuilder {
 
     /**
      * @param string|array $name
-     * @return RelationDef[]
+     * @param bool $useSimpleName
+     * @return RelationDef[] $result
+     * @throws \Exception
      */
-    public function getRelation($name) {
+    public function getRelation($name, $useSimpleName = false) {
         // Handle deep relations
         if(is_array($name)) {
             $last = $this;
             $result = [];
             foreach($name as $ref) {
-                $relations = $last->getRelation($ref);
+                $relations = $last->getRelation($ref, $useSimpleName);
                 if(count($relations) == 0) {
                     throw new \Exception("Failed to find relation $name for " . get_class($this));
                 }
@@ -402,8 +404,10 @@ trait QueryBuilder {
         }
 
         foreach($this->getRelations() as $relation) {
-            if($relation->getName() == $name) {
-                return [$relation];
+            if($useSimpleName) {
+                if($relation->getSimpleName() == $name) return [$relation];
+            } else {
+                if($relation->getName() == $name) return [$relation];
             }
         }
 

@@ -365,6 +365,14 @@ class Model extends \CodeIgniter\Model {
         return $result;
     }
 
+    public function countAllResults($reset = true, $test = false) {
+        if($this->tempUseSoftDeletes === true) { // CI4 Bug..
+            parent::where($this->deletedField, 0);
+        }
+
+        return parent::countAllResults($reset, $test);
+    }
+
     // </editor-fold>
 
 
