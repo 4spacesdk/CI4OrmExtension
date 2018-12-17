@@ -93,7 +93,7 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
      * @return Entity
      */
     public function first() {
-        return reset($this->all);
+        return isset($this->all) ? reset($this->all) : $this;
     }
 
 }
