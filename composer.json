@@ -10,7 +10,8 @@
   "license": "MIT",
   "require": {
     "php": ">=7.1",
-    "4spacesdk/ci4debugtool": ">=1.0.0"
+    "4spacesdk/ci4debugtool": ">=1.0.0",
+    "hellogerard/jobby": "^3.4"
   },
   "autoload": {
     "psr-4": {
