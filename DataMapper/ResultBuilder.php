@@ -25,12 +25,27 @@ trait ResultBuilder {
      * @param Entity[] $result
      */
     protected function arrangeIncludedRelations(&$result) {
-        foreach($result as $row) {
+        //Data::debug(get_class($this), "arrangeIncludedRelations for", count($result), 'entities with', count($this->includedRelations), 'relations');
 
+        $relations = $this->includedRelations;
+        ksort($relations);
+
+        foreach($result as $row) {
             $row->resetStoredFields();
 
-            $current = $row;
-            foreach($this->includedRelations as $fullName => $relation) {
+            foreach($relations as $relationPrefix => $relation) {
+                $fullName = str_replace('/', '_', $relationPrefix);
+
+                // Deep relation
+                $current = $row;
+                $deepRelations = explode('/', trim($relationPrefix, '/'));
+                array_pop($deepRelations);
+                foreach($deepRelations as $prefix) {
+                    if($relation->getType() == RelationDef::HasOne)
+                        $current = $current->{singular($prefix)};
+                    else
+                        $current = $current->{$prefix};
+                }
 
                 $entityName = $relation->getEntityName();
                 /** @var Entity $entity */
@@ -60,7 +75,6 @@ trait ResultBuilder {
                         break;
                 }
 
-                $current = $entity;
             }
 
         }

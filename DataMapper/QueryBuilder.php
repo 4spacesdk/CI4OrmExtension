@@ -21,10 +21,11 @@ trait QueryBuilder {
         // Handle deep relations
         $last = $this;
         $table = null;
-        $prefix = '';
+        $prefix = ''; $relationPrefix = '';
         foreach($relations as $relation) {
             $table = $last->addRelatedTable($relation, $prefix, $table, $fields);
             $prefix .= plural($relation->getSimpleName()).'_';
+            $relationPrefix .= plural($relation->getSimpleName()).'/';
 
             // Prepare next
             $builder = $last->_getBuilder();
@@ -35,7 +36,7 @@ trait QueryBuilder {
             $last->setSelecting($selecting);
             $last->relatedTablesAdded =& $relatedTablesAdded;
 
-            $parent->addIncludedRelation($prefix, $relation);
+            $parent->addIncludedRelation($relationPrefix, $relation);
             $this->selectIncludedRelated($parent, $relation, $table, $prefix, $fields);
         }
 
