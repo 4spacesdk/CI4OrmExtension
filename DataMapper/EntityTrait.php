@@ -53,7 +53,6 @@ trait EntityTrait {
      * @param string|null $relationName
      */
     public function saveRelation($related, $relationName = null) {
-        Data::debug(get_class($this), "saveRelation", $relationName);
         if(!$this->exists() |! $related->exists()) return;
 
         if(!$relationName) $relationName = get_class($related->getModel());
