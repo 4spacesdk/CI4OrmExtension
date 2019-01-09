@@ -279,6 +279,7 @@ trait EntityTrait {
     public function add($item) {
         if(!isset($this->all)) $this->all = [];
         $this->all[] = $item;
+        $this->idMap = null;
     }
 
     public function remove($item) {
@@ -286,6 +287,7 @@ trait EntityTrait {
         if(($key = array_search($item, $this->all)) !== false) {
             unset($this->all[$key]);
         }
+        $this->idMap = null;
     }
 
     public function removeById($id) {
