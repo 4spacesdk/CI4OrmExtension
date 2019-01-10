@@ -348,6 +348,13 @@ class Model extends \CodeIgniter\Model {
     /**
      * @return BaseBuilder|Model
      */
+    public function orGroupStart() {
+        return parent::orGroupStart();
+    }
+
+    /**
+     * @return BaseBuilder|Model
+     */
     public function groupEnd() {
         return parent::groupEnd();
     }
