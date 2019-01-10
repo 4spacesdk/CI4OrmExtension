@@ -378,3 +378,18 @@ class DeletionModel extends Model {
 Add a field called `deletion_id` to the models you want to soft delete. OrmExtension will look for this entity at deletion. 
 Insert a `Deletion` and save the relation as `deletion_id` on the deleted entity. This is useful if you want to log who and when the entity was deleted.
 You can overwrite `save()` on `Deletion`-entity and add the desired data. Ex. `user_id/created_by_id`, `ip_address`, `created_at`.  
+
+
+### Model Parser
+You can use the model parser to generate Swagger documentation and TypeScript models.
+```php
+$parser = ModelParser::run();
+$schemes = $parser->generateSwagger();
+```
+Attach `$schemes` to swagger components and you have all your models documented.
+```php
+$parser = ModelParser::run();
+$parser->generateTypeScript();
+```
+This will generate typescript models as classes and interfaces. Find the files under `writeable/tmp`.
+
