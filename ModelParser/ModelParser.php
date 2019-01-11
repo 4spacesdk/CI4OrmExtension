@@ -36,8 +36,7 @@ class ModelParser {
     }
 
     public function generateTypeScript() {
-        if(!file_exists(WRITEPATH.'tmp/models/')) mkdir(WRITEPATH.'tmp/models/');
-        if(!file_exists(WRITEPATH.'tmp/models/definitions/')) mkdir(WRITEPATH.'tmp/models/definitions/');
+        if(!file_exists(WRITEPATH.'tmp/models/definitions/')) mkdir(WRITEPATH.'tmp/models/definitions/', 0777, true);
 
         $renderer = Services::renderer(__DIR__.'/TypeScript', null, false);
 
