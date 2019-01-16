@@ -99,14 +99,17 @@ class ModelDefinitionCache {
 
     private $memcache = [];
     private static function getData($name) {
-        $instance = ModelDefinitionCache::getInstance();
-        //return $instance->cache->get($name);
-        if(!isset($instance->memcache[$name])) {
-            $data = $instance->cache->get($name);
-            if($data) $instance->memcache[$name] = $data;
-            return $data;
-        } else
-            return $instance->memcache[$name];
+        try {
+            $instance = ModelDefinitionCache::getInstance();
+            if(!isset($instance->memcache[$name])) {
+                    $data = $instance->cache->get($name);
+                if($data) $instance->memcache[$name] = $data;
+                return $data;
+            } else
+                return $instance->memcache[$name];
+        } catch(\Exception $e) {
+            return null;
+        }
     }
 
 
