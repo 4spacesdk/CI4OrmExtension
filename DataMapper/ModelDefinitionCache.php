@@ -72,6 +72,11 @@ class ModelDefinitionCache {
         static::setData($entity.'_relations', $relations);
     }
 
+    /**
+     * @param $entity
+     * @return RelationDef[]
+     * @throws \Exception
+     */
     public static function getRelations($entity) {
         $relations = static::getData($entity.'_relations');
         if(!$relations) {

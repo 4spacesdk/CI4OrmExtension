@@ -3,8 +3,10 @@ use Config\OrmExtension;
 use DebugTool\Data;
 use IteratorAggregate;
 use OrmExtension\DataMapper\EntityTrait;
+use OrmExtension\DataMapper\ModelDefinitionCache;
 use OrmExtension\DataMapper\QueryBuilder;
 use OrmExtension\DataMapper\QueryBuilderInterface;
+use OrmExtension\DataMapper\RelationDef;
 
 /**
  * Class Entity
@@ -31,6 +33,10 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
      */
     public function fill(array $data) {
         $fields = $this->getTableFields();
+        $relations = ModelDefinitionCache::getRelations($this->getSimpleName());
+        /** @var RelationDef[] $relationName2Relation */
+        $relationName2Relation = [];
+        foreach($relations as $relation) $relationName2Relation[$relation->getSimpleName()] = $relation;
         foreach($data as $key => $value) {
             $method = 'set' . str_replace(' ', '', ucwords(str_replace(['-', '_'], ' ', $key)));
 
@@ -39,6 +45,24 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
             } else { // Does not require property to exist, properties are managed by OrmExtension from database columns
                 if(in_array($key, $fields)) // Does require field to exists
                     $this->$key = $value;
+                else if(isset($relationName2Relation[singular($key)])) { // Auto-populate relation
+                    $relation = $relationName2Relation[singular($key)];
+                    switch($relation->getType()) {
+                        case RelationDef::HasOne:
+                            $entityName = $relation->getEntityName();
+                            $this->$key = new $entityName($value);
+                            break;
+                        case RelationDef::HasMany:
+                            $entityName = $relation->getEntityName();
+                            $this->{$key} = new $entityName();
+                            /** @var Entity $relationMany */
+                            $relationMany = $this->{$key};
+                            foreach($value as $v) {
+                                $relationMany->add(new $entityName($v));
+                            }
+                            break;
+                    }
+                }
             }
         }
     }
