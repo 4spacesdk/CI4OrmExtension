@@ -30,13 +30,15 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
      * @param array $data
      */
     public function fill(array $data) {
-        foreach ($data as $key => $value) {
+        $fields = $this->getTableFields();
+        foreach($data as $key => $value) {
             $method = 'set' . str_replace(' ', '', ucwords(str_replace(['-', '_'], ' ', $key)));
 
             if(method_exists($this, $method)) {
                 $this->$method($value);
             } else { // Does not require property to exist, properties are managed by OrmExtension from database columns
-                $this->$key = $value;
+                if(in_array($key, $fields)) // Does require field to exists
+                    $this->$key = $value;
             }
         }
     }
