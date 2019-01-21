@@ -54,6 +54,9 @@ class ModelParser {
             file_put_contents(WRITEPATH.'tmp/models/'.$model->name.'.ts', $content);
 
         }
+
+        $content = $renderer->setData(['models' => $this->models], 'raw')->render('Index', ['debug' => false], null);
+        file_put_contents(WRITEPATH.'tmp/models/index.ts', $content);
     }
 
 
