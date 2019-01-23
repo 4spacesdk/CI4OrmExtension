@@ -38,10 +38,13 @@ trait EntityTrait {
             $new = $model::classToArray($this);
             $old = $this->stored;
             foreach($new as $field => $value) {
-                if((string)$value === (string)$old[$field]) {
+                $newValue = (string)$value;
+                $oldValue = isset($old[$field]) ? (string)$old[$field] : '';
+                if($newValue === $oldValue) {
                     // No change
                 } else {
                     // Change
+                    //Data::debug(get_class($this), "change", $field, $newValue, $oldValue);
                     return true;
                 }
 
