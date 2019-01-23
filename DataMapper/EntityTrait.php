@@ -32,6 +32,26 @@ trait EntityTrait {
 
     // <editor-fold desc="Save (Insert/Update)">
 
+    public function hasChange(): bool {
+        $model = $this->getModel();
+        try {
+            $new = $model::classToArray($this);
+            $old = $this->stored;
+            foreach($new as $field => $value) {
+                if((string)$value === (string)$old[$field]) {
+                    // No change
+                } else {
+                    // Change
+                    return true;
+                }
+
+            }
+        } catch(\ReflectionException $e) {
+
+        }
+        return false;
+    }
+
     /**
      * @param Entity|null $related
      * @param string|null $relatedField
