@@ -78,7 +78,7 @@ class Model extends \CodeIgniter\Model {
      * @param null $escape
      * @return BaseBuilder|Model
      */
-    public function select($select = '*', $escape = null) {
+    public function select($select = '*', $escape = null): Model {
         $this->selecting = true;
         return parent::select($select, $escape);
     }
