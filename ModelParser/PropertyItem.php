@@ -58,6 +58,9 @@ class PropertyItem {
             case 'string':
                 $item->type = 'string';
                 break;
+            case 'int[]':
+                $item->type = 'number[]';
+                break;
             default:
                 $item->type = $type;
                 $item->isSimpleType = false;

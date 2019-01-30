@@ -16,6 +16,7 @@ import {<?=$property->type?>, <?=$property->type?>Interface} from "../<?=$proper
 <?php endif ?>
 <?php endforeach
 ?>
+import {BaseModel} from "../BaseModel";
 
 export interface <?=$model->name?>DefinitionInterface {
 <?php foreach($model->properties as $property) : ?>
@@ -23,25 +24,30 @@ export interface <?=$model->name?>DefinitionInterface {
 <?php endforeach ?>
 }
 
-export class <?=$model->name?>Definition implements <?=$model->name?>DefinitionInterface {
+export class <?=$model->name?>Definition extends BaseModel implements <?=$model->name?>DefinitionInterface {
 <?php foreach($model->properties as $property) : ?>
     <?=$property->name?>?: <?=$property->type?><?=$property->isSimpleType?'':''?><?=$property->isMany?"[]":""?>;
 <?php endforeach ?>
 
-    constructor(json?: any) {
-        if(!json) return;
+    constructor(data?: any) {
+        super();
+        this.populate(data);
+    }
+
+    public populate(data?: any) {
+        if(!data) return;
 <?php foreach($model->properties as $property) : ?>
-        if(json.<?=$property->name?> != null) {
+        if(data.<?=$property->name?> != null) {
 <?php if($property->isMany): ?>
             this.<?=$property->name?> = [];
-            for(let i of json.<?=$property->name?>) {
+            for(let i of data.<?=$property->name?>) {
                 this.<?=$property->name?>.push(new <?=$property->type?>(i));
             }
 <?php else: ?>
 <?php if($property->isSimpleType): ?>
-            this.<?=$property->name?> = json.<?=$property->name?>;
+            this.<?=$property->name?> = data.<?=$property->name?>;
 <?php else: ?>
-            this.<?=$property->name?> = new <?=$property->type?>(json.<?=$property->name?>);
+            this.<?=$property->name?> = new <?=$property->type?>(data.<?=$property->name?>);
 <?php endif ?>
 <?php endif ?>
         }
