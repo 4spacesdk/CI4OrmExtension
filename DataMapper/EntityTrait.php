@@ -95,7 +95,7 @@ trait EntityTrait {
                 // Check if opposite relation is hasOne
                 $opposite = $relatedModel->getRelation($relation->getOtherField());
                 if(!empty($opposite) && $opposite[0]->getType() == RelationDef::HasOne)
-                    $related->deleteRelation($relation->getOtherField(), $relation->getOtherField());
+                    $related->deleteRelation($this, $relation->getOtherField());
 
                 $this->{$relation->getJoinOtherAs()} = $related->id;
                 $this->save();
