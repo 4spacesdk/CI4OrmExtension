@@ -41,6 +41,7 @@ class RelationDef {
             else $this->setClass($name);
             if(isset($data['otherField']))      $this->setOtherField($data['otherField']);
             if(isset($data['joinSelfAs']))      $this->setJoinSelfAs($data['joinSelfAs']);
+            else if($type == self::HasOne)      $this->setJoinSelfAs($name.'_id');
             if(isset($data['joinOtherAs']))     $this->setJoinOtherAs($data['joinOtherAs']);
             if(isset($data['joinTable']))       $this->setJoinTable($data['joinTable']);
             if(isset($data['cascadeDelete']))   $this->setCascadeDelete($data['cascadeDelete']);

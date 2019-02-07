@@ -98,7 +98,12 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
                 $this->{$key} = new $className();
                 /** @var Entity $entity */
                 $entity = $this->{$key};
-                $entity->getModel()->whereRelated($relation->getOtherField(), 'id', $this->id);
+
+                // Check for hasOne
+                if(in_array($relation->getJoinSelfAs(), $this->getTableFields())) {
+                    $entity->getModel()->where('id', $this->{$relation->getJoinSelfAs()});
+                } else
+                    $entity->getModel()->whereRelated($relation->getOtherField(), 'id', $this->id);
                 return $entity;
             }
         }
