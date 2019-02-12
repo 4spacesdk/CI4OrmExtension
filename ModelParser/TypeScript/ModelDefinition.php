@@ -34,15 +34,18 @@ export class <?=$model->name?>Definition extends BaseModel implements <?=$model-
         this.populate(data);
     }
 
-    public populate(data?: any) {
+    public populate(data?: any, patch: boolean = false) {
+        if(!patch) {
+<?php foreach($model->properties as $property) : ?>
+            delete this.<?=$property->name?>;
+<?php endforeach ?>
+        }
+
         if(!data) return;
 <?php foreach($model->properties as $property) : ?>
         if(data.<?=$property->name?> != null) {
 <?php if($property->isMany): ?>
-            this.<?=$property->name?> = [];
-            for(let i of data.<?=$property->name?>) {
-                this.<?=$property->name?>.push(new <?=$property->type?>(i));
-            }
+            this.<?=$property->name?> = data.<?=$property->name?>.map((i: any) => {return new <?=$property->type?>(i)});
 <?php else: ?>
 <?php if($property->isSimpleType): ?>
             this.<?=$property->name?> = data.<?=$property->name?>;
