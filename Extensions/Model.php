@@ -80,6 +80,14 @@ class Model extends \CodeIgniter\Model {
      */
     public function select($select = '*', $escape = null): Model {
         $this->selecting = true;
+        if(strpos($select, '.') === false) {
+            $selects = explode(',', $select);
+            foreach($selects as &$select) {
+                $select = trim($select);
+                $this->appendTable($select);
+            }
+            $select = implode(', ', $selects);
+        }
         return parent::select($select, $escape);
     }
 

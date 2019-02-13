@@ -21,6 +21,10 @@ trait ResultBuilder {
         $this->includedRelations[$fullName] = $relation;
     }
 
+    protected function hasIncludedRelation(string $fullName): bool {
+        return isset($this->includedRelations[$fullName]);
+    }
+
     /**
      * @param Entity[] $result
      */

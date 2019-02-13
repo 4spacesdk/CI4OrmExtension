@@ -36,8 +36,10 @@ trait QueryBuilder {
             $last->setSelecting($selecting);
             $last->relatedTablesAdded =& $relatedTablesAdded;
 
-            $parent->addIncludedRelation($relationPrefix, $relation);
-            $this->selectIncludedRelated($parent, $relation, $table, $prefix, $fields);
+            if(!$parent->hasIncludedRelation($relationPrefix)) {
+                $parent->addIncludedRelation($relationPrefix, $relation);
+                $this->selectIncludedRelated($parent, $relation, $table, $prefix, $fields);
+            }
         }
 
         return $parent;
