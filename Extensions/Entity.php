@@ -65,6 +65,8 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
                 }
             }
         }
+
+        $this->resetStoredFields();
     }
 
     private function getSimpleName() {
