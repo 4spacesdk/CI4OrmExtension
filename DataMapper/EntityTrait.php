@@ -254,15 +254,16 @@ trait EntityTrait {
                     $item[$field] = (string)$this->{$field};
                     break;
                 case 'datetime':
-                    $item[$field] = (string)strtotime($this->{$field});
-
-                    try {
-                        $foo = new DateTime($this->{$field}, new DateTimeZone("Europe/Copenhagen"));
-                        $foo->setTimeZone(new DateTimeZone("UTC"));
-                        $item[$field] = $foo->format('c');
-                    } catch(\Exception $e) {
-                        Data::debug(get_class($this), "ERROR", $e->getMessage());
-                    }
+                    if($this->{$field} != null) {
+                        $item[$field] = (string)strtotime($this->{$field});
+                        try {
+                            $foo = new DateTime($this->{$field}, new DateTimeZone("Europe/Copenhagen"));
+                            $foo->setTimeZone(new DateTimeZone("UTC"));
+                            $item[$field] = $foo->format('c');
+                        } catch(\Exception $e) {
+                            Data::debug(get_class($this), "ERROR", $e->getMessage());
+                        }
+                    } else $item[$field] = null;
                     break;
                 default:
                     $item[$field] = $this->{$field};
