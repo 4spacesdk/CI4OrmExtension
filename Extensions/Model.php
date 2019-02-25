@@ -488,11 +488,11 @@ class Model extends \CodeIgniter\Model {
         if($this->entityToSave instanceof Entity) {
             $fields = $data['data'];
             foreach($fields as $field => $value) {
-                if((string)$value === (string)$this->entityToSave->stored[$field])
+                if(isset($this->entityToSave->stored[$field]) && (string)$value === (string)$this->entityToSave->stored[$field])
                     unset($fields[$field]);
                 else
                     $this->updatedData[$field] = [
-                        'old'   => $this->entityToSave->stored[$field],
+                        'old'   => isset($this->entityToSave->stored[$field]) ? $this->entityToSave->stored[$field] : null,
                         'new'   => $fields[$field]
                     ];
             }
