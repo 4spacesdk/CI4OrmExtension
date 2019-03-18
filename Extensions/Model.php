@@ -3,7 +3,6 @@ use CodeIgniter\Database\BaseBuilder;
 use CodeIgniter\Database\ConnectionInterface;
 use CodeIgniter\Validation\ValidationInterface;
 use Config\OrmExtension;
-use DebugTool\Data;
 use OrmExtension\DataMapper\ModelDefinitionCache;
 use OrmExtension\DataMapper\QueryBuilder;
 use OrmExtension\DataMapper\ResultBuilder;
@@ -312,7 +311,7 @@ class Model extends \CodeIgniter\Model {
      * @return BaseBuilder|Model
      */
     public function having($key, $value = null, $escape = null, $appendTable = true) {
-        if($appendTable) $this->appendTable($by);
+        if($appendTable) $this->appendTable($key);
         return parent::having($key, $value, $escape);
     }
 
@@ -324,7 +323,7 @@ class Model extends \CodeIgniter\Model {
      * @return BaseBuilder|Model
      */
     public function orHaving($key, $value = null, $escape = null, $appendTable = true) {
-        if($appendTable) $this->appendTable($by);
+        if($appendTable) $this->appendTable($key);
         return parent::orHaving($key, $value, $escape);
     }
 
@@ -336,8 +335,55 @@ class Model extends \CodeIgniter\Model {
      * @return BaseBuilder|Model
      */
     public function orderBy($orderby, $direction = '', $escape = null, $appendTable = true) {
-        if($appendTable) $this->appendTable($by);
+        if($appendTable) $this->appendTable($orderby);
+
+        if(is_null($direction) || $direction == 'null') {
+            return $this->orderByHack($orderby, 'IS NULL', $escape);
+        }
+
         return parent::orderBy($orderby, $direction, $escape);
+    }
+
+    private function orderByHack($orderby, $direction = '', $escape = null) {
+        $direction = strtoupper(trim($direction));
+
+        if(empty($orderby))
+            return $this;
+        else if ($direction !== '') {
+            $direction = in_array($direction, ['IS NULL'], true) ? ' ' . $direction : '';
+        }
+
+        is_bool($escape) || $escape = $this->db->protectIdentifiers;
+
+        if ($escape === false)
+        {
+            $qb_orderby[] = [
+                'field'     => $orderby,
+                'direction' => $direction,
+                'escape'    => false,
+            ];
+        }
+        else
+        {
+            $qb_orderby = [];
+            foreach (explode(',', $orderby) as $field)
+            {
+                $qb_orderby[] = ($direction === '' &&
+                    preg_match('/\s+(ASC|DESC)$/i', rtrim($field), $match, PREG_OFFSET_CAPTURE)) ? [
+                    'field'     => ltrim(substr($field, 0, $match[0][1])),
+                    'direction' => ' ' . $match[1][0],
+                    'escape'    => true,
+                ] : [
+                    'field'     => trim($field),
+                    'direction' => $direction,
+                    'escape'    => true,
+                ];
+            }
+        }
+
+        $this->builder()->QBOrderBy = array_merge($this->builder()->QBOrderBy, $qb_orderby);
+
+        return $this;
     }
 
     // </editor-fold>
