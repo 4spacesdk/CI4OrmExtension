@@ -254,7 +254,7 @@ trait EntityTrait {
                     $item[$field] = (string)$this->{$field};
                     break;
                 case 'datetime':
-                    if($this->{$field} != null) {
+                    if($this->{$field} != null && $this->{$field} != "0000-00-00 00:00:00") {
                         $item[$field] = (string)strtotime($this->{$field});
                         try {
                             $foo = new DateTime($this->{$field}, new DateTimeZone("Europe/Copenhagen"));
