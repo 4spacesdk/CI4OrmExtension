@@ -4,6 +4,7 @@ use CodeIgniter\Config\Services;
 use Config\Cache;
 use Config\Database;
 use Config\OrmExtension;
+use DebugTool\Data;
 use OrmExtension\Extensions\Model;
 
 /**
@@ -107,7 +108,7 @@ class ModelDefinitionCache {
         try {
             $instance = ModelDefinitionCache::getInstance();
             if(!isset($instance->memcache[$name])) {
-                    $data = $instance->cache->get($name);
+                $data = $instance->cache->get($name);
                 if($data) $instance->memcache[$name] = $data;
                 return $data;
             } else
@@ -115,6 +116,11 @@ class ModelDefinitionCache {
         } catch(\Exception $e) {
             return null;
         }
+    }
+
+    public function clearCache() {
+        $this->memcache = [];
+        $this->cache->clean();
     }
 
 
