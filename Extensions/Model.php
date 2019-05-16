@@ -499,7 +499,7 @@ class Model extends \CodeIgniter\Model {
         }
 
         $result = parent::save($entity);
-        if($result &! $entity->id)
+        if($result && empty($entity->id))
             $entity->id = $result;
 
         $entity->resetStoredFields();
