@@ -32,7 +32,7 @@ class Related extends Controller {
 
         Data::set('user', $users->allToArray());
 
-        $this->response->setJSON(Data::getData());
+        $this->response->setJSON(Data::getStore());
         $this->response->send();
     }
 
@@ -44,7 +44,7 @@ class Related extends Controller {
         Data::set('user', $user->allToArray());
         Data::lastQuery();
 
-        $this->response->setJSON(Data::getData());
+        $this->response->setJSON(Data::getStore());
         $this->response->send();
     }
 
@@ -56,7 +56,7 @@ class Related extends Controller {
         Data::set('user', $user->allToArray());
         Data::lastQuery();
 
-        $this->response->setJSON(Data::getData());
+        $this->response->setJSON(Data::getStore());
         $this->response->send();
     }
 
@@ -69,7 +69,7 @@ class Related extends Controller {
         Data::set('user', $user->allToArray());
         Data::lastQuery();
 
-        $this->response->setJSON(Data::getData());
+        $this->response->setJSON(Data::getStore());
         $this->response->send();
     }
 
@@ -82,7 +82,7 @@ class Related extends Controller {
         Data::set('user', $user->allToArray());
         Data::lastQuery();
 
-        $this->response->setJSON(Data::getData());
+        $this->response->setJSON(Data::getStore());
         $this->response->send();
     }
 
@@ -95,7 +95,7 @@ class Related extends Controller {
         Data::set('user', $user->allToArray());
         Data::lastQuery();
 
-        $this->response->setJSON(Data::getData());
+        $this->response->setJSON(Data::getStore());
         $this->response->send();
     }
 
@@ -107,7 +107,7 @@ class Related extends Controller {
         Data::set('user', $user->allToArray());
         Data::lastQuery();
 
-        $this->response->setJSON(Data::getData());
+        $this->response->setJSON(Data::getStore());
         $this->response->send();
     }
 
@@ -119,7 +119,7 @@ class Related extends Controller {
         Data::set('user', $user->allToArray());
         Data::lastQuery();
 
-        $this->response->setJSON(Data::getData());
+        $this->response->setJSON(Data::getStore());
         $this->response->send();
     }
 

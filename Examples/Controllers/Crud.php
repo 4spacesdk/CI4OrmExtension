@@ -26,7 +26,7 @@ class Crud extends Controller {
 
         $this->printAfter();
 
-        $this->response->setJSON(Data::getData());
+        $this->response->setJSON(Data::getStore());
         $this->response->send();
     }
 
@@ -35,7 +35,7 @@ class Crud extends Controller {
         $users = (new UserModel())->findAll();
         Data::set('users', $users->all);
 
-        $this->response->setJSON(Data::getData());
+        $this->response->setJSON(Data::getStore());
         $this->response->send();
     }
 
@@ -50,7 +50,7 @@ class Crud extends Controller {
 
         $this->printAfter();
 
-        $this->response->setJSON(Data::getData());
+        $this->response->setJSON(Data::getStore());
         $this->response->send();
     }
 
@@ -63,7 +63,7 @@ class Crud extends Controller {
 
         $this->printAfter();
 
-        $this->response->setJSON(Data::getData());
+        $this->response->setJSON(Data::getStore());
         $this->response->send();
     }
 
@@ -82,7 +82,7 @@ class Crud extends Controller {
 
         $this->printAfter();
 
-        $this->response->setJSON(Data::getData());
+        $this->response->setJSON(Data::getStore());
         $this->response->send();
     }
 
@@ -99,7 +99,7 @@ class Crud extends Controller {
 
         $this->printAfter();
 
-        $this->response->setJSON(Data::getData());
+        $this->response->setJSON(Data::getStore());
         $this->response->send();
     }
 
@@ -114,7 +114,7 @@ class Crud extends Controller {
 
         $this->printAfter();
 
-        $this->response->setJSON(Data::getData());
+        $this->response->setJSON(Data::getStore());
         $this->response->send();
     }
 
@@ -130,7 +130,7 @@ class Crud extends Controller {
         Data::set('by color', $users->allToArray());
         Data::lastQuery();
 
-        $this->response->setJSON(Data::getData());
+        $this->response->setJSON(Data::getStore());
         $this->response->send();
     }
 
@@ -148,7 +148,7 @@ class Crud extends Controller {
         Data::set('having green', $users->allToArray());
         Data::lastQuery();
 
-        $this->response->setJSON(Data::getData());
+        $this->response->setJSON(Data::getStore());
         $this->response->send();
     }
 
@@ -164,7 +164,7 @@ class Crud extends Controller {
         Data::set('order by color desc', $users->allToArray());
         Data::lastQuery();
 
-        $this->response->setJSON(Data::getData());
+        $this->response->setJSON(Data::getStore());
         $this->response->send();
     }
 
