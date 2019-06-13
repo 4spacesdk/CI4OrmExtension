@@ -339,6 +339,9 @@ class Model extends \CodeIgniter\Model {
 
         if(is_null($direction) || $direction == 'null') {
             return $this->orderByHack($orderby, 'IS NULL', $escape);
+        } else if(in_array($direction, ['null asc', 'null desc'])) {
+            [$_, $nullDirection] = explode(' ', $direction);
+            return $this->orderByHack($orderby, "IS NULL $nullDirection", $escape);
         }
 
         return parent::orderBy($orderby, $direction, $escape);
@@ -350,7 +353,7 @@ class Model extends \CodeIgniter\Model {
         if(empty($orderby))
             return $this;
         else if ($direction !== '') {
-            $direction = in_array($direction, ['IS NULL'], true) ? ' ' . $direction : '';
+            $direction = in_array($direction, ['IS NULL', 'IS NULL DESC', 'IS NULL ASC'], true) ? ' ' . $direction : '';
         }
 
         is_bool($escape) || $escape = $this->db->protectIdentifiers;
