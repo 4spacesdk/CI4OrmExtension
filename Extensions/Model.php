@@ -73,19 +73,22 @@ class Model extends \CodeIgniter\Model {
     }
 
     /**
-     * @param string $select
-     * @param null $escape
+     * @param string|array $select
+     * @param boolean $escape
+     * @param boolean $appendTable
      * @return BaseBuilder|Model
      */
-    public function select($select = '*', $escape = null): Model {
+    public function select($select = '*', bool $escape = null, $appendTable = true): Model {
         $this->selecting = true;
-        if(strpos($select, '.') === false) {
-            $selects = explode(',', $select);
-            foreach($selects as &$select) {
-                $select = trim($select);
-                $this->appendTable($select);
+        if($appendTable) {
+            if(strpos($select, '.') === false) {
+                $selects = explode(',', $select);
+                foreach($selects as &$select) {
+                    $select = trim($select);
+                    $this->appendTable($select);
+                }
+                $select = implode(', ', $selects);
             }
-            $select = implode(', ', $selects);
         }
         return parent::select($select, $escape);
     }
@@ -96,12 +99,12 @@ class Model extends \CodeIgniter\Model {
 
     /**
      * @param mixed $key
-     * @param null $value
-     * @param null $escape
+     * @param mixed $value
+     * @param boolean $escape
      * @param bool $appendTable
      * @return BaseBuilder|Model
      */
-    public function where($key, $value = null, $escape = null, $appendTable = true) {
+    public function where($key, $value = null, bool $escape = null, $appendTable = true) {
         if($appendTable) $this->appendTable($key);
         return parent::where($key, $value, $escape);
     }
@@ -133,13 +136,13 @@ class Model extends \CodeIgniter\Model {
     }
 
     /**
-     * @param null $key
-     * @param null $values
-     * @param null $escape
-     * @param bool $appendTable
+     * @param string $key
+     * @param array $values
+     * @param boolean $escape
+     * @param boolean $appendTable
      * @return BaseBuilder|Model
      */
-    public function whereIn($key = null, $values = null, $escape = null, $appendTable = true) {
+    public function whereIn(string $key = null, array $values = null, bool $escape = null, $appendTable = true) {
         if($appendTable) $this->appendTable($key);
         if($values instanceof Entity) {
             $ids = [];
@@ -150,13 +153,13 @@ class Model extends \CodeIgniter\Model {
     }
 
     /**
-     * @param null $key
-     * @param null $values
-     * @param null $escape
-     * @param bool $appendTable
+     * @param string $key
+     * @param array $values
+     * @param boolean $escape
+     * @param boolean $appendTable
      * @return BaseBuilder|Model
      */
-    public function whereNotIn($key = null, $values = null, $escape = null, $appendTable = true) {
+    public function whereNotIn(string $key = null, array $values = null, bool $escape = null, $appendTable = true) {
         if($appendTable) $this->appendTable($key);
         return parent::whereNotIn($key, $values, $escape);
     }
@@ -167,12 +170,12 @@ class Model extends \CodeIgniter\Model {
 
     /**
      * @param mixed $key
-     * @param null $value
-     * @param null $escape
-     * @param bool $appendTable
+     * @param mixed $value
+     * @param boolean $escape
+     * @param boolean $appendTable
      * @return BaseBuilder|Model
      */
-    public function orWhere($key, $value = null, $escape = null, $appendTable = true) {
+    public function orWhere($key, $value = null, bool $escape = null, $appendTable = true) {
         if($appendTable) $this->appendTable($key);
         return parent::orWhere($key, $value, $escape);
     }
@@ -204,25 +207,25 @@ class Model extends \CodeIgniter\Model {
     }
 
     /**
-     * @param null $key
-     * @param null $values
-     * @param null $escape
-     * @param bool $appendTable
+     * @param string $key
+     * @param array $values
+     * @param boolean $escape
+     * @param boolean $appendTable
      * @return BaseBuilder|Model
      */
-    public function orWhereIn($key = null, $values = null, $escape = null, $appendTable = true) {
+    public function orWhereIn(string $key = null, array $values = null, bool $escape = null, $appendTable = true) {
         if($appendTable) $this->appendTable($key);
         return parent::orWhereIn($key, $values, $escape);
     }
 
     /**
-     * @param null $key
-     * @param null $values
-     * @param null $escape
-     * @param bool $appendTable
+     * @param string $key
+     * @param array $values
+     * @param boolean $escape
+     * @param boolean $appendTable
      * @return BaseBuilder|Model
      */
-    public function orWhereNotIn($key = null, $values = null, $escape = null, $appendTable = true) {
+    public function orWhereNotIn(string $key = null, array $values = null, bool $escape = null, $appendTable = true) {
         if($appendTable) $this->appendTable($key);
         return parent::orWhereNotIn($key, $values, $escape);
     }
@@ -236,12 +239,12 @@ class Model extends \CodeIgniter\Model {
      * @param mixed $field
      * @param string $match
      * @param string $side
-     * @param null $escape
-     * @param bool $insensitiveSearch
+     * @param boolean $escape
+     * @param boolean $insensitiveSearch
      * @param bool $appendTable
      * @return BaseBuilder|Model
      */
-    public function like($field, $match = '', $side = 'both', $escape = null, $insensitiveSearch = false, $appendTable = true) {
+    public function like($field, string $match = '', string $side = 'both', bool $escape = null, bool $insensitiveSearch = false, $appendTable = true) {
         if($appendTable) $this->appendTable($field);
         return parent::like($field, $match, $side, $escape, $insensitiveSearch);
     }
@@ -250,12 +253,12 @@ class Model extends \CodeIgniter\Model {
      * @param mixed $field
      * @param string $match
      * @param string $side
-     * @param null $escape
-     * @param bool $insensitiveSearch
+     * @param boolean $escape
+     * @param boolean $insensitiveSearch
      * @param bool $appendTable
      * @return BaseBuilder|Model
      */
-    public function notLike($field, $match = '', $side = 'both', $escape = null, $insensitiveSearch = false, $appendTable = true) {
+    public function notLike($field, string $match = '', string $side = 'both', bool $escape = null, bool $insensitiveSearch = false, $appendTable = true) {
         if($appendTable) $this->appendTable($field);
         return parent::notLike($field, $match, $side, $escape, $insensitiveSearch);
     }
@@ -264,12 +267,12 @@ class Model extends \CodeIgniter\Model {
      * @param mixed $field
      * @param string $match
      * @param string $side
-     * @param null $escape
-     * @param bool $insensitiveSearch
+     * @param boolean $escape
+     * @param boolean $insensitiveSearch
      * @param bool $appendTable
      * @return BaseBuilder|Model
      */
-    public function orLike($field, $match = '', $side = 'both', $escape = null, $insensitiveSearch = false, $appendTable = true) {
+    public function orLike($field, string $match = '', string $side = 'both', bool $escape = null, bool $insensitiveSearch = false, $appendTable = true) {
         if($appendTable) $this->appendTable($field);
         return parent::orLike($field, $match, $side, $escape, $insensitiveSearch);
     }
@@ -278,12 +281,12 @@ class Model extends \CodeIgniter\Model {
      * @param mixed $field
      * @param string $match
      * @param string $side
-     * @param null $escape
-     * @param bool $insensitiveSearch
+     * @param boolean $escape
+     * @param boolean $insensitiveSearch
      * @param bool $appendTable
      * @return BaseBuilder|Model
      */
-    public function orNotLike($field, $match = '', $side = 'both', $escape = null, $insensitiveSearch = false, $appendTable = true) {
+    public function orNotLike($field, string $match = '', string $side = 'both', bool $escape = null, bool $insensitiveSearch = false, $appendTable = true) {
         if($appendTable) $this->appendTable($field);
         return parent::orNotLike($field, $match, $side, $escape, $insensitiveSearch);
     }
@@ -294,57 +297,57 @@ class Model extends \CodeIgniter\Model {
 
     /**
      * @param string $by
-     * @param bool|null $escape
-     * @param bool $appendTable
+     * @param boolean $escape
+     * @param boolean $appendTable
      * @return BaseBuilder|Model
      */
-    public function groupBy($by, $escape = null, $appendTable = true) {
+    public function groupBy($by, bool $escape = null, $appendTable = true) {
         if($appendTable) $this->appendTable($by);
         return parent::groupBy($by, $escape);
     }
 
     /**
-     * @param string $key
+     * @param string|array $key
      * @param mixed $value
-     * @param bool|null $escape
-     * @param bool $appendTable
+     * @param boolean $escape
+     * @param boolean $appendTable
      * @return BaseBuilder|Model
      */
-    public function having($key, $value = null, $escape = null, $appendTable = true) {
+    public function having($key, $value = null, bool $escape = null, $appendTable = true) {
         if($appendTable) $this->appendTable($key);
         return parent::having($key, $value, $escape);
     }
 
     /**
-     * @param string $key
+     * @param string|array $key
      * @param mixed $value
-     * @param bool|null $escape
-     * @param bool $appendTable
+     * @param boolean $escape
+     * @param boolean $appendTable
      * @return BaseBuilder|Model
      */
-    public function orHaving($key, $value = null, $escape = null, $appendTable = true) {
+    public function orHaving($key, $value = null, bool $escape = null, $appendTable = true) {
         if($appendTable) $this->appendTable($key);
         return parent::orHaving($key, $value, $escape);
     }
 
     /**
-     * @param string $orderby
-     * @param string $direction
-     * @param bool|null $escape
-     * @param bool $appendTable
+     * @param string $orderBy
+     * @param string $direction ASC, DESC, RANDOM or IS NULL
+     * @param boolean $escape
+     * @param boolean $appendTable
      * @return BaseBuilder|Model
      */
-    public function orderBy($orderby, $direction = '', $escape = null, $appendTable = true) {
-        if($appendTable) $this->appendTable($orderby);
+    public function orderBy(string $orderBy, string $direction = '', bool $escape = null, $appendTable = true) {
+        if($appendTable) $this->appendTable($orderBy);
 
         if(is_null($direction) || $direction == 'null') {
-            return $this->orderByHack($orderby, 'IS NULL', $escape);
+            return $this->orderByHack($orderBy, 'IS NULL', $escape);
         } else if(in_array($direction, ['null asc', 'null desc'])) {
             [$_, $nullDirection] = explode(' ', $direction);
-            return $this->orderByHack($orderby, "IS NULL $nullDirection", $escape);
+            return $this->orderByHack($orderBy, "IS NULL $nullDirection", $escape);
         }
 
-        return parent::orderBy($orderby, $direction, $escape);
+        return parent::orderBy($orderBy, $direction, $escape);
     }
 
     private function orderByHack($orderby, $direction = '', $escape = null) {
@@ -398,7 +401,7 @@ class Model extends \CodeIgniter\Model {
      * @param string $type
      * @return BaseBuilder|Model
      */
-    public function groupStart($not = '', $type = 'AND ') {
+    public function groupStart(string $not = '', string $type = 'AND ') {
         return parent::groupStart($not, $type);
     }
 
@@ -429,7 +432,7 @@ class Model extends \CodeIgniter\Model {
         return $result;
     }
 
-    public function countAllResults($reset = true, $test = false) {
+    public function countAllResults(bool $reset = true, bool $test = false) {
         if($this->tempUseSoftDeletes === true) { // CI4 Bug..
             parent::where($this->deletedField, 0);
         }
@@ -488,8 +491,9 @@ class Model extends \CodeIgniter\Model {
     /**
      * @param Entity $entity
      * @return bool
+     * @throws \ReflectionException
      */
-    public function save($entity) {
+    public function save($entity): bool {
         $this->entityToSave = $entity;
         $isNew = !$entity->id;
 
@@ -501,7 +505,7 @@ class Model extends \CodeIgniter\Model {
             $entity->{$this->updatedField} = $this->setDate();
         }
 
-        $result = parent::save($entity);
+        $result = $this->saveAndReturnId($entity);
         if($result && empty($entity->id))
             $entity->id = $result;
 
@@ -517,7 +521,26 @@ class Model extends \CodeIgniter\Model {
         return $result;
     }
 
-    public static function classToArray($data, string $dateFormat = 'datetime'): array {
+    /**
+     * @param $data
+     * @return int
+     * @throws \ReflectionException
+     */
+    private function saveAndReturnId($data): int {
+        if(empty($data)) return true;
+
+        if(is_object($data) && isset($data->{$this->primaryKey})) {
+            parent::update($data->{$this->primaryKey}, $data);
+            return $data->{$this->primaryKey};
+        } elseif (is_array($data) && ! empty($data[$this->primaryKey])) {
+            parent::update($data[$this->primaryKey], $data);
+            return $data[$this->primaryKey];
+        } else {
+            return parent::insert($data, true);
+        }
+    }
+
+    public static function classToArray($data, $primaryKey = null, string $dateFormat = 'datetime', bool $onlyChanged = true): array {
         if($data instanceof Entity) {
             $properties = [];
             foreach($data->getModel()->getTableFields() as $field)

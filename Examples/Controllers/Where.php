@@ -22,7 +22,7 @@ class Where extends Controller {
         Data::set('user', $user->toArray());
         Data::lastQuery();
 
-        $this->response->setJSON(Data::getData());
+        $this->response->setJSON(Data::getStore());
         $this->response->send();
     }
 
@@ -34,7 +34,7 @@ class Where extends Controller {
         Data::set('user', $user->allToArray());
         Data::lastQuery();
 
-        $this->response->setJSON(Data::getData());
+        $this->response->setJSON(Data::getStore());
         $this->response->send();
     }
 
@@ -46,7 +46,7 @@ class Where extends Controller {
         Data::set('user', $user->allToArray());
         Data::lastQuery();
 
-        $this->response->setJSON(Data::getData());
+        $this->response->setJSON(Data::getStore());
         $this->response->send();
     }
 
@@ -59,7 +59,7 @@ class Where extends Controller {
         Data::set('user', $user->allToArray());
         Data::lastQuery();
 
-        $this->response->setJSON(Data::getData());
+        $this->response->setJSON(Data::getStore());
         $this->response->send();
     }
 
@@ -72,7 +72,7 @@ class Where extends Controller {
         Data::set('user', $user->allToArray());
         Data::lastQuery();
 
-        $this->response->setJSON(Data::getData());
+        $this->response->setJSON(Data::getStore());
         $this->response->send();
     }
 
@@ -85,7 +85,7 @@ class Where extends Controller {
         Data::set('user', $user->allToArray());
         Data::lastQuery();
 
-        $this->response->setJSON(Data::getData());
+        $this->response->setJSON(Data::getStore());
         $this->response->send();
     }
 
@@ -97,7 +97,7 @@ class Where extends Controller {
         Data::set('user', $user->allToArray());
         Data::lastQuery();
 
-        $this->response->setJSON(Data::getData());
+        $this->response->setJSON(Data::getStore());
         $this->response->send();
     }
 
@@ -109,7 +109,7 @@ class Where extends Controller {
         Data::set('user', $user->allToArray());
         Data::lastQuery();
 
-        $this->response->setJSON(Data::getData());
+        $this->response->setJSON(Data::getStore());
         $this->response->send();
     }
 
@@ -122,7 +122,7 @@ class Where extends Controller {
         Data::set('user', $user->allToArray());
         Data::lastQuery();
 
-        $this->response->setJSON(Data::getData());
+        $this->response->setJSON(Data::getStore());
         $this->response->send();
     }
 
@@ -135,7 +135,7 @@ class Where extends Controller {
         Data::set('user', $user->allToArray());
         Data::lastQuery();
 
-        $this->response->setJSON(Data::getData());
+        $this->response->setJSON(Data::getStore());
         $this->response->send();
     }
 

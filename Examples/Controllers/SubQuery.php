@@ -18,7 +18,7 @@ class SubQuery extends Controller {
 
     public function select() {
         $subQuery = (new RoleModel())
-            ->select('COUNT(*) name')
+            ->select('COUNT(*)', true, false)
             ->where('name', '${parent}.name', false);
 
         $model = new UserModel();
@@ -29,7 +29,7 @@ class SubQuery extends Controller {
         Data::set('user', $user->allToArray());
         Data::lastQuery();
 
-        $this->response->setJSON(Data::getData());
+        $this->response->setJSON(Data::getStore());
         $this->response->send();
     }
 
@@ -51,7 +51,7 @@ class SubQuery extends Controller {
         //Data::set('user', $user->allToArray());
         Data::lastQuery();
 
-        $this->response->setJSON(Data::getData());
+        $this->response->setJSON(Data::getStore());
         $this->response->send();
     }
 
