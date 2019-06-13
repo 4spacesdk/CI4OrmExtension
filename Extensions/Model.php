@@ -137,12 +137,12 @@ class Model extends \CodeIgniter\Model {
 
     /**
      * @param string $key
-     * @param array $values
+     * @param mixed $values
      * @param boolean $escape
      * @param boolean $appendTable
      * @return BaseBuilder|Model
      */
-    public function whereIn(string $key = null, array $values = null, bool $escape = null, $appendTable = true) {
+    public function whereIn(string $key = null, $values = null, bool $escape = null, $appendTable = true) {
         if($appendTable) $this->appendTable($key);
         if($values instanceof Entity) {
             $ids = [];
@@ -154,13 +154,18 @@ class Model extends \CodeIgniter\Model {
 
     /**
      * @param string $key
-     * @param array $values
+     * @param mixed $values
      * @param boolean $escape
      * @param boolean $appendTable
      * @return BaseBuilder|Model
      */
-    public function whereNotIn(string $key = null, array $values = null, bool $escape = null, $appendTable = true) {
+    public function whereNotIn(string $key = null, $values = null, bool $escape = null, $appendTable = true) {
         if($appendTable) $this->appendTable($key);
+        if($values instanceof Entity) {
+            $ids = [];
+            foreach($values as $value) $ids[] = $value->id;
+            $values = $ids;
+        }
         return parent::whereNotIn($key, $values, $escape);
     }
 
@@ -434,10 +439,17 @@ class Model extends \CodeIgniter\Model {
 
     public function countAllResults(bool $reset = true, bool $test = false) {
         if($this->tempUseSoftDeletes === true) { // CI4 Bug..
-            parent::where($this->deletedField, 0);
+            $tmp = $this->deletedField;
+            $this->deletedField = $this->getTableName() . '.' . $this->deletedField;
         }
 
-        return parent::countAllResults($reset, $test);
+        $result = parent::countAllResults($reset, $test);
+
+        if($this->tempUseSoftDeletes === true) { // CI4 Bug..
+            $this->deletedField = $tmp;
+        }
+
+        return $result;
     }
 
     // </editor-fold>
@@ -617,7 +629,7 @@ class Model extends \CodeIgniter\Model {
         $this->beforeInsert[] = 'modifyInsertFields';
         if(in_array('deletion_id', $this->allowedFields)) {
             $this->useSoftDeletes = true;
-            $this->deletedField = $this->table.'.deletion_id';
+            $this->deletedField = 'deletion_id';
         }
     }
 
