@@ -149,6 +149,7 @@ class Model extends \CodeIgniter\Model {
             foreach($values as $value) $ids[] = $value->id;
             $values = $ids;
         }
+        if(is_string($values)) $values = [$values];
         return parent::whereIn($key, $values, $escape);
     }
 
