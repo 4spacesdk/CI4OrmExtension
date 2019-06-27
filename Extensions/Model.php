@@ -146,7 +146,7 @@ class Model extends \CodeIgniter\Model {
         if($appendTable) $this->appendTable($key);
         if($values instanceof Entity) {
             $ids = [];
-            foreach($values as $value) $ids[] = $value->id;
+            foreach($values as $value) $ids[] = $value->{$this->getPrimaryKey()};
             $values = $ids;
         }
         if(is_string($values)) $values = [$values];
@@ -164,7 +164,7 @@ class Model extends \CodeIgniter\Model {
         if($appendTable) $this->appendTable($key);
         if($values instanceof Entity) {
             $ids = [];
-            foreach($values as $value) $ids[] = $value->id;
+            foreach($values as $value) $ids[] = $value->{$this->getPrimaryKey()};
             $values = $ids;
         }
         return parent::whereNotIn($key, $values, $escape);
@@ -503,12 +503,11 @@ class Model extends \CodeIgniter\Model {
 
     /**
      * @param Entity $entity
-     * @return bool
-     * @throws \ReflectionException
+     * @param bool $isNew
+     * @return void
      */
-    public function save($entity): bool {
+    protected function prepareSave($entity, $isNew) {
         $this->entityToSave = $entity;
-        $isNew = !$entity->id;
 
         if($isNew && $this->useTimestamps && in_array($this->createdField, $this->getTableFields())) {
             if(empty($entity->{$this->createdField}))
@@ -517,10 +516,17 @@ class Model extends \CodeIgniter\Model {
         if(!$isNew && $this->useTimestamps && in_array($this->updatedField, $this->getTableFields())) {
             $entity->{$this->updatedField} = $this->setDate();
         }
+    }
 
-        $result = $this->saveAndReturnId($entity);
-        if($result && empty($entity->id))
-            $entity->id = $result;
+    /**
+     * @param bool $result
+     * @param Entity $entity
+     * @param bool $isNew
+     * @return mixed
+     */
+    protected function completeSave($result, $entity, $isNew) {
+        if($result && empty($entity->{$this->getPrimaryKey()}))
+            $entity->{$this->getPrimaryKey()} = $result;
 
         $entity->resetStoredFields();
 
@@ -535,22 +541,45 @@ class Model extends \CodeIgniter\Model {
     }
 
     /**
+     * @param Entity $entity
+     * @return bool
+     * @throws \ReflectionException
+     */
+    public function save($entity): bool {
+        $isNew = empty($entity->{$this->getPrimaryKey()}) || is_null($entity->{$this->getPrimaryKey()});
+        $this->prepareSave($entity, $isNew);
+
+        $result = $this->saveAndReturnId($entity);
+        return $this->completeSave($result, $entity, $isNew);
+    }
+
+    /**
      * @param $data
      * @return int
      * @throws \ReflectionException
      */
-    private function saveAndReturnId($data): int {
+    private function saveAndReturnId($data) {
         if(empty($data)) return true;
 
         if(is_object($data) && isset($data->{$this->primaryKey})) {
             parent::update($data->{$this->primaryKey}, $data);
             return $data->{$this->primaryKey};
-        } elseif (is_array($data) && ! empty($data[$this->primaryKey])) {
+        } elseif (is_array($data) && !empty($data[$this->primaryKey])) {
             parent::update($data[$this->primaryKey], $data);
             return $data[$this->primaryKey];
         } else {
             return parent::insert($data, true);
         }
+    }
+
+    /**
+     * @param Entity $entity
+     * @return bool|int|string|void
+     */
+    public function insert($entity = null, bool $returnID = true) {
+        $this->prepareSave($entity, true);
+        $result = parent::insert($entity, false);
+        return $this->completeSave($result, $entity, true);
     }
 
     public static function classToArray($data, $primaryKey = null, string $dateFormat = 'datetime', bool $onlyChanged = true): array {
@@ -583,7 +612,7 @@ class Model extends \CodeIgniter\Model {
             }
             if(empty($fields)) {
                 // Set the id field, CI dont like empty updates
-                $fields['id'] = $this->entityToSave->stored['id'];
+                $fields[$this->getPrimaryKey()] = $this->entityToSave->stored[$this->getPrimaryKey()];
             }
             $data['data'] = $fields;
         }
@@ -605,7 +634,7 @@ class Model extends \CodeIgniter\Model {
             }
             if(empty($fields)) {
                 // Set the id field, CI dont like empty updates
-                $fields['id'] = $this->entityToSave->stored['id'];
+                $fields[$this->getPrimaryKey()] = $this->entityToSave->stored[$this->getPrimaryKey()];
             }
             $data['data'] = $fields;
         }
@@ -623,7 +652,11 @@ class Model extends \CodeIgniter\Model {
 
     private function setCodeIgniterModelStuff() {
         $this->table = $this->getTableName();
-        $this->returnType = OrmExtension::$entityNamespace . $this->getEntityName();
+
+        foreach(OrmExtension::$entityNamespace as $entityNamespace) {
+            $this->returnType = $entityNamespace . $this->getEntityName();
+            if(class_exists($this->returnType)) break;
+        }
         $this->allowedFields = ModelDefinitionCache::getFields($this->getEntityName(), $this->table);
         $this->afterFind[] = 'handleResult';
         $this->beforeUpdate[] = 'modifyUpdateFields';
@@ -641,6 +674,10 @@ class Model extends \CodeIgniter\Model {
     public function getEntityName() {
         $namespace = explode('\\', get_class($this));
         return substr(end($namespace), 0, -5);
+    }
+
+    public function getPrimaryKey() {
+        return $this->primaryKey;
     }
 
     // </editor-fold>

@@ -3,6 +3,7 @@
 use CodeIgniter\Database\BaseConnection;
 use CodeIgniter\Database\Forge;
 use Config\Database;
+use Config\Logger;
 use DebugTool\Data;
 use OrmExtension\DataMapper\ModelDefinitionCache;
 
@@ -24,15 +25,14 @@ class Table {
         $table->name = $name;
         $table->db = Database::connect($group);
         $table->forge = Database::forge($group);
-        $table->create();
         return $table;
     }
 
-    public function create() {
+    public function create($primaryKeyName = 'id', $primaryKeyType = ColumnTypes::INT, $autoIncrement = true) {
         $sql = "CREATE TABLE IF NOT EXISTS `$this->name` (
-                  `id` int(11) NOT NULL AUTO_INCREMENT,
-                  PRIMARY KEY (`id`)
-                ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;";
+                  `{$primaryKeyName}` {$primaryKeyType} ".($autoIncrement ? 'AUTO_INCREMENT' : '').",
+                  PRIMARY KEY (`{$primaryKeyName}`)
+                ) ENGINE=InnoDB ".($autoIncrement ? 'AUTO_INCREMENT=1' : '')." DEFAULT CHARSET=utf8;";
         $this->db->query($sql);
         return $this;
     }
@@ -50,7 +50,10 @@ class Table {
     public function column($name, $type, $default = null) {
         if(!$this->hasColumn($name)) {
             $sql = "ALTER TABLE `{$this->name}` ADD `{$name}` {$type}";
-            if($default) $sql .= " DEFAULT {$default}";
+            if($default) {
+                if(is_string($default)) $default = "\"$default\"";
+                $sql .= " DEFAULT {$default}";
+            }
             $sql .= ";";
             $this->db->query($sql);
 

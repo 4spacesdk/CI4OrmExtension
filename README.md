@@ -21,7 +21,7 @@ class OrmExtension {
     public static $entityNamespace = 'App\Entities\\';
 }
 ```
-Update the namespace to fit your project.
+Update the namespace to fit your project. Use arrays if you have multiple namespaces for models and entities.
 
 Step 3)
 

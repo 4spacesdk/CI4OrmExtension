@@ -57,10 +57,15 @@ class ModelDefinitionCache {
         $fieldData = static::getData($entity.'_field_data');
         if(!$fieldData) {
             if(is_null($tableName)) {
-                $modelName = OrmExtension::$modelNamespace . $entity . 'Model';
-                /** @var Model $model */
-                $model = new $modelName();
-                $tableName = $model->getTableName();
+
+                foreach(OrmExtension::$modelNamespace as $modelNamespace) {
+                    $modelName = $modelNamespace . $entity . 'Model';
+                    if(class_exists($modelName)) {
+                        /** @var Model $model */
+                        $model = new $modelName();
+                        $tableName = $model->getTableName();
+                    }
+                }
             }
             $db = Database::connect();
             $fieldData = $db->getFieldData($tableName);
@@ -81,9 +86,14 @@ class ModelDefinitionCache {
     public static function getRelations($entity) {
         $relations = static::getData($entity.'_relations');
         if(!$relations) {
-            $modelName = OrmExtension::$modelNamespace . $entity . 'Model';
-            /** @var Model $model */
-            $model = new $modelName();
+
+            foreach(OrmExtension::$modelNamespace as $modelNamespace) {
+                $modelName = $modelNamespace . $entity . 'Model';
+                if(class_exists($modelName)) {
+                    /** @var Model $model */
+                    $model = new $modelName();
+                }
+            }
             $relations = [];
             foreach($model->hasOne as $name => $hasOne)
                 $relations[] = new RelationDef($model, $name, $hasOne, RelationDef::HasOne);

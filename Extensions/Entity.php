@@ -80,8 +80,11 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
      */
     public function getModel() {
         if(!$this->_model) {
-            $name = OrmExtension::$modelNamespace . $this->getSimpleName() . 'Model';
-            $this->_model = new $name();
+            foreach(OrmExtension::$modelNamespace as $modelNamespace) {
+                $name = $modelNamespace . $this->getSimpleName() . 'Model';
+                if(class_exists($name))
+                    $this->_model = new $name();
+            }
         }
         return $this->_model;
     }
@@ -103,9 +106,9 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
 
                 // Check for hasOne
                 if(in_array($relation->getJoinSelfAs(), $this->getTableFields())) {
-                    $entity->getModel()->where('id', $this->{$relation->getJoinSelfAs()});
+                    $entity->getModel()->where($entity->getModel()->getPrimaryKey(), $this->{$relation->getJoinSelfAs()});
                 } else
-                    $entity->getModel()->whereRelated($relation->getOtherField(), 'id', $this->id);
+                    $entity->getModel()->whereRelated($relation->getOtherField(), $this->getModel()->getPrimaryKey(), $this->{$this->getModel()->getPrimaryKey()});
                 return $entity;
             }
         }

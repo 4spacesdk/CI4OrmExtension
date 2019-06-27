@@ -16,7 +16,8 @@ trait EntityTrait {
     abstract function getModel(): Model;
 
     public function exists() {
-        return $this->id > 0 || (isset($this->all) && count($this->all));
+        $primaryKey = $this->getModel()->getPrimaryKey();
+        return !empty($this->{$primaryKey}) || (isset($this->all) && count($this->all));
     }
 
     // <editor-fold desc="Find">
@@ -66,9 +67,15 @@ trait EntityTrait {
             }
         } else {
             $result = $this->getModel()->save($this);
-            if(is_numeric($result))
-                $this->id = $result;
+            if(!is_bool($result))
+                $this->{$this->getModel()->getPrimaryKey()} = $result;
         }
+    }
+
+    public function insert() {
+        $result = $this->getModel()->insert($this);
+        if(!is_bool($result))
+            $this->{$this->getModel()->getPrimaryKey()} = $result;
     }
 
     /**
@@ -97,7 +104,7 @@ trait EntityTrait {
                 if(!empty($opposite) && $opposite[0]->getType() == RelationDef::HasOne)
                     $related->deleteRelation($this, $relation->getOtherField());
 
-                $this->{$relation->getJoinOtherAs()} = $related->id;
+                $this->{$relation->getJoinOtherAs()} = $related->{$relatedModel->getPrimaryKey()};
                 $this->save();
             }
         } else if($relationShipTable == $relatedModel->getTableName()) {
@@ -107,7 +114,7 @@ trait EntityTrait {
                 if($relation->getType() == RelationDef::HasOne)
                     $this->deleteRelation($related, $relationName);
 
-                $related->{$relation->getJoinSelfAs()} = $this->id;
+                $related->{$relation->getJoinSelfAs()} = $this->{$thisModel->getPrimaryKey()};
                 $related->save();
             }
         } else {
@@ -115,8 +122,8 @@ trait EntityTrait {
             Database::connect()
                 ->table($relationShipTable)
                 ->insert([
-                    $relation->getJoinSelfAs()  => $this->id,
-                    $relation->getJoinOtherAs() => $related->id
+                    $relation->getJoinSelfAs()  => $this->{$thisModel->getPrimaryKey()},
+                    $relation->getJoinOtherAs() => $related->{$relatedModel->getPrimaryKey()}
                 ]);
 
         }
@@ -140,16 +147,18 @@ trait EntityTrait {
 
                 $thisModel = $this->getModel();
                 if(in_array('deletion_id', $this->getModel()->getTableFields())) {
-                    $name = OrmExtension::$entityNamespace . 'Deletion';
-                    if(class_exists($name)) {
-                        /** @var Entity $deletion */
-                        $deletion = new $name();
-                        $deletion->save();
-                        $this->deletion_id = $deletion->id;
-                        $this->save();
+                    foreach(OrmExtension::$entityNamespace as $entityNamespace) {
+                        $name = $entityNamespace . 'Deletion';
+                        if(class_exists($name)) {
+                            /** @var Entity $deletion */
+                            $deletion = new $name();
+                            $deletion->save();
+                            $this->deletion_id = $deletion->{$deletion->getModel()->getPrimaryKey()};
+                            $this->save();
+                        }
                     }
                 } else
-                    $thisModel->delete($this->id);
+                    $thisModel->delete($this->{$thisModel->getPrimaryKey()});
 
                 if($thisModel instanceof OrmEventsInterface && $this instanceof Entity)
                     $thisModel->postDelete($this);
@@ -192,7 +201,7 @@ trait EntityTrait {
                         ->table($relationShipTable)
                         ->update(
                             [$relation->getJoinSelfAs() => 0],
-                            [$relation->getJoinSelfAs() => $this->id]);
+                            [$relation->getJoinSelfAs() => $this->{$thisModel->getPrimaryKey()}]);
                 } else {
                     $related->{$relation->getJoinSelfAs()} = null;
                     $related->save();
@@ -203,8 +212,8 @@ trait EntityTrait {
             Database::connect()
                 ->table($relationShipTable)
                 ->delete([
-                    $relation->getJoinSelfAs()  => $this->id,
-                    $relation->getJoinOtherAs() => $related->id
+                    $relation->getJoinSelfAs()  => $this->{$thisModel->getPrimaryKey()},
+                    $relation->getJoinOtherAs() => $related->{$relatedModel->getPrimaryKey()}
                 ]);
 
         }
@@ -322,7 +331,8 @@ trait EntityTrait {
     private $idMap = null; // Initialized when needed
     private function initIdMap() {
         $this->idMap = [];
-        foreach($this as $item) $this->idMap[$item->id] = $item;
+        $primaryKey = $this->getModel()->getPrimaryKey();
+        foreach($this as $item) $this->idMap[$item->{$primaryKey}] = $item;
     }
     public function getById($id) {
         if(is_null($this->idMap)) $this->initIdMap();
