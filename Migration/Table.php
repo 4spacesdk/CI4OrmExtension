@@ -8,7 +8,7 @@ use OrmExtension\DataMapper\ModelDefinitionCache;
 
 /**
  * Class Table
- * @package App\Extensions
+ * @package OrmExtension\Migration
  * @property string $name
  * @property BaseConnection $db
  * @property Forge $forge
@@ -20,7 +20,7 @@ class Table {
             $group = (new Database())->defaultGroup;
         }
 
-        $table = new \App\Extensions\Table();
+        $table = new Table();
         $table->name = $name;
         $table->db = Database::connect($group);
         $table->forge = Database::forge($group);
