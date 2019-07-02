@@ -20,8 +20,9 @@ class ModelDefinitionCache {
     public static function getInstance() {
         if(static::$instance == null) {
             static::$instance = new ModelDefinitionCache();
-            static::$instance->init();
         }
+        if(!isset(self::$instance->cache))
+            static::$instance->init();
         return static::$instance;
     }
 
@@ -31,6 +32,8 @@ class ModelDefinitionCache {
     public function init() {
         $this->config            = new Cache();
         $this->config->storePath .= self::$directory;
+        if(!is_dir($this->config->storePath))
+            mkdir($this->config->storePath);
         $this->cache = Services::cache($this->config);
     }
 
