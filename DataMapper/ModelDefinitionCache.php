@@ -110,7 +110,8 @@ class ModelDefinitionCache {
 
     private static function setData($name, $data, $ttl = 3600) {
         $instance = ModelDefinitionCache::getInstance();
-        $instance->cache->save($name, $data, $ttl);
+        if(isset($instance->cache))
+            $instance->cache->save($name, $data, $ttl);
     }
 
     private $memcache = [];
