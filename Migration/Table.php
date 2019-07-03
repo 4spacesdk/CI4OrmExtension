@@ -88,7 +88,8 @@ class Table {
 
     public function softDelete() {
         return $this
-            ->column('deletion_id', ColumnTypes::INT);
+            ->column('deletion_id', ColumnTypes::INT)
+            ->addIndex('deletion_id');
     }
 
     public function createdUpdatedBy() {
