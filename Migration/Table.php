@@ -73,8 +73,10 @@ class Table {
     }
 
     public function dropColumn($name) {
-        $sql = "ALTER TABLE {$this->name} DROP COLUMN {$name};";
-        $this->db->query($sql);
+        if($this->hasColumn($name)) {
+            $sql = "ALTER TABLE {$this->name} DROP COLUMN {$name};";
+            $this->db->query($sql);
+        }
         return $this;
     }
 
