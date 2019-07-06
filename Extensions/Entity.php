@@ -82,8 +82,10 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
         if(!$this->_model) {
             foreach(OrmExtension::$modelNamespace as $modelNamespace) {
                 $name = $modelNamespace . $this->getSimpleName() . 'Model';
-                if(class_exists($name))
+                if(class_exists($name)) {
                     $this->_model = new $name();
+                    break;
+                }
             }
         }
         return $this->_model;
