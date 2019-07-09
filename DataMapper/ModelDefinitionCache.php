@@ -95,6 +95,7 @@ class ModelDefinitionCache {
                 if(class_exists($modelName)) {
                     /** @var Model $model */
                     $model = new $modelName();
+                    break;
                 }
             }
             $relations = [];
