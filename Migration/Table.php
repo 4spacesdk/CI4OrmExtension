@@ -63,7 +63,7 @@ class Table {
     }
 
     public function dropTable() {
-        $sql = "DROP TABLE IF EXISTS {`$this->name}`";
+        $sql = "DROP TABLE IF EXISTS `{$this->name}`";
         $this->db->query($sql);
         return $this;
     }
