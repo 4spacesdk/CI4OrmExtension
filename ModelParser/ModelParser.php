@@ -12,7 +12,10 @@ use DebugTool\Data;
  */
 class ModelParser {
 
+    private const StaticPath = APPPATH. 'Schemas';
+
     /**
+     * @return ModelParser
      * @throws \ReflectionException
      */
     public static function run() {
@@ -27,10 +30,26 @@ class ModelParser {
         return $parser;
     }
 
-    public function generateSwagger() {
+    public function generateSwagger($overrideWithStatic = false, $schemaReferences = null) {
         $json = [];
+
+        // Append Static Schemas (From Schemas folder)
+        $schemas = self::loadStatics();
+        foreach($schemas as $schema) {
+            $schemaName = substr($schema, 0, -5);
+            $json[$schemaName] = json_decode(file_get_contents(self::StaticPath . '/' . $schema));
+        }
+
         foreach($this->models as $model) {
-            $json[$model->name] = $model->toSwagger();
+            if($schemaReferences && !in_array($model->name, $schemaReferences)) continue;
+
+            $staticName = $model->name.'.json';
+            if($overrideWithStatic && in_array($staticName, $schemas)) {
+                $schema = str_replace("\n", '', file_get_contents(self::StaticPath . '/' . $staticName));
+                $jsonSchema = json_decode($schema);
+                $json[$model->name] = $jsonSchema ? $jsonSchema : $schema;
+            } else
+                $json[$model->name] = $model->toSwagger();
         }
         return $json;
     }
@@ -78,5 +97,18 @@ class ModelParser {
             }
         }
         return $models;
+    }
+
+    private static function loadStatics() {
+        $schemas = [];
+        if(is_dir(self::StaticPath)) {
+            $files = scandir(self::StaticPath);
+            foreach($files as $file) {
+                if($file[0] != '_' && substr($file, -4) == 'json') {
+                    $schemas[] = $file;
+                }
+            }
+        }
+        return $schemas;
     }
 }
