@@ -12,7 +12,7 @@ use DebugTool\Data;
  */
 class ModelParser {
 
-    private const StaticPath = APPPATH. 'Schemas';
+    private static $staticPath = APPPATH. 'Schemas';
 
     /**
      * @return ModelParser
@@ -30,14 +30,23 @@ class ModelParser {
         return $parser;
     }
 
-    public function generateSwagger($overrideWithStatic = false, $schemaReferences = null) {
+    public function generateSwagger($overrideWithStatic = false, $schemaReferences = null, $scope = null) {
         $json = [];
 
         // Append Static Schemas (From Schemas folder)
         $schemas = self::loadStatics();
         foreach($schemas as $schema) {
             $schemaName = substr($schema, 0, -5);
-            $json[$schemaName] = json_decode(file_get_contents(self::StaticPath . '/' . $schema));
+            $json[$schemaName] = json_decode(file_get_contents(self::$staticPath . '/' . $schema));
+        }
+        
+        if($scope) {
+            self::$staticPath = self::$staticPath.'/'.$scope; 
+            $schemas = self::loadStatics();
+            foreach($schemas as $schema) {
+                $schemaName = substr($schema, 0, -5);
+                $json[$schemaName] = json_decode(file_get_contents(self::$staticPath . '/' . $schema));
+            }
         }
 
         foreach($this->models as $model) {
@@ -45,7 +54,7 @@ class ModelParser {
 
             $staticName = $model->name.'.json';
             if($overrideWithStatic && in_array($staticName, $schemas)) {
-                $schema = str_replace("\n", '', file_get_contents(self::StaticPath . '/' . $staticName));
+                $schema = str_replace("\n", '', file_get_contents(self::$staticPath . '/' . $staticName));
                 $jsonSchema = json_decode($schema);
                 $json[$model->name] = $jsonSchema ? $jsonSchema : $schema;
             } else
@@ -101,8 +110,8 @@ class ModelParser {
 
     private static function loadStatics() {
         $schemas = [];
-        if(is_dir(self::StaticPath)) {
-            $files = scandir(self::StaticPath);
+        if(is_dir(self::$staticPath)) {
+            $files = scandir(self::$staticPath);
             foreach($files as $file) {
                 if($file[0] != '_' && substr($file, -4) == 'json') {
                     $schemas[] = $file;
