@@ -112,7 +112,7 @@ class ModelDefinitionCache {
 
 
 
-    private static function setData($name, $data, $ttl = 3600) {
+    private static function setData($name, $data, $ttl = YEAR) {
         $instance = ModelDefinitionCache::getInstance();
         if(isset($instance->cache))
             $instance->cache->save($name, $data, $ttl);
