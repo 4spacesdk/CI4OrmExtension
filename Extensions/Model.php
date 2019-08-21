@@ -438,20 +438,6 @@ class Model extends \CodeIgniter\Model {
         return $result;
     }
 
-    public function countAllResults(bool $reset = true, bool $test = false) {
-        if($this->tempUseSoftDeletes === true) { // CI4 Bug..
-            $tmp = $this->deletedField;
-            $this->deletedField = $this->getTableName() . '.' . $this->deletedField;
-        }
-
-        $result = parent::countAllResults($reset, $test);
-
-        if($this->tempUseSoftDeletes === true) { // CI4 Bug..
-            $this->deletedField = $tmp;
-        }
-
-        return $result;
-    }
 
     // </editor-fold>
 
