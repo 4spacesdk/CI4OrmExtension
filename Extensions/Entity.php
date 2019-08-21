@@ -20,7 +20,6 @@ use OrmExtension\DataMapper\RelationDef;
 class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
     use EntityTrait;
 
-    public $id;
     public $stored = [];
     public $hiddenFields = [];
 
@@ -80,7 +79,7 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
     /**
      * @return Model|QueryBuilderInterface
      */
-    public function getModel() {
+    public function _getModel() {
         if(!$this->_model) {
             foreach(OrmExtension::$modelNamespace as $modelNamespace) {
                 $name = $modelNamespace . $this->getSimpleName() . 'Model';
@@ -101,7 +100,7 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
     public function __get(string $key) {
 
         // Check for relation
-        foreach($this->getModel()->getRelations() as $relation) {
+        foreach($this->_getModel()->getRelations() as $relation) {
             if($relation->getSimpleName() == singular($key)) {
                 $className = $relation->getEntityName();
                 $this->{$key} = new $className();
@@ -110,9 +109,9 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
 
                 // Check for hasOne
                 if(in_array($relation->getJoinSelfAs(), $this->getTableFields())) {
-                    $entity->getModel()->where($entity->getModel()->getPrimaryKey(), $this->{$relation->getJoinSelfAs()});
+                    $entity->_getModel()->where($entity->_getModel()->getPrimaryKey(), $this->{$relation->getJoinSelfAs()});
                 } else
-                    $entity->getModel()->whereRelated($relation->getOtherField(), $this->getModel()->getPrimaryKey(), $this->{$this->getModel()->getPrimaryKey()});
+                    $entity->_getModel()->whereRelated($relation->getOtherField(), $this->_getModel()->getPrimaryKey(), $this->{$this->_getModel()->getPrimaryKey()});
                 return $entity;
             }
         }

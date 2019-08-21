@@ -1,7 +1,8 @@
 <?php namespace OrmExtension\Migration;
 
 class ColumnTypes {
-    const INT               = 'INT NOT NULL';
+    const INT               = 'INT';
+    const INT_NOT_NULL      = 'INT NOT NULL';
     const INT_NULL          = 'INT';
     const DECIMAL           = 'DECIMAL(10,4) NOT NULL';
     const FLOAT             = 'FLOAT NOT NULL';

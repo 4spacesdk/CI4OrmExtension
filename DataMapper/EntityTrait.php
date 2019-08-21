@@ -13,17 +13,17 @@ use Config\OrmExtension;
 
 trait EntityTrait {
 
-    abstract function getModel(): Model;
+    abstract function _getModel(): Model;
 
     public function exists() {
-        $primaryKey = $this->getModel()->getPrimaryKey();
+        $primaryKey = $this->_getModel()->getPrimaryKey();
         return !empty($this->{$primaryKey}) || (isset($this->all) && count($this->all));
     }
 
     // <editor-fold desc="Find">
 
     public function find($id = null) {
-        $entity = $this->getModel()->find($id);
+        $entity = $this->_getModel()->find($id);
         foreach(get_object_vars($entity) as $name => $value)
             $this->{$name} = $value;
         return $entity;
@@ -34,7 +34,7 @@ trait EntityTrait {
     // <editor-fold desc="Save (Insert/Update)">
 
     public function hasChange(): bool {
-        $model = $this->getModel();
+        $model = $this->_getModel();
         try {
             $new = $model::classToArray($this);
             $old = $this->stored;
@@ -66,16 +66,16 @@ trait EntityTrait {
                 $this->saveRelation($related, $relatedField);
             }
         } else {
-            $result = $this->getModel()->save($this);
+            $result = $this->_getModel()->save($this);
             if(!is_bool($result))
-                $this->{$this->getModel()->getPrimaryKey()} = $result;
+                $this->{$this->_getModel()->getPrimaryKey()} = $result;
         }
     }
 
     public function insert() {
-        $result = $this->getModel()->insert($this);
+        $result = $this->_getModel()->insert($this);
         if(!is_bool($result))
-            $this->{$this->getModel()->getPrimaryKey()} = $result;
+            $this->{$this->_getModel()->getPrimaryKey()} = $result;
     }
 
     /**
@@ -85,10 +85,10 @@ trait EntityTrait {
     public function saveRelation($related, $relationName = null) {
         if(!$this->exists() |! $related->exists()) return;
 
-        if(!$relationName) $relationName = get_class($related->getModel());
+        if(!$relationName) $relationName = get_class($related->_getModel());
 
-        $thisModel = $this->getModel();
-        $relatedModel = $related->getModel();
+        $thisModel = $this->_getModel();
+        $relatedModel = $related->_getModel();
 
         $relation = $thisModel->getRelation($relationName);
         if(empty($relation)) return;
@@ -145,15 +145,15 @@ trait EntityTrait {
         if($this->exists()) {
             if(is_null($related)) {
 
-                $thisModel = $this->getModel();
-                if(in_array('deletion_id', $this->getModel()->getTableFields())) {
+                $thisModel = $this->_getModel();
+                if(in_array('deletion_id', $this->_getModel()->getTableFields())) {
                     foreach(OrmExtension::$entityNamespace as $entityNamespace) {
                         $name = $entityNamespace . 'Deletion';
                         if(class_exists($name)) {
                             /** @var Entity $deletion */
                             $deletion = new $name();
                             $deletion->save();
-                            $this->deletion_id = $deletion->{$deletion->getModel()->getPrimaryKey()};
+                            $this->deletion_id = $deletion->{$deletion->_getModel()->getPrimaryKey()};
                             $this->save();
                         }
                     }
@@ -174,13 +174,13 @@ trait EntityTrait {
      * @param string|null $relationName
      */
     public function deleteRelation($related, $relationName = null) {
-        if(!$relationName) $relationName = get_class($related->getModel());
+        if(!$relationName) $relationName = get_class($related->_getModel());
 
-        $thisModel = $this->getModel();
+        $thisModel = $this->_getModel();
         if(is_string($related))
             $relatedModel = new $related();
         else
-            $relatedModel = $related->getModel();
+            $relatedModel = $related->_getModel();
 
         $relation = $thisModel->getRelation($relationName);
         if(empty($relation)) return;
@@ -331,7 +331,7 @@ trait EntityTrait {
     private $idMap = null; // Initialized when needed
     private function initIdMap() {
         $this->idMap = [];
-        $primaryKey = $this->getModel()->getPrimaryKey();
+        $primaryKey = $this->_getModel()->getPrimaryKey();
         foreach($this as $item) $this->idMap[$item->{$primaryKey}] = $item;
     }
     public function getById($id) {

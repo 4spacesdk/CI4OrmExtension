@@ -585,7 +585,7 @@ class Model extends \CodeIgniter\Model {
     public static function classToArray($data, $primaryKey = null, string $dateFormat = 'datetime', bool $onlyChanged = true): array {
         if($data instanceof Entity) {
             $properties = [];
-            foreach($data->getModel()->getTableFields() as $field)
+            foreach($data->_getModel()->getTableFields() as $field)
                 $properties[$field] = $data->{$field};
             return $properties;
         } else
