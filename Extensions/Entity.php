@@ -31,36 +31,38 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
      *
      * @param array $data
      */
-    public function fill(array $data) {
-        $fields = $this->getTableFields();
-        $relations = ModelDefinitionCache::getRelations($this->getSimpleName());
-        /** @var RelationDef[] $relationName2Relation */
-        $relationName2Relation = [];
-        foreach($relations as $relation) $relationName2Relation[$relation->getSimpleName()] = $relation;
-        foreach($data as $key => $value) {
-            $method = 'set' . str_replace(' ', '', ucwords(str_replace(['-', '_'], ' ', $key)));
+    public function fill(?array $data = NULL) {
+        if($data) {
+            $fields = $this->getTableFields();
+            $relations = ModelDefinitionCache::getRelations($this->getSimpleName());
+            /** @var RelationDef[] $relationName2Relation */
+            $relationName2Relation = [];
+            foreach($relations as $relation) $relationName2Relation[$relation->getSimpleName()] = $relation;
+            foreach($data as $key => $value) {
+                $method = 'set' . str_replace(' ', '', ucwords(str_replace(['-', '_'], ' ', $key)));
 
-            if(method_exists($this, $method)) {
-                $this->$method($value);
-            } else { // Does not require property to exist, properties are managed by OrmExtension from database columns
-                if(in_array($key, $fields)) // Does require field to exists
-                    $this->$key = $value;
-                else if(isset($relationName2Relation[singular($key)])) { // Auto-populate relation
-                    $relation = $relationName2Relation[singular($key)];
-                    switch($relation->getType()) {
-                        case RelationDef::HasOne:
-                            $entityName = $relation->getEntityName();
-                            $this->$key = new $entityName($value);
-                            break;
-                        case RelationDef::HasMany:
-                            $entityName = $relation->getEntityName();
-                            $this->{$key} = new $entityName();
-                            /** @var Entity $relationMany */
-                            $relationMany = $this->{$key};
-                            foreach($value as $v) {
-                                $relationMany->add(new $entityName($v));
-                            }
-                            break;
+                if(method_exists($this, $method)) {
+                    $this->$method($value);
+                } else { // Does not require property to exist, properties are managed by OrmExtension from database columns
+                    if(in_array($key, $fields)) // Does require field to exists
+                        $this->$key = $value;
+                    else if(isset($relationName2Relation[singular($key)])) { // Auto-populate relation
+                        $relation = $relationName2Relation[singular($key)];
+                        switch($relation->getType()) {
+                            case RelationDef::HasOne:
+                                $entityName = $relation->getEntityName();
+                                $this->$key = new $entityName($value);
+                                break;
+                            case RelationDef::HasMany:
+                                $entityName = $relation->getEntityName();
+                                $this->{$key} = new $entityName();
+                                /** @var Entity $relationMany */
+                                $relationMany = $this->{$key};
+                                foreach($value as $v) {
+                                    $relationMany->add(new $entityName($v));
+                                }
+                                break;
+                        }
                     }
                 }
             }
@@ -115,7 +117,7 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
             }
         }
 
-        return null;
+        return parent::__get($key);
     }
 
     /**
@@ -124,7 +126,10 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
      * @return \CodeIgniter\Entity|Entity
      */
     public function __set(string $key, $value = null) {
-        return parent::__set($key, $value);
+        parent::__set($key, $value);
+        if(isset($this->attributes[$key]))
+            $this->$key = $this->attributes[$key];
+        return $this;
     }
 
     /**
