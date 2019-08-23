@@ -17,7 +17,7 @@ trait EntityTrait {
 
     public function exists() {
         $primaryKey = $this->_getModel()->getPrimaryKey();
-        return !empty($this->{$primaryKey}) || (isset($this->all) && count($this->all));
+        return !empty($this->{$primaryKey}) || (!is_null($this->all) && count($this->all));
     }
 
     // <editor-fold desc="Find">
@@ -155,6 +155,7 @@ trait EntityTrait {
                             $deletion->save();
                             $this->deletion_id = $deletion->{$deletion->_getModel()->getPrimaryKey()};
                             $this->save();
+                            break;
                         }
                     }
                 } else
@@ -219,7 +220,7 @@ trait EntityTrait {
         }
 
         unset($this->{$relation->getSimpleName()});
-        $this->resetStoredFields();
+        //$this->resetStoredFields();
 
         if($thisModel instanceof OrmEventsInterface && $this instanceof Entity && $related instanceof Entity)
             $thisModel->postDeleteRelation($this, $related);
@@ -306,17 +307,17 @@ trait EntityTrait {
     // <editor-fold desc="Entity as an array">
 
     public function count() {
-        return isset($this->all) ? count($this->all) : ($this->exists() ? 1 : 0);
+        return !is_null($this->all) ? count($this->all) : ($this->exists() ? 1 : 0);
     }
 
     public function add($item) {
-        if(!isset($this->all)) $this->all = [];
+        if(is_null($this->all)) $this->all = [];
         $this->all[] = $item;
         $this->idMap = null;
     }
 
     public function remove($item) {
-        if(!isset($this->all)) $this->all = [];
+        if(is_null($this->all)) $this->all = [];
         if(($key = array_search($item, $this->all)) !== false) {
             unset($this->all[$key]);
         }
@@ -352,7 +353,7 @@ trait EntityTrait {
      * @return ArrayIterator|Traversable|Entity[]
      */
     public function getIterator() {
-        return new ArrayIterator(isset($this->all) ? $this->all : []);
+        return new ArrayIterator(!is_null($this->all) ? $this->all : []);
     }
 
     // </editor-fold>

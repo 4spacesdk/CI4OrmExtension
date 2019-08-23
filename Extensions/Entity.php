@@ -20,8 +20,8 @@ use OrmExtension\DataMapper\RelationDef;
 class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
     use EntityTrait;
 
-    public $stored = [];
     public $hiddenFields = [];
+    public $all = null;
 
     /**
      * Takes an array of key/value pairs and sets them as
@@ -37,6 +37,7 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
             /** @var RelationDef[] $relationName2Relation */
             $relationName2Relation = [];
             foreach($relations as $relation) $relationName2Relation[$relation->getSimpleName()] = $relation;
+
             foreach($data as $key => $value) {
                 $method = 'set' . str_replace(' ', '', ucwords(str_replace(['-', '_'], ' ', $key)));
 
@@ -67,7 +68,8 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
             }
         }
 
-        $this->resetStoredFields();
+//        $this->resetStoredFields();
+        return $this;
     }
 
     private function getSimpleName() {
@@ -98,25 +100,29 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
      * @return mixed|null
      */
     public function __get(string $key) {
+        $result = parent::__get($key);
 
-        // Check for relation
-        foreach($this->_getModel()->getRelations() as $relation) {
-            if($relation->getSimpleName() == singular($key)) {
-                $className = $relation->getEntityName();
-                $this->{$key} = new $className();
-                /** @var Entity $entity */
-                $entity = $this->{$key};
+        if(is_null($result)) {
+            // Check for relation
+            foreach($this->_getModel()->getRelations() as $relation) {
+                if($relation->getSimpleName() == singular($key)) {
+                    $className = $relation->getEntityName();
+                    $this->{$key} = new $className();
+                    /** @var Entity $entity */
+                    $entity = $this->attributes[$key];
 
-                // Check for hasOne
-                if(in_array($relation->getJoinSelfAs(), $this->getTableFields())) {
-                    $entity->_getModel()->where($entity->_getModel()->getPrimaryKey(), $this->{$relation->getJoinSelfAs()});
-                } else
-                    $entity->_getModel()->whereRelated($relation->getOtherField(), $this->_getModel()->getPrimaryKey(), $this->{$this->_getModel()->getPrimaryKey()});
-                return $entity;
+                    // Check for hasOne
+                    if(in_array($relation->getJoinSelfAs(), $this->getTableFields())) {
+                        $entity->_getModel()->where($entity->_getModel()->getPrimaryKey(), $this->{$relation->getJoinSelfAs()});
+                    } else
+                        $entity->_getModel()->whereRelated($relation->getOtherField(), $this->_getModel()->getPrimaryKey(), $this->{$this->_getModel()->getPrimaryKey()});
+                    $result = $entity;
+                    break;
+                }
             }
         }
 
-        return parent::__get($key);
+        return $result;
     }
 
     /**
@@ -126,8 +132,7 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
      */
     public function __set(string $key, $value = null) {
         parent::__set($key, $value);
-        if(isset($this->attributes[$key]))
-            $this->$key = $this->attributes[$key];
+        //if(isset($this->attributes[$key])) $this->$key = $this->attributes[$key];
         return $this;
     }
 

@@ -3,6 +3,7 @@ use CodeIgniter\Database\BaseBuilder;
 use CodeIgniter\Database\ConnectionInterface;
 use CodeIgniter\Validation\ValidationInterface;
 use Config\OrmExtension;
+use DebugTool\Data;
 use OrmExtension\DataMapper\ModelDefinitionCache;
 use OrmExtension\DataMapper\QueryBuilder;
 use OrmExtension\DataMapper\ResultBuilder;
@@ -514,13 +515,22 @@ class Model extends \CodeIgniter\Model {
         if($result && empty($entity->{$this->getPrimaryKey()}))
             $entity->{$this->getPrimaryKey()} = $result;
 
-        $entity->resetStoredFields();
+        //$entity->resetStoredFields();
+        $entity->syncOriginal();
 
         if($this instanceof OrmEventsInterface) {
             if($isNew)
                 $this->postCreation($entity);
-            else
+            else {
+                // Clean up updateData, CI4 likes to put primaryKey in every update
+                if(isset($this->updatedData[$this->getPrimaryKey()])) {
+                    $updatedPrimaryKey = $this->updatedData[$this->getPrimaryKey()];
+                    if($updatedPrimaryKey['old'] == $updatedPrimaryKey['old'])
+                        unset($this->updatedData[$this->getPrimaryKey()]);
+                }
+
                 $this->postUpdate($entity, $this->updatedData);
+            }
         }
 
         return $result;
@@ -560,22 +570,14 @@ class Model extends \CodeIgniter\Model {
 
     /**
      * @param Entity $entity
+     * @param bool $returnID
      * @return bool|int|string|void
+     * @throws \ReflectionException
      */
     public function insert($entity = null, bool $returnID = true) {
         $this->prepareSave($entity, true);
         $result = parent::insert($entity, false);
         return $this->completeSave($result, $entity, true);
-    }
-
-    public static function classToArray($data, $primaryKey = null, string $dateFormat = 'datetime', bool $onlyChanged = true): array {
-        if($data instanceof Entity) {
-            $properties = [];
-            foreach($data->_getModel()->getTableFields() as $field)
-                $properties[$field] = $data->{$field};
-            return $properties;
-        } else
-            return parent::classToArray($data, $dateFormat);
     }
 
     /**
@@ -588,17 +590,13 @@ class Model extends \CodeIgniter\Model {
         if($this->entityToSave instanceof Entity) {
             $fields = $data['data'];
             foreach($fields as $field => $value) {
-                if(isset($this->entityToSave->stored[$field]) && (string)$value === (string)$this->entityToSave->stored[$field])
-                    unset($fields[$field]);
-                else
-                    $this->updatedData[$field] = [
-                        'old'   => isset($this->entityToSave->stored[$field]) ? $this->entityToSave->stored[$field] : null,
-                        'new'   => $fields[$field]
-                    ];
+                $this->updatedData[$field] = [
+                    'old'   => isset($this->entityToSave->original[$field]) ? $this->entityToSave->original[$field] : null,
+                    'new'   => $fields[$field]
+                ];
             }
-            if(empty($fields)) {
-                // Set the id field, CI dont like empty updates
-                $fields[$this->getPrimaryKey()] = $this->entityToSave->stored[$this->getPrimaryKey()];
+            if(empty($fields)) { // Set the id field, CI dont like empty updates
+                $fields[$this->getPrimaryKey()] = $this->entityToSave->original[$this->getPrimaryKey()];
             }
             $data['data'] = $fields;
         }
@@ -618,9 +616,8 @@ class Model extends \CodeIgniter\Model {
                 if(is_null($value))
                     unset($fields[$field]);
             }
-            if(empty($fields)) {
-                // Set the id field, CI dont like empty updates
-                $fields[$this->getPrimaryKey()] = $this->entityToSave->stored[$this->getPrimaryKey()];
+            if(empty($fields)) { // Set the id field, CI dont like empty updates
+                $fields[$this->getPrimaryKey()] = 0;
             }
             $data['data'] = $fields;
         }

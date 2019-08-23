@@ -35,7 +35,7 @@ trait ResultBuilder {
         ksort($relations);
 
         foreach($result as $row) {
-            $row->resetStoredFields();
+            //$row->resetStoredFields(); // TODO Brug CI's
 
             foreach($relations as $relationPrefix => $relation) {
                 $fullName = str_replace('/', '_', $relationPrefix);
@@ -45,24 +45,27 @@ trait ResultBuilder {
                 $deepRelations = explode('/', trim($relationPrefix, '/'));
                 array_pop($deepRelations);
                 foreach($deepRelations as $prefix) {
-                    if($relation->getType() == RelationDef::HasOne)
+                    if($relation->getType() == RelationDef::HasOne) {
                         $current = $current->{singular($prefix)};
-                    else
+                    } else {
                         $current = $current->{$prefix};
+                    }
                 }
 
                 $entityName = $relation->getEntityName();
                 /** @var Entity $entity */
                 $entity = new $entityName();
 
+                $attributes = [];
                 foreach($relation->getRelationClass()->getTableFields() as $field) {
                     $fieldName = "{$fullName}{$field}";
                     if(isset($row->{$fieldName})) {
-                        $entity->{$field} = $row->{$fieldName};
+                        $attributes[$field] = $row->{$fieldName};
                     }
                 }
+                $entity->setAttributes($attributes);
                 if(!$entity->exists()) continue;
-                $entity->resetStoredFields();
+                //$entity->resetStoredFields();
 
                 $relationName = $relation->getSimpleName();
                 switch($relation->getType()) {
@@ -82,6 +85,7 @@ trait ResultBuilder {
             }
 
         }
+
     }
 
 }
