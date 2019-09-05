@@ -1,5 +1,6 @@
 <?php namespace OrmExtension\Migration;
 
+use CodeIgniter\CLI\CLI;
 use CodeIgniter\Database\BaseConnection;
 use CodeIgniter\Database\Forge;
 use Config\Database;
@@ -69,7 +70,9 @@ class Table {
     }
 
     public function truncate() {
-        $this->db->query("TRUNCATE {$this->name}");
+        if($this->db->resetDataCache()->tableExists($this->name)) {
+            $this->db->query("TRUNCATE {$this->name}");
+        }
     }
 
     public function dropColumn($name) {
