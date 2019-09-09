@@ -31,7 +31,7 @@ class PropertyItem {
         return $parts;
     }
 
-    public static function parse($line, $isMany) {
+    public static function parse($line, $isMany = false) {
         $parts = PropertyItem::validate($line);
         if(!$parts) return false;
 
