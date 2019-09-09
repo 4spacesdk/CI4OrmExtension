@@ -22,7 +22,15 @@ class ModelItem {
         $item = new ModelItem();
         $item->path = $path;
 
-        $rc = new \ReflectionClass("\App\Entities\\{$path}");
+        $isEntity = true;
+        $isInterface = false;
+        try {
+            $rc = new \ReflectionClass("\App\Entities\\{$path}");
+        } catch(\Exception $e) {
+            $rc = new \ReflectionClass("\App\Interfaces\\{$path}");
+            $isEntity = false;
+            $isInterface = true;
+        }
         $item->name = substr($rc->getName(), strrpos($rc->getName(), '\\') + 1);
 
         $comments = $rc->getDocComment();
@@ -37,13 +45,15 @@ class ModelItem {
         }
 
         // Append static properties
-        $item->properties[] = new PropertyItem('id', 'number', true, false);
-        $item->properties[] = new PropertyItem('created', 'string', true, false);
-        $item->properties[] = new PropertyItem('updated', 'string', true, false);
-        $item->properties[] = new PropertyItem('created_by_id', 'number', true, false);
-        $item->properties[] = new PropertyItem('created_by', 'User', false, false);
-        $item->properties[] = new PropertyItem('updated_by_id', 'number', true, false);
-        $item->properties[] = new PropertyItem('updated_by', 'User', false, false);
+        if($isEntity) {
+            $item->properties[] = new PropertyItem('id', 'number', true, false);
+            $item->properties[] = new PropertyItem('created', 'string', true, false);
+            $item->properties[] = new PropertyItem('updated', 'string', true, false);
+            $item->properties[] = new PropertyItem('created_by_id', 'number', true, false);
+            $item->properties[] = new PropertyItem('created_by', 'User', false, false);
+            $item->properties[] = new PropertyItem('updated_by_id', 'number', true, false);
+            $item->properties[] = new PropertyItem('updated_by', 'User', false, false);
+        }
 
         return $item;
     }

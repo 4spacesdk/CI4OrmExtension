@@ -13,6 +13,7 @@ use DebugTool\Data;
 class ModelParser {
 
     private static $staticPath = APPPATH. 'Schemas';
+    private static $interfacesPath = APPPATH. 'Interfaces';
 
     /**
      * @return ModelParser
@@ -98,7 +99,7 @@ class ModelParser {
     }
 
     private static function loadModels() {
-        $files = scandir(APPPATH. 'Entities');
+        $files = array_merge(scandir(APPPATH. 'Entities'), scandir(APPPATH. 'Interfaces'));
         $models = [];
         foreach($files as $file) {
             if($file[0] != '_' && substr($file, -3) == 'php') {
