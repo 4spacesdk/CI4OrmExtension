@@ -40,9 +40,9 @@ class ModelParser {
             $schemaName = substr($schema, 0, -5);
             $json[$schemaName] = json_decode(file_get_contents(self::$staticPath . '/' . $schema));
         }
-        
+
         if($scope) {
-            self::$staticPath = self::$staticPath.'/'.$scope; 
+            self::$staticPath = self::$staticPath.'/'.$scope;
             $schemas = self::loadStatics();
             foreach($schemas as $schema) {
                 $schemaName = substr($schema, 0, -5);
@@ -98,9 +98,12 @@ class ModelParser {
         return ModelItem::parse(substr($model, 0, -4));
     }
 
-    private static function loadModels() {
-        if(!is_dir(APPPATH. 'Interfaces')) return [];
-        $files = array_merge(scandir(APPPATH. 'Entities'), scandir(APPPATH. 'Interfaces'));
+    private static function loadModels($includeInterfaces = false) {
+        $files = scandir(APPPATH. 'Entities');
+        if($includeInterfaces && is_dir(APPPATH. 'Interfaces')) {
+            $files = array_merge($files, scandir(APPPATH . 'Interfaces'));
+        }
+
         $models = [];
         foreach($files as $file) {
             if($file[0] != '_' && substr($file, -3) == 'php') {
