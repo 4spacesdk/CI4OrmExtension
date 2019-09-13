@@ -99,6 +99,7 @@ class ModelParser {
     }
 
     private static function loadModels() {
+        if(!is_dir(APPPATH. 'Interfaces')) return [];
         $files = array_merge(scandir(APPPATH. 'Entities'), scandir(APPPATH. 'Interfaces'));
         $models = [];
         foreach($files as $file) {
