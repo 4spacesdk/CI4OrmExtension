@@ -46,7 +46,7 @@ export class <?=$model->name?>Definition extends BaseModel implements <?=$model-
 <?php foreach($model->properties as $property) : ?>
         if (data.<?=$property->name?> != null) {
 <?php if($property->isMany): ?>
-            this.<?=$property->name?> = data.<?=$property->name?>.map((i: any) => new <?=$property->type?>(i);
+            this.<?=$property->name?> = data.<?=$property->name?>.map((i: any) => new <?=$property->type?>(i));
 <?php else: ?>
 <?php if($property->isSimpleType): ?>
             this.<?=$property->name?> = data.<?=$property->name?>;
