@@ -248,7 +248,7 @@ trait EntityTrait {
 
             switch($fieldData->type) {
                 case 'int':
-                    $item[$field] = (int)$this->{$field};
+                    $item[$field] = is_null($this->{$field}) ? null : (int)$this->{$field};
                     break;
                 case 'float':
                 case 'double':
