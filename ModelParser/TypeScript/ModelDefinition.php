@@ -16,7 +16,7 @@ import {<?=$property->type?>, <?=$property->type?>Interface} from '../<?=$proper
 ?>
 import {BaseModel} from '../BaseModel';
 <?if($model->isResource && $model->getApiItem()) { ?>
-import {Api} from '../../Http/Api/Api';
+import {Api} from '../../http/Api/Api';
 <?} ?>
 
 export interface <?=$model->name?>DefinitionInterface {
