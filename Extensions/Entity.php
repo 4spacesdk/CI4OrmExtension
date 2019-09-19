@@ -29,6 +29,7 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
      * that may or may not exist.
      *
      * @param array $data
+     * @return Entity
      */
     public function fill(?array $data = NULL) {
         if($data) {

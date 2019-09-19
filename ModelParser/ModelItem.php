@@ -1,4 +1,8 @@
 <?php namespace OrmExtension\ModelParser;
+use Jobby\Exception;
+use RestExtension\ApiParser\ApiItem;
+use RestExtension\Core\Entity;
+
 /**
  * Created by PhpStorm.
  * User: martin
@@ -8,6 +12,7 @@
  * @property string $path
  * @property string $name
  * @property PropertyItem[] $properties
+ * @property boolean $isResource
  */
 class ModelItem {
 
@@ -15,21 +20,27 @@ class ModelItem {
 
     /**
      * @param $path
-     * @return ModelItem
-     * @throws \ReflectionException
+     * @return bool|ModelItem
      */
     public static function parse($path) {
         $item = new ModelItem();
         $item->path = $path;
 
         $isEntity = true;
-        $isInterface = false;
         try {
             $rc = new \ReflectionClass("\App\Entities\\{$path}");
+            try {
+                $item->isResource = $rc->implementsInterface('\RestExtension\ResourceEntityInterface');
+            } catch(Exception $e) {
+
+            }
         } catch(\Exception $e) {
-            $rc = new \ReflectionClass("\App\Interfaces\\{$path}");
+            try {
+                $rc = new \ReflectionClass("\App\Interfaces\\{$path}");
+            } catch(\Exception $e) {
+                return false;
+            }
             $isEntity = false;
-            $isInterface = true;
         }
         $item->name = substr($rc->getName(), strrpos($rc->getName(), '\\') + 1);
 
@@ -56,6 +67,20 @@ class ModelItem {
         }
 
         return $item;
+    }
+
+    /**
+     * @return bool|ApiItem
+     */
+    public function getApiItem() {
+        $entityName = "\App\Entities\\{$this->path}";
+        /** @var Entity $entity */
+        $entity = new $entityName();
+        try {
+            return ApiItem::parse($entity->getResourcePath());
+        } catch(\ReflectionException $e) {
+        }
+        return false;
     }
 
     public function toSwagger() {

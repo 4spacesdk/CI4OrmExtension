@@ -24,7 +24,9 @@ class ModelParser {
         /** @var ModelItem[] $models */
         $models = [];
         foreach(ModelParser::loadModels() as $model) {
-            $models[] = ModelParser::parseModels($model);
+            $modelItem = ModelParser::parseModels($model);
+            if($modelItem)
+                $models[] = $modelItem;
         }
         Data::debug("Found ".count($models)." models");
         $parser->models = $models;

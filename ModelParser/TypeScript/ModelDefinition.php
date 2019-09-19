@@ -3,8 +3,6 @@
 ?>
 /**
  * Created by ModelParser
- * Date: <?=date('d-m-Y')?>.
- * Time: <?=date('H:i')?>.
  */
 <?php
 // Import
@@ -12,11 +10,14 @@ $imported = [];
 foreach($model->properties as $property) : ?>
 <?php if(!$property->isSimpleType && !in_array($property->type, $imported)) :
         $imported[] = $property->type; ?>
-import {<?=$property->type?>, <?=$property->type?>Interface} from "../<?=$property->type?>";
+import {<?=$property->type?>, <?=$property->type?>Interface} from '../<?=$property->type?>';
 <?php endif ?>
 <?php endforeach
 ?>
-import {BaseModel} from "../BaseModel";
+import {BaseModel} from '../BaseModel';
+<?if($model->isResource && $model->getApiItem()) { ?>
+import {Api} from '../../Http/Api/Api';
+<?} ?>
 
 export interface <?=$model->name?>DefinitionInterface {
 <?php foreach($model->properties as $property) : ?>
@@ -35,17 +36,17 @@ export class <?=$model->name?>Definition extends BaseModel implements <?=$model-
     }
 
     public populate(data?: any, patch: boolean = false) {
-        if(!patch) {
+        if (!patch) {
 <?php foreach($model->properties as $property) : ?>
             delete this.<?=$property->name?>;
 <?php endforeach ?>
         }
 
-        if(!data) return;
+        if (!data) return;
 <?php foreach($model->properties as $property) : ?>
-        if(data.<?=$property->name?> != null) {
+        if (data.<?=$property->name?> != null) {
 <?php if($property->isMany): ?>
-            this.<?=$property->name?> = data.<?=$property->name?>.map((i: any) => {return new <?=$property->type?>(i)});
+            this.<?=$property->name?> = data.<?=$property->name?>.map((i: any) => new <?=$property->type?>(i)};
 <?php else: ?>
 <?php if($property->isSimpleType): ?>
             this.<?=$property->name?> = data.<?=$property->name?>;
@@ -56,5 +57,8 @@ export class <?=$model->name?>Definition extends BaseModel implements <?=$model-
         }
 <?php endforeach ?>
     }
+<?if($model->isResource && $model->getApiItem()) { ?>
+<?=$model->getApiItem()->generateTypeScriptModelFunctions()?>
+<? } ?>
 
 }
