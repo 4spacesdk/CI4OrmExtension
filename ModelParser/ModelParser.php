@@ -16,14 +16,15 @@ class ModelParser {
     private static $interfacesPath = APPPATH. 'Interfaces';
 
     /**
+     * @param bool $includeInterfaces
      * @return ModelParser
      * @throws \ReflectionException
      */
-    public static function run() {
+    public static function run($includeInterfaces = false) {
         $parser = new ModelParser();
         /** @var ModelItem[] $models */
         $models = [];
-        foreach(ModelParser::loadModels() as $model) {
+        foreach(ModelParser::loadModels($includeInterfaces) as $model) {
             $modelItem = ModelParser::parseModels($model);
             if($modelItem)
                 $models[] = $modelItem;
