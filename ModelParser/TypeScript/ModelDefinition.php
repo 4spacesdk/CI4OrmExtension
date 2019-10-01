@@ -15,9 +15,9 @@ import {<?=$property->type?>, <?=$property->type?>Interface} from '../<?=$proper
 <?php endforeach
 ?>
 import {BaseModel} from '../BaseModel';
-<?if($model->isResource && $model->getApiItem()) { ?>
+<?php if($model->isResource && $model->getApiItem()) { ?>
 import {Api} from '../../http/Api/Api';
-<?} ?>
+<?php } ?>
 
 export interface <?=$model->name?>DefinitionInterface {
 <?php foreach($model->properties as $property) : ?>
@@ -57,8 +57,8 @@ export class <?=$model->name?>Definition extends BaseModel implements <?=$model-
         }
 <?php endforeach ?>
     }
-<?if($model->isResource && $model->getApiItem()) { ?>
+<?php if($model->isResource && $model->getApiItem()) { ?>
 <?=$model->getApiItem()->generateTypeScriptModelFunctions()?>
-<? } ?>
+<?php } ?>
 
 }
