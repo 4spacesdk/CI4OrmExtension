@@ -18,7 +18,6 @@ class ModelParser {
     /**
      * @param bool $includeInterfaces
      * @return ModelParser
-     * @throws \ReflectionException
      */
     public static function run($includeInterfaces = false) {
         $parser = new ModelParser();
@@ -44,6 +43,13 @@ class ModelParser {
             $json[$schemaName] = json_decode(file_get_contents(self::$staticPath . '/' . $schema));
         }
 
+        // Append schemaReferences recursively
+//        $list = [];
+//        foreach($schemaReferences as $schemaReference) {
+//            $this->appendSchemaReferencesRecursively($schemaReference, $list);
+//        }
+//        $schemaReferences = $list;
+
         if($scope) {
             self::$staticPath = self::$staticPath.'/'.$scope;
             $schemas = self::loadStatics();
@@ -65,6 +71,17 @@ class ModelParser {
                 $json[$model->name] = $model->toSwagger();
         }
         return $json;
+    }
+
+    private function appendSchemaReferencesRecursively($name, &$list) {
+        if(in_array($name, $list)) return;
+        $list[] = $name;
+
+        $modelItem = ModelItem::parse($name);
+        foreach($modelItem->properties as $property) {
+            if(!$property->isSimpleType)
+                $this->appendSchemaReferencesRecursively($property->type, $list);
+        }
     }
 
     public function generateTypeScript() {
@@ -95,7 +112,6 @@ class ModelParser {
     /**
      * @param $model
      * @return ModelItem
-     * @throws \ReflectionException
      */
     private static function parseModels($model) {
         return ModelItem::parse(substr($model, 0, -4));
