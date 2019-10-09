@@ -33,29 +33,6 @@ trait EntityTrait {
 
     // <editor-fold desc="Save (Insert/Update)">
 
-    public function hasChange(): bool {
-        $model = $this->_getModel();
-        try {
-            $new = $model::classToArray($this);
-            $old = $this->stored;
-            foreach($new as $field => $value) {
-                $newValue = (string)$value;
-                $oldValue = isset($old[$field]) ? (string)$old[$field] : '';
-                if($newValue === $oldValue) {
-                    // No change
-                } else {
-                    // Change
-                    //Data::debug(get_class($this), "change", $field, $newValue, $oldValue);
-                    return true;
-                }
-
-            }
-        } catch(\ReflectionException $e) {
-
-        }
-        return false;
-    }
-
     /**
      * @param Entity|null $related
      * @param string|null $relatedField

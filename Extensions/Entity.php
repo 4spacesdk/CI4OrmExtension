@@ -144,4 +144,50 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
         return isset($this->all) ? reset($this->all) : $this;
     }
 
+    public function setAttributes(array $data) {
+        // Type casting
+        $fieldData = ModelDefinitionCache::getFieldData($this->getSimpleName());
+        $fieldName2Type = [];
+        foreach($fieldData as $field) $fieldName2Type[$field->name] = $field->type;
+
+        foreach($data as $field => $value) {
+            if(isset($fieldName2Type[$field])) {
+                switch($fieldName2Type[$field]) {
+                    case 'int':
+                        $data[$field] = (int)$value;
+                        break;
+                    case 'float':
+                    case 'double':
+                    case 'decimal':
+                        $data[$field] = (double)$value;
+                        break;
+                    case 'tinyint':
+                        $data[$field] = (bool)$value;
+                        break;
+                    case 'datetime':
+                        $data[$field] = $value ? date('Y-m-d H:i:s', strtotime($value)) : null;
+                        break;
+                    default:
+                        $data[$field] = $value;
+                }
+            }
+        }
+
+        return parent::setAttributes($data);
+    }
+
+    public function hasChanged(string $key = null, $checkRelations = false): bool {
+        if($key === null && $checkRelations == false) {
+            // CI4 will check original against attributes. Attributes holds everything, including relations
+            // Remove relations before checking
+            $tableFields = [];
+            foreach($this->getTableFields() as $tableField)
+                $tableFields[$tableField] = $tableField;
+            $original = array_intersect_key($this->original, $tableFields);
+            $attributes = array_intersect_key($this->attributes, $tableFields);
+            return $original !== $attributes;
+        } else
+            return parent::hasChanged($key);
+    }
+
 }
