@@ -154,7 +154,7 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
             if(isset($fieldName2Type[$field])) {
                 switch($fieldName2Type[$field]) {
                     case 'int':
-                        $data[$field] = (int)$value;
+                        $data[$field] = is_null($value) ? null : (int)$value;
                         break;
                     case 'float':
                     case 'double':
