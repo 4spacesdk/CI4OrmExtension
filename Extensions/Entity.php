@@ -159,7 +159,7 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
                     case 'float':
                     case 'double':
                     case 'decimal':
-                        $data[$field] = (double)$value;
+                        $data[$field] = is_null($value) ? null : (double)$value;
                         break;
                     case 'tinyint':
                         $data[$field] = (bool)$value;
