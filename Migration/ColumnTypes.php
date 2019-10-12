@@ -11,6 +11,7 @@ class ColumnTypes {
     const VARCHAR_4095      = 'VARCHAR(4095) NOT NULL';
     const VARCHAR_2047      = 'VARCHAR(2047) NOT NULL';
     const VARCHAR_1023      = 'VARCHAR(1023) NOT NULL';
+    const VARCHAR_1023_NULL = 'VARCHAR(1023)';
     const VARCHAR_511       = 'VARCHAR(511) NOT NULL';
     const VARCHAR_255       = 'VARCHAR(255) NOT NULL';
     const VARCHAR_127       = 'VARCHAR(127) NOT NULL';
