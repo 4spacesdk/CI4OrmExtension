@@ -6,7 +6,8 @@
  * Time: 12.20
  *
  * @property string $name
- * @property string $type
+ * @property string $typeScriptType
+ * @property string $xamarinType
  * @property string $comment
  * @property bool $isSimpleType
  * @property bool $isMany
@@ -18,9 +19,10 @@ class PropertyItem {
 
     public function __construct($name = "", $type = "", $isSimpleType = true, $isMany = false) {
         $this->name = $name;
-        $this->type = $type;
+        $this->typeScriptType = $type;
         $this->isSimpleType = $isSimpleType;
         $this->isMany = $isMany;
+        $this->setType($type);
     }
 
     public static function validate($line) {
@@ -43,42 +45,63 @@ class PropertyItem {
         if(count($parts))
             $item->comment = implode(' ', $parts);
 
+        $item->setType($type);
+
+        return $item;
+    }
+
+    public function setType($type) {
         switch($type) {
             case 'int':
             case 'double':
-                $item->type = 'number';
+                $this->typeScriptType = 'number';
                 break;
             case 'string|double':
-                $item->type = 'string';
+                $this->typeScriptType = 'string';
                 break;
             case 'boolean':
             case 'bool':
-                $item->type = 'boolean';
+                $this->typeScriptType = 'boolean';
                 break;
             case 'string':
-                $item->type = 'string';
+                $this->typeScriptType = 'string';
                 break;
             case 'int[]':
-                $item->type = 'number[]';
+                $this->typeScriptType = 'number[]';
                 break;
             default:
-                $item->type = $type;
-                $item->isSimpleType = false;
+                $this->typeScriptType = $type;
+                $this->isSimpleType = false;
                 break;
         }
-
-        return $item;
+        // Xamarin
+        switch($type) {
+            case 'string|double':
+                $this->typeScriptType = 'string';
+                break;
+            case 'boolean':
+            case 'bool':
+                $this->typeScriptType = 'bool';
+                break;
+            default:
+                $this->typeScriptType = $type;
+                break;
+        }
     }
 
     public function toSwagger() {
         $item = [];
 
         if($this->isSimpleType)
-            $item['type'] = $this->type;
+            $item['type'] = $this->typeScriptType;
         else
-            $item['type'] = "{$this->type}"; //"#/components/schemas/{$this->type}";
+            $item['type'] = "{$this->typeScriptType}"; //"#/components/schemas/{$this->type}";
 
         return $item;
+    }
+
+    public function getCamelName() {
+        return camelize($this->name);
     }
 
 }

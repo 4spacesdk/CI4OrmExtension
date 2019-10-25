@@ -8,9 +8,9 @@
 // Import
 $imported = [];
 foreach($model->properties as $property) : ?>
-<?php if(!$property->isSimpleType && !in_array($property->type, $imported)) :
-        $imported[] = $property->type; ?>
-import {<?=$property->type?>, <?=$property->type?>Interface} from '../<?=$property->type?>';
+<?php if(!$property->isSimpleType && !in_array($property->typeScriptType, $imported)) :
+        $imported[] = $property->typeScriptType; ?>
+import {<?=$property->typeScriptType?>, <?=$property->typeScriptType?>Interface} from '../<?=$property->typeScriptType?>';
 <?php endif ?>
 <?php endforeach
 ?>
@@ -21,13 +21,13 @@ import {Api} from '../../http/Api/Api';
 
 export interface <?=$model->name?>DefinitionInterface {
 <?php foreach($model->properties as $property) : ?>
-    <?=$property->name?>?: <?=$property->type?><?=$property->isSimpleType?'':'Interface'?><?=$property->isMany?"[]":""?>;
+    <?=$property->name?>?: <?=$property->typeScriptType?><?=$property->isSimpleType?'':'Interface'?><?=$property->isMany?"[]":""?>;
 <?php endforeach ?>
 }
 
 export class <?=$model->name?>Definition extends BaseModel implements <?=$model->name?>DefinitionInterface {
 <?php foreach($model->properties as $property) : ?>
-    <?=$property->name?>?: <?=$property->type?><?=$property->isSimpleType?'':''?><?=$property->isMany?"[]":""?>;
+    <?=$property->name?>?: <?=$property->typeScriptType?><?=$property->isSimpleType?'':''?><?=$property->isMany?"[]":""?>;
 <?php endforeach ?>
 
     constructor(data?: any) {
@@ -46,12 +46,12 @@ export class <?=$model->name?>Definition extends BaseModel implements <?=$model-
 <?php foreach($model->properties as $property) : ?>
         if (data.<?=$property->name?> != null) {
 <?php if($property->isMany): ?>
-            this.<?=$property->name?> = data.<?=$property->name?>.map((i: any) => new <?=$property->type?>(i));
+            this.<?=$property->name?> = data.<?=$property->name?>.map((i: any) => new <?=$property->typeScriptType?>(i));
 <?php else: ?>
 <?php if($property->isSimpleType): ?>
             this.<?=$property->name?> = data.<?=$property->name?>;
 <?php else: ?>
-            this.<?=$property->name?> = new <?=$property->type?>(data.<?=$property->name?>);
+            this.<?=$property->name?> = new <?=$property->typeScriptType?>(data.<?=$property->name?>);
 <?php endif ?>
 <?php endif ?>
         }

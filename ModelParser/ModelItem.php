@@ -57,12 +57,12 @@ class ModelItem {
 
         // Append static properties
         if($isEntity) {
-            $item->properties[] = new PropertyItem('id', 'number', true, false);
+            $item->properties[] = new PropertyItem('id', 'int', true, false);
             $item->properties[] = new PropertyItem('created', 'string', true, false);
             $item->properties[] = new PropertyItem('updated', 'string', true, false);
-            $item->properties[] = new PropertyItem('created_by_id', 'number', true, false);
+            $item->properties[] = new PropertyItem('created_by_id', 'int', true, false);
             $item->properties[] = new PropertyItem('created_by', 'User', false, false);
-            $item->properties[] = new PropertyItem('updated_by_id', 'number', true, false);
+            $item->properties[] = new PropertyItem('updated_by_id', 'int', true, false);
             $item->properties[] = new PropertyItem('updated_by', 'User', false, false);
         }
 

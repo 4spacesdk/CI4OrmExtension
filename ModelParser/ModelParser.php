@@ -80,7 +80,7 @@ class ModelParser {
         $modelItem = ModelItem::parse($name);
         foreach($modelItem->properties as $property) {
             if(!$property->isSimpleType)
-                $this->appendSchemaReferencesRecursively($property->type, $list);
+                $this->appendSchemaReferencesRecursively($property->typeScriptType, $list);
         }
     }
 
@@ -93,12 +93,10 @@ class ModelParser {
             Data::debug($model->name.' with '.count($model->properties).' properties');
 
             // Definition
-            //$content = view('ModelParser/TypeScript/ModelDefinition', ['model' => $model], ['debug' => false]);
             $content = $renderer->setData(['model' => $model], 'raw')->render('ModelDefinition', ['debug' => false], null);
             file_put_contents(WRITEPATH.'tmp/models/definitions/'.$model->name.'Definition.ts', $content);
 
             // Model
-            //$content = view('ModelParser/TypeScript/Model', ['model' => $model], ['debug' => false]);
             $content = $renderer->setData(['model' => $model], 'raw')->render('Model', ['debug' => false], null);
             file_put_contents(WRITEPATH.'tmp/models/'.$model->name.'.ts', $content);
 
@@ -106,6 +104,29 @@ class ModelParser {
 
         $content = $renderer->setData(['models' => $this->models], 'raw')->render('Index', ['debug' => false], null);
         file_put_contents(WRITEPATH.'tmp/models/index.ts', $content);
+    }
+
+    public function generateXamarin($debug = false) {
+        if(!file_exists(WRITEPATH.'tmp/xamarin/models/Definitions/')) mkdir(WRITEPATH.'tmp/xamarin/models/Definitions/', 0777, true);
+
+        $renderer = Services::renderer(__DIR__.'/Xamarin', null, false);
+
+        foreach($this->models as $model) {
+            Data::debug($model->name.' with '.count($model->properties).' properties');
+
+            // Definition
+            $content = $renderer->setData(['model' => $model], 'raw')->render('ModelDefinition', ['debug' => false], null);
+            if($debug) echo $content;
+            else
+                file_put_contents(WRITEPATH.'tmp/xamarin/models/Definitions/'.$model->name.'Definition.cs', $content);
+
+            // Model
+            $content = $renderer->setData(['model' => $model], 'raw')->render('Model', ['debug' => false], null);
+            if($debug) echo $content;
+            else
+                file_put_contents(WRITEPATH.'tmp/xamarin/models/'.$model->name.'.cs', $content);
+
+        }
     }
 
 
