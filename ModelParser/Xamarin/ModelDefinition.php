@@ -4,6 +4,7 @@
 /**
  * Created by ModelParser
  */
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace <?=\CodeIgniter\Config\Config::get('OrmExtension')->xamarinModelsNamespace?>.Definitions
@@ -15,7 +16,11 @@ namespace <?=\CodeIgniter\Config\Config::get('OrmExtension')->xamarinModelsNames
 <?php foreach($model->properties as $property) : ?>
 
         [JsonProperty("<?=$property->name?>")]
-        public <?=$property->typeScriptType?><?=$property->isMany?"[]":""?> <?=ucfirst($property->getCamelName())?> { get; set; }
+<?php if($property->isMany) { ?>
+        public List<<?=$property->typeScriptType?>> <?=ucfirst($property->getCamelName())?> { get; set; }
+<?php } else { ?>
+        public <?=$property->typeScriptType?> <?=ucfirst($property->getCamelName())?> { get; set; }
+<?php } ?>
 <?php endforeach ?>
 
     }
