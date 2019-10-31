@@ -19,6 +19,11 @@ Create new file `app/Config/OrmExtension.php` and add this content
 class OrmExtension {
     public static $modelNamespace = 'App\Models\\';
     public static $entityNamespace = 'App\Entities\\';
+
+    /*
+     * Provide Namespace for Xamarin models folder
+     */
+    public $xamarinModelsNamespace          = 'App.Models';
 }
 ```
 Update the namespace to fit your project. Use arrays if you have multiple namespaces for models and entities.
