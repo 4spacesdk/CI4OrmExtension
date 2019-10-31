@@ -117,7 +117,7 @@ class Table {
         if($this->hasIndex($name)) {
             //Data::debug("Index $name already exists in {$this->name}");
         } else {
-            $this->db->query("ALTER TABLE `{$this->name}` ADD INDEX `$name` ($indexes)");
+            $this->db->query("ALTER TABLE `{$this->name}` ADD INDEX `$name` (`$indexes`)");
             //Data::debug("Index $name added to {$this->name}");
         }
 
