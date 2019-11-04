@@ -77,14 +77,14 @@ class PropertyItem {
         // Xamarin
         switch($type) {
             case 'string|double':
-                $this->typeScriptType = 'string';
+                $this->xamarinType = 'string';
                 break;
             case 'boolean':
             case 'bool':
-                $this->typeScriptType = 'bool';
+                $this->xamarinType = 'bool';
                 break;
             default:
-                $this->typeScriptType = $type;
+                $this->xamarinType = $type;
                 break;
         }
     }

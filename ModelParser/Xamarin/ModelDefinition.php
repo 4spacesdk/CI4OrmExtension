@@ -17,9 +17,9 @@ namespace <?=\CodeIgniter\Config\Config::get('OrmExtension')->xamarinModelsNames
 
         [JsonProperty("<?=$property->name?>")]
 <?php if($property->isMany) { ?>
-        public List<<?=$property->typeScriptType?>> <?=ucfirst($property->getCamelName())?> { get; set; }
+        public List<<?=$property->xamarinType?>> <?=ucfirst($property->getCamelName())?> { get; set; }
 <?php } else { ?>
-        public <?=$property->typeScriptType?> <?=ucfirst($property->getCamelName())?> { get; set; }
+        public <?=$property->xamarinType?> <?=ucfirst($property->getCamelName())?> { get; set; }
 <?php } ?>
 <?php endforeach ?>
 
