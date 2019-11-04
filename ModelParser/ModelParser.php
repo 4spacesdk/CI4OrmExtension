@@ -84,7 +84,7 @@ class ModelParser {
         }
     }
 
-    public function generateTypeScript() {
+    public function generateTypeScript($debug = false) {
         if(!file_exists(WRITEPATH.'tmp/models/definitions/')) mkdir(WRITEPATH.'tmp/models/definitions/', 0777, true);
 
         $renderer = Services::renderer(__DIR__.'/TypeScript', null, false);
@@ -94,11 +94,15 @@ class ModelParser {
 
             // Definition
             $content = $renderer->setData(['model' => $model], 'raw')->render('ModelDefinition', ['debug' => false], null);
-            file_put_contents(WRITEPATH.'tmp/models/definitions/'.$model->name.'Definition.ts', $content);
+            if($debug) echo $content;
+            else
+                file_put_contents(WRITEPATH.'tmp/models/definitions/'.$model->name.'Definition.ts', $content);
 
             // Model
             $content = $renderer->setData(['model' => $model], 'raw')->render('Model', ['debug' => false], null);
-            file_put_contents(WRITEPATH.'tmp/models/'.$model->name.'.ts', $content);
+            if($debug) echo $content;
+            else
+                file_put_contents(WRITEPATH.'tmp/models/'.$model->name.'.ts', $content);
 
         }
 

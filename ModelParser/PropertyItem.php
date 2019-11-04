@@ -20,6 +20,7 @@ class PropertyItem {
     public function __construct($name = "", $type = "", $isSimpleType = true, $isMany = false) {
         $this->name = $name;
         $this->typeScriptType = $type;
+        $this->xamarinType = $type;
         $this->isSimpleType = $isSimpleType;
         $this->isMany = $isMany;
         $this->setType($type);
@@ -51,6 +52,8 @@ class PropertyItem {
     }
 
     public function setType($type) {
+        $this->isSimpleType = true;
+
         switch($type) {
             case 'int':
             case 'double':
