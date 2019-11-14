@@ -433,7 +433,6 @@ class Model extends \CodeIgniter\Model {
      * @return array|object|null|Entity
      */
     public function find($id = null) {
-        \DebugTool\Data::debug("FIND", get_class($this));
         $result = parent::find($id);
         // Clear
         $this->setSelecting(false);
