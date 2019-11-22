@@ -201,7 +201,7 @@ trait QueryBuilder {
 
         $query->bindReplace('${parent}', $this->getTableName());
 
-        $sql = $query->get(0, 0, true);
+        $sql = $query->getCompiledSelect();
         $sql = "({$sql})";
 
         //Data::sql($sql);
