@@ -35,6 +35,8 @@
  * @since	Version 3.0.0
  * @filesource
  */
+
+use CodeIgniter\Database\Exceptions\DatabaseException;
 use OrmExtension\Extensions\Database\BaseConnection;
 use CodeIgniter\Database\ConnectionInterface;
 
@@ -44,340 +46,345 @@ use CodeIgniter\Database\ConnectionInterface;
 class Connection extends BaseConnection implements ConnectionInterface
 {
 
-	/**
-	 * Database driver
-	 *
-	 * @var string
-	 */
-	public $DBDriver = 'postgre';
+    /**
+     * Database driver
+     *
+     * @var string
+     */
+    public $DBDriver = 'postgre';
 
-	//--------------------------------------------------------------------
+    //--------------------------------------------------------------------
 
-	/**
-	 * Database schema
-	 *
-	 * @var string
-	 */
-	public $schema = 'public';
+    /**
+     * Database schema
+     *
+     * @var string
+     */
+    public $schema = 'public';
 
-	/**
-	 * Identifier escape character
-	 *
-	 * @var    string
-	 */
-	public $escapeChar = '"';
+    /**
+     * Identifier escape character
+     *
+     * @var string
+     */
+    public $escapeChar = '"';
 
-	//--------------------------------------------------------------------
+    //--------------------------------------------------------------------
 
-	/**
-	 * Connect to the database.
-	 *
-	 * @param bool $persistent
-	 * @return mixed
-	 */
-	public function connect($persistent = false)
-	{
-		if (empty($this->DSN))
-		{
-			$this->buildDSN();
-		}
+    /**
+     * Connect to the database.
+     *
+     * @param  boolean $persistent
+     * @return mixed
+     */
+    public function connect(bool $persistent = false)
+    {
+        if (empty($this->DSN))
+        {
+            $this->buildDSN();
+        }
 
-		// Strip pgsql if exists
-		if (mb_strpos($this->DSN, 'pgsql:') === 0)
-		{
-			$this->DSN = mb_substr($this->DSN, 6);
-		}
+        // Strip pgsql if exists
+        if (mb_strpos($this->DSN, 'pgsql:') === 0)
+        {
+            $this->DSN = mb_substr($this->DSN, 6);
+        }
 
-		// Convert semicolons to spaces.
-		$this->DSN = str_replace(';', ' ', $this->DSN);
+        // Convert semicolons to spaces.
+        $this->DSN = str_replace(';', ' ', $this->DSN);
 
-		$this->connID = $persistent === true ? pg_pconnect($this->DSN) : pg_connect($this->DSN);
+        $this->connID = $persistent === true ? pg_pconnect($this->DSN) : pg_connect($this->DSN);
 
-		if ($this->connID !== false)
-		{
-			if ($persistent === true && pg_connection_status($this->connID) === PGSQL_CONNECTION_BAD && pg_ping($this->connID) === false
-			)
-			{
-				return false;
-			}
+        if ($this->connID !== false)
+        {
+            if ($persistent === true && pg_connection_status($this->connID) === PGSQL_CONNECTION_BAD && pg_ping($this->connID) === false
+            )
+            {
+                return false;
+            }
 
-			empty($this->schema) || $this->simpleQuery("SET search_path TO {$this->schema},public");
+            empty($this->schema) || $this->simpleQuery("SET search_path TO {$this->schema},public");
 
-			if ($this->setClientEncoding($this->charset) === false)
-			{
-				return false;
-			}
-		}
+            if ($this->setClientEncoding($this->charset) === false)
+            {
+                return false;
+            }
+        }
 
-		return $this->connID;
-	}
+        return $this->connID;
+    }
 
-	//--------------------------------------------------------------------
+    //--------------------------------------------------------------------
 
-	/**
-	 * Keep or establish the connection if no queries have been sent for
-	 * a length of time exceeding the server's idle timeout.
-	 *
-	 * @return mixed
-	 */
-	public function reconnect()
-	{
-		if (pg_ping($this->connID) === false)
-		{
-			$this->connID = false;
-		}
-	}
+    /**
+     * Keep or establish the connection if no queries have been sent for
+     * a length of time exceeding the server's idle timeout.
+     *
+     * @return void
+     */
+    public function reconnect()
+    {
+        if (pg_ping($this->connID) === false)
+        {
+            $this->connID = false;
+        }
+    }
 
-	//--------------------------------------------------------------------
+    //--------------------------------------------------------------------
 
-	/**
-	 * Close the database connection.
-	 */
-	protected function _close()
-	{
-		pg_close($this->connID);
-	}
+    /**
+     * Close the database connection.
+     *
+     * @return void
+     */
+    protected function _close()
+    {
+        pg_close($this->connID);
+    }
 
-	//--------------------------------------------------------------------
+    //--------------------------------------------------------------------
 
-	/**
-	 * Select a specific database table to use.
-	 *
-	 * @param string $databaseName
-	 *
-	 * @return mixed
-	 */
-	public function setDatabase(string $databaseName)
-	{
-		return false;
-	}
+    /**
+     * Select a specific database table to use.
+     *
+     * @param string $databaseName
+     *
+     * @return boolean
+     */
+    public function setDatabase(string $databaseName): bool
+    {
+        return false;
+    }
 
-	//--------------------------------------------------------------------
+    //--------------------------------------------------------------------
 
-	/**
-	 * Returns a string containing the version of the database being used.
-	 *
-	 * @return mixed
-	 */
-	public function getVersion()
-	{
-		if (isset($this->dataCache['version']))
-		{
-			return $this->dataCache['version'];
-		}
+    /**
+     * Returns a string containing the version of the database being used.
+     *
+     * @return string
+     */
+    public function getVersion(): string
+    {
+        if (isset($this->dataCache['version']))
+        {
+            return $this->dataCache['version'];
+        }
 
-		if ( ! $this->connID or ( $pgVersion = pg_version($this->connID)) === false)
-		{
-			$this->initialize();
-		}
+        if (! $this->connID || ( $pgVersion = pg_version($this->connID)) === false)
+        {
+            $this->initialize();
+        }
 
-		return isset($pgVersion['server']) ? $this->dataCache['version'] = $pgVersion['server'] : false;
-	}
+        return isset($pgVersion['server']) ? $this->dataCache['version'] = $pgVersion['server'] : false;
+    }
 
-	//--------------------------------------------------------------------
+    //--------------------------------------------------------------------
 
-	/**
-	 * Executes the query against the database.
-	 *
-	 * @param string $sql
-	 *
-	 * @return resource
-	 */
-	public function execute($sql)
-	{
-		return pg_query($this->connID, $sql);
-	}
+    /**
+     * Executes the query against the database.
+     *
+     * @param string $sql
+     *
+     * @return resource
+     */
+    public function execute(string $sql)
+    {
+        return pg_query($this->connID, $sql);
+    }
 
-	//--------------------------------------------------------------------
+    //--------------------------------------------------------------------
 
-	/**
-	 * Returns the total number of rows affected by this query.
-	 *
-	 * @return mixed
-	 */
-	public function affectedRows(): int
-	{
-		return pg_affected_rows($this->resultID);
-	}
+    /**
+     * Returns the total number of rows affected by this query.
+     *
+     * @return integer
+     */
+    public function affectedRows(): int
+    {
+        return pg_affected_rows($this->resultID);
+    }
 
-	//--------------------------------------------------------------------
+    //--------------------------------------------------------------------
 
-	/**
-	 * "Smart" Escape String
-	 *
-	 * Escapes data based on type
-	 *
-	 * @param  string $str
-	 * @return mixed
-	 */
-	public function escape($str)
-	{
-		if (! $this->connID)
-		{
-			$this->initialize();
-		}
+    /**
+     * "Smart" Escape String
+     *
+     * Escapes data based on type
+     *
+     * @param  mixed $str
+     * @return mixed
+     */
+    public function escape($str)
+    {
+        if (! $this->connID)
+        {
+            $this->initialize();
+        }
 
-		if (is_string($str) || ( is_object($str) && method_exists($str, '__toString')))
-		{
-			return pg_escape_literal($this->connID, $str);
-		}
-		elseif (is_bool($str))
-		{
-			return $str ? 'TRUE' : 'FALSE';
-		}
+        if (is_string($str) || ( is_object($str) && method_exists($str, '__toString')))
+        {
+            return pg_escape_literal($this->connID, $str);
+        }
+        elseif (is_bool($str))
+        {
+            return $str ? 'TRUE' : 'FALSE';
+        }
 
-		return parent::escape($str);
-	}
+        return parent::escape($str);
+    }
 
-	//--------------------------------------------------------------------
+    //--------------------------------------------------------------------
 
-	/**
-	 * Platform-dependant string escape
-	 *
-	 * @param	string $str
-	 * @return	string
-	 */
-	protected function _escapeString(string $str): string
-	{
-		if (! $this->connID)
-		{
-			$this->initialize();
-		}
+    /**
+     * Platform-dependant string escape
+     *
+     * @param  string $str
+     * @return string
+     */
+    protected function _escapeString(string $str): string
+    {
+        if (! $this->connID)
+        {
+            $this->initialize();
+        }
 
-		return pg_escape_string($this->connID, $str);
-	}
+        return pg_escape_string($this->connID, $str);
+    }
 
-	//--------------------------------------------------------------------
+    //--------------------------------------------------------------------
 
-	/**
-	 * Generates the SQL for listing tables in a platform-dependent manner.
-	 *
-	 * @param bool $prefixLimit
-	 *
-	 * @return string
-	 */
-	protected function _listTables($prefixLimit = false): string
-	{
-		$sql = 'SELECT "table_name" FROM "information_schema"."tables" WHERE "table_schema" = \'' . $this->schema . "'";
+    /**
+     * Generates the SQL for listing tables in a platform-dependent manner.
+     *
+     * @param boolean $prefixLimit
+     *
+     * @return string
+     */
+    protected function _listTables(bool $prefixLimit = false): string
+    {
+        $sql = 'SELECT "table_name" FROM "information_schema"."tables" WHERE "table_schema" = \'' . $this->schema . "'";
 
-		if ($prefixLimit !== false && $this->DBPrefix !== '')
-		{
-			return $sql . ' AND "table_name" LIKE \''
-					. $this->escapeLikeString($this->DBPrefix) . "%' "
-					. sprintf($this->likeEscapeStr, $this->likeEscapeChar);
-		}
+        if ($prefixLimit !== false && $this->DBPrefix !== '')
+        {
+            return $sql . ' AND "table_name" LIKE \''
+                . $this->escapeLikeString($this->DBPrefix) . "%' "
+                . sprintf($this->likeEscapeStr, $this->likeEscapeChar);
+        }
 
-		return $sql;
-	}
+        return $sql;
+    }
 
-	//--------------------------------------------------------------------
+    //--------------------------------------------------------------------
 
-	/**
-	 * Generates a platform-specific query string so that the column names can be fetched.
-	 *
-	 * @param string $table
-	 *
-	 * @return string
-	 */
-	protected function _listColumns(string $table = ''): string
-	{
-		return 'SELECT "column_name"
+    /**
+     * Generates a platform-specific query string so that the column names can be fetched.
+     *
+     * @param string $table
+     *
+     * @return string
+     */
+    protected function _listColumns(string $table = ''): string
+    {
+        return 'SELECT "column_name"
 			FROM "information_schema"."columns"
 			WHERE LOWER("table_name") = '
-				. $this->escape($this->DBPrefix.strtolower($table));
-	}
+            . $this->escape($this->DBPrefix . strtolower($table));
+    }
 
-	//--------------------------------------------------------------------
+    //--------------------------------------------------------------------
 
-	/**
-	 * Returns an object with field data
-	 *
-	 * @param	string	$table
-	 * @return	array
-	 */
-	public function _fieldData(string $table)
-	{
-		$sql = 'SELECT "column_name", "data_type", "character_maximum_length", "numeric_precision", "column_default"
+    /**
+     * Returns an array of objects with field data
+     *
+     * @param  string $table
+     * @return \stdClass[]
+     * @throws DatabaseException
+     */
+    public function _fieldData(string $table): array
+    {
+        $sql = 'SELECT "column_name", "data_type", "character_maximum_length", "numeric_precision", "column_default"
 			FROM "information_schema"."columns"
 			WHERE LOWER("table_name") = '
-				. $this->escape(strtolower($table));
+            . $this->escape(strtolower($table));
 
-		if (($query = $this->query($sql)) === false)
-		{
-			return false;
-		}
-		$query = $query->getResultObject();
+        if (($query = $this->query($sql)) === false)
+        {
+            throw new DatabaseException(lang('Database.failGetFieldData'));
+        }
+        $query = $query->getResultObject();
 
-		$retval = [];
-		for ($i = 0, $c = count($query); $i < $c; $i ++ )
-		{
-			$retval[$i] = new \stdClass();
-			$retval[$i]->name = $query[$i]->column_name;
-			$retval[$i]->type = $query[$i]->data_type;
-			$retval[$i]->default = $query[$i]->column_default;
-			$retval[$i]->max_length = $query[$i]->character_maximum_length > 0 ? $query[$i]->character_maximum_length : $query[$i]->numeric_precision;
-		}
+        $retVal = [];
+        for ($i = 0, $c = count($query); $i < $c; $i ++)
+        {
+            $retVal[$i]             = new \stdClass();
+            $retVal[$i]->name       = $query[$i]->column_name;
+            $retVal[$i]->type       = $query[$i]->data_type;
+            $retVal[$i]->default    = $query[$i]->column_default;
+            $retVal[$i]->max_length = $query[$i]->character_maximum_length > 0 ? $query[$i]->character_maximum_length : $query[$i]->numeric_precision;
+        }
 
-		return $retval;
-	}
+        return $retVal;
+    }
 
-	//--------------------------------------------------------------------
+    //--------------------------------------------------------------------
 
-	/**
-	 * Returns an object with index data
-	 *
-	 * @param	string	$table
-	 * @return	array
-	 */
-	public function _indexData(string $table)
-	{
-		$sql = 'SELECT "indexname", "indexdef"
+    /**
+     * Returns an array of objects with index data
+     *
+     * @param  string $table
+     * @return \stdClass[]
+     * @throws DatabaseException
+     */
+    public function _indexData(string $table): array
+    {
+        $sql = 'SELECT "indexname", "indexdef"
 			FROM "pg_indexes"
 			WHERE LOWER("tablename") = ' . $this->escape(strtolower($table)) . '
 			AND "schemaname" = ' . $this->escape('public');
 
-		if (($query = $this->query($sql)) === false)
-		{
-			return false;
-		}
-		$query = $query->getResultObject();
+        if (($query = $this->query($sql)) === false)
+        {
+            throw new DatabaseException(lang('Database.failGetIndexData'));
+        }
+        $query = $query->getResultObject();
 
-		$retval = [];
-		foreach ($query as $row)
-		{
-			$obj = new \stdClass();
-			$obj->name = $row->indexname;
-			$_fields = explode(',', preg_replace('/^.*\((.+?)\)$/', '$1', trim($row->indexdef)));
-			$obj->fields = array_map(function($v) {
-				return trim($v);
-			}, $_fields);
+        $retVal = [];
+        foreach ($query as $row)
+        {
+            $obj         = new \stdClass();
+            $obj->name   = $row->indexname;
+            $_fields     = explode(',', preg_replace('/^.*\((.+?)\)$/', '$1', trim($row->indexdef)));
+            $obj->fields = array_map(function ($v) {
+                return trim($v);
+            }, $_fields);
 
-			if (strpos($row->indexdef, 'CREATE UNIQUE INDEX pk') === 0)
-			{
-				$obj->type = 'PRIMARY';
-			}
-			else
-			{
-				$obj->type = (strpos($row->indexdef, 'CREATE UNIQUE') === 0) ? 'UNIQUE' :'INDEX';
-			}
+            if (strpos($row->indexdef, 'CREATE UNIQUE INDEX pk') === 0)
+            {
+                $obj->type = 'PRIMARY';
+            }
+            else
+            {
+                $obj->type = (strpos($row->indexdef, 'CREATE UNIQUE') === 0) ? 'UNIQUE' : 'INDEX';
+            }
 
-			$retval[] = $obj;
-	}
+            $retVal[$obj->name] = $obj;
+        }
 
-		return $retval;
-	}
+        return $retVal;
+    }
 
-	//--------------------------------------------------------------------
+    //--------------------------------------------------------------------
 
-/**
-	 * Returns an object with Foreign key data
-	 *
-	 * @param	string	$table
-	 * @return	array
-	 */
-	public function _foreignKeyData(string $table)
-	{
-		$sql = 'SELECT
+    /**
+     * Returns an array of objects with Foreign key data
+     *
+     * @param  string $table
+     * @return \stdClass[]
+     * @throws DatabaseException
+     */
+    public function _foreignKeyData(string $table): array
+    {
+        $sql = 'SELECT
                             tc.constraint_name, tc.table_name, kcu.column_name,
                             ccu.table_name AS foreign_table_name,
                             ccu.column_name AS foreign_column_name
@@ -386,194 +393,220 @@ class Connection extends BaseConnection implements ConnectionInterface
                             ON tc.constraint_name = kcu.constraint_name
                         JOIN information_schema.constraint_column_usage AS ccu
                             ON ccu.constraint_name = tc.constraint_name
-                        WHERE constraint_type = '.$this->escape('FOREIGN KEY').' AND tc.table_name = '.$this->escape($table);
+                        WHERE constraint_type = ' . $this->escape('FOREIGN KEY') . ' AND
+                            tc.table_name = ' . $this->escape($table);
 
-		if (($query = $this->query($sql)) === false)
-		{
-			return false;
-		}
-		$query = $query->getResultObject();
+        if (($query = $this->query($sql)) === false)
+        {
+            throw new DatabaseException(lang('Database.failGetForeignKeyData'));
+        }
+        $query = $query->getResultObject();
 
-		$retval = [];
-		foreach ($query as $row)
-		{
-			$obj = new \stdClass();
-			$obj->constraint_name = $row->constraint_name;
-                        $obj->table_name = $row->table_name;
-                        $obj->foreign_table_name = $row->foreign_table_name;
+        $retVal = [];
+        foreach ($query as $row)
+        {
+            $obj                      = new \stdClass();
+            $obj->constraint_name     = $row->constraint_name;
+            $obj->table_name          = $row->table_name;
+            $obj->column_name         = $row->column_name;
+            $obj->foreign_table_name  = $row->foreign_table_name;
+            $obj->foreign_column_name = $row->foreign_column_name;
+            $retVal[]                 = $obj;
+        }
 
-			$retval[] = $obj;
-		}
+        return $retVal;
+    }
 
-		return $retval;
-	}
+    //--------------------------------------------------------------------
 
-	//--------------------------------------------------------------------
+    /**
+     * Returns platform-specific SQL to disable foreign key checks.
+     *
+     * @return string
+     */
+    protected function _disableForeignKeyChecks()
+    {
+        return 'SET CONSTRAINTS ALL DEFERRED';
+    }
 
-	/**
-	 * Returns the last error code and message.
-	 *
-	 * Must return an array with keys 'code' and 'message':
-	 *
-	 *  return ['code' => null, 'message' => null);
-	 *
-	 * @return	array
-	 */
-	public function error()
-	{
-		return [
-			'code'		 => '',
-			'message'	 => pg_last_error($this->connID)
-		];
-	}
+    //--------------------------------------------------------------------
 
-	//--------------------------------------------------------------------
+    /**
+     * Returns platform-specific SQL to enable foreign key checks.
+     *
+     * @return string
+     */
+    protected function _enableForeignKeyChecks()
+    {
+        return 'SET CONSTRAINTS ALL IMMEDIATE;';
+    }
 
-	/**
-	 * Insert ID
-	 *
-	 * @return	int
-	 */
-	public function insertID()
-	{
-		$v = pg_version($this->connID);
-		// 'server' key is only available since PostgreSQL 7.4
-		$v = $v['server'] ?? 0;
+    //--------------------------------------------------------------------
 
-		$table = func_num_args() > 0 ? func_get_arg(0) : null;
-		$column = func_num_args() > 1 ? func_get_arg(1) : null;
+    /**
+     * Returns the last error code and message.
+     *
+     * Must return an array with keys 'code' and 'message':
+     *
+     *  return ['code' => null, 'message' => null);
+     *
+     * @return array
+     */
+    public function error(): array
+    {
+        return [
+            'code'    => '',
+            'message' => pg_last_error($this->connID),
+        ];
+    }
 
-		if ($table === null && $v >= '8.1')
-		{
-			$sql = 'SELECT LASTVAL() AS ins_id';
-		}
-		elseif ($table !== null)
-		{
-			if ($column !== null && $v >= '8.0')
-			{
-				$sql = "SELECT pg_get_serial_sequence('{$table}', '{$column}') AS seq";
-				$query = $this->query($sql);
-				$query = $query->getRow();
-				$seq = $query->seq;
-			}
-			else
-			{
-				// seq_name passed in table parameter
-				$seq = $table;
-			}
+    //--------------------------------------------------------------------
 
-			$sql = "SELECT CURRVAL('{$seq}') AS ins_id";
-		}
-		else
-		{
-			return pg_last_oid($this->resultID);
-		}
+    /**
+     * Insert ID
+     *
+     * @return integer
+     */
+    public function insertID(): int
+    {
+        $v = pg_version($this->connID);
+        // 'server' key is only available since PostgreSQL 7.4
+        $v = $v['server'] ?? 0;
 
-		$query = $this->query($sql);
-		$query = $query->getRow();
-		return (int) $query->ins_id;
-	}
+        $table  = func_num_args() > 0 ? func_get_arg(0) : null;
+        $column = func_num_args() > 1 ? func_get_arg(1) : null;
 
-	//--------------------------------------------------------------------
+        if ($table === null && $v >= '8.1')
+        {
+            $sql = 'SELECT LASTVAL() AS ins_id';
+        }
+        elseif ($table !== null)
+        {
+            if ($column !== null && $v >= '8.0')
+            {
+                $sql   = "SELECT pg_get_serial_sequence('{$table}', '{$column}') AS seq";
+                $query = $this->query($sql);
+                $query = $query->getRow();
+                $seq   = $query->seq;
+            }
+            else
+            {
+                // seq_name passed in table parameter
+                $seq = $table;
+            }
 
-	/**
-	 * Build a DSN from the provided parameters
-	 *
-	 * @return void
-	 */
-	protected function buildDSN()
-	{
-		$this->DSN === '' || $this->DSN = '';
+            $sql = "SELECT CURRVAL('{$seq}') AS ins_id";
+        }
+        else
+        {
+            return pg_last_oid($this->resultID);
+        }
 
-		// If UNIX sockets are used, we shouldn't set a port
-		if (strpos($this->hostname, '/') !== false)
-		{
-			$this->port = '';
-		}
+        $query = $this->query($sql);
+        $query = $query->getRow();
+        return (int) $query->ins_id;
+    }
 
-		$this->hostname === '' || $this->DSN = "host={$this->hostname} ";
+    //--------------------------------------------------------------------
 
-		if ( ! empty($this->port) && ctype_digit($this->port))
-		{
-			$this->DSN .= "port={$this->port} ";
-		}
+    /**
+     * Build a DSN from the provided parameters
+     *
+     * @return void
+     */
+    protected function buildDSN()
+    {
+        $this->DSN === '' || $this->DSN = '';
 
-		if ($this->username !== '')
-		{
-			$this->DSN .= "user={$this->username} ";
+        // If UNIX sockets are used, we shouldn't set a port
+        if (strpos($this->hostname, '/') !== false)
+        {
+            $this->port = '';
+        }
 
-			// An empty password is valid!
-			// password must be set to null to ignore it.
+        $this->hostname === '' || $this->DSN = "host={$this->hostname} ";
 
-			$this->password === null || $this->DSN .= "password='{$this->password}' ";
-		}
+        if (! empty($this->port) && ctype_digit($this->port))
+        {
+            $this->DSN .= "port={$this->port} ";
+        }
 
-		$this->database === '' || $this->DSN .= "dbname={$this->database} ";
+        if ($this->username !== '')
+        {
+            $this->DSN .= "user={$this->username} ";
 
-		// We don't have these options as elements in our standard configuration
-		// array, but they might be set by parse_url() if the configuration was
-		// provided via string> Example:
-		//
-		// postgre://username:password@localhost:5432/database?connect_timeout=5&sslmode=1
-		foreach (['connect_timeout', 'options', 'sslmode', 'service'] as $key)
-		{
-			if (isset($this->{$key}) && is_string($this->{$key}) && $this->{$key} !== '')
-			{
-				$this->DSN .= "{$key}='{$this->{$key}}' ";
-			}
-		}
+            // An empty password is valid!
+            // password must be set to null to ignore it.
 
-		$this->DSN = rtrim($this->DSN);
-	}
+            $this->password === null || $this->DSN .= "password='{$this->password}' ";
+        }
 
-	//--------------------------------------------------------------------
+        $this->database === '' || $this->DSN .= "dbname={$this->database} ";
 
-	/**
-	 * Set client encoding
-	 *
-	 * @param string $charset The client encoding to which the data will be converted.
-	 * @return bool
-	 */
-	protected function setClientEncoding($charset)
-	{
-		return pg_set_client_encoding($this->connID, $charset) === 0;
-	}
+        // We don't have these options as elements in our standard configuration
+        // array, but they might be set by parse_url() if the configuration was
+        // provided via string> Example:
+        //
+        // postgre://username:password@localhost:5432/database?connect_timeout=5&sslmode=1
+        foreach (['connect_timeout', 'options', 'sslmode', 'service'] as $key)
+        {
+            if (isset($this->{$key}) && is_string($this->{$key}) && $this->{$key} !== '')
+            {
+                $this->DSN .= "{$key}='{$this->{$key}}' ";
+            }
+        }
 
-	//--------------------------------------------------------------------
+        $this->DSN = rtrim($this->DSN);
+    }
 
-	/**
-	 * Begin Transaction
-	 *
-	 * @return	bool
-	 */
-	protected function _transBegin(): bool
-	{
-		return (bool) pg_query($this->connID, 'BEGIN');
-	}
+    //--------------------------------------------------------------------
 
-	// --------------------------------------------------------------------
+    /**
+     * Set client encoding
+     *
+     * @param  string $charset The client encoding to which the data will be converted.
+     * @return boolean
+     */
+    protected function setClientEncoding(string $charset): bool
+    {
+        return pg_set_client_encoding($this->connID, $charset) === 0;
+    }
 
-	/**
-	 * Commit Transaction
-	 *
-	 * @return	bool
-	 */
-	protected function _transCommit(): bool
-	{
-		return (bool) pg_query($this->connID, 'COMMIT');
-	}
+    //--------------------------------------------------------------------
 
-	// --------------------------------------------------------------------
+    /**
+     * Begin Transaction
+     *
+     * @return boolean
+     */
+    protected function _transBegin(): bool
+    {
+        return (bool) pg_query($this->connID, 'BEGIN');
+    }
 
-	/**
-	 * Rollback Transaction
-	 *
-	 * @return	bool
-	 */
-	protected function _transRollback(): bool
-	{
-		return (bool) pg_query($this->connID, 'ROLLBACK');
-	}
+    // --------------------------------------------------------------------
 
-	// --------------------------------------------------------------------
+    /**
+     * Commit Transaction
+     *
+     * @return boolean
+     */
+    protected function _transCommit(): bool
+    {
+        return (bool) pg_query($this->connID, 'COMMIT');
+    }
+
+    // --------------------------------------------------------------------
+
+    /**
+     * Rollback Transaction
+     *
+     * @return boolean
+     */
+    protected function _transRollback(): bool
+    {
+        return (bool) pg_query($this->connID, 'ROLLBACK');
+    }
+
+    // --------------------------------------------------------------------
 }

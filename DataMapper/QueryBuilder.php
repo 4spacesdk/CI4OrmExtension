@@ -201,10 +201,10 @@ trait QueryBuilder {
 
         $query->bindReplace('${parent}', $this->getTableName());
 
-        $sql = $query->getCompiledSelect();
+        $sql = $query->compileSelect_();
         $sql = "({$sql})";
 
-        //Data::sql($sql);
+//        Data::sql($sql);
 
         $this->bindMerging($sql, $query->getBinds());
 
@@ -236,7 +236,7 @@ trait QueryBuilder {
         $sql = preg_replace($pattern, $replacement, $sql);
         $sql = str_replace("\n", "\n\t", $sql);
 
-        //Data::sql($sql);
+//        Data::sql($sql);
 
         return str_replace('${parent}', $this->getTableName(), $sql);
     }
