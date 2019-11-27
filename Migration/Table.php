@@ -1,6 +1,7 @@
 <?php namespace OrmExtension\Migration;
 
 use CodeIgniter\CLI\CLI;
+use CodeIgniter\Config\Config;
 use CodeIgniter\Database\BaseConnection;
 use CodeIgniter\Database\Forge;
 use Config\Database;
@@ -14,6 +15,7 @@ use OrmExtension\DataMapper\ModelDefinitionCache;
  * @property string $name
  * @property BaseConnection $db
  * @property Forge $forge
+ * @property array $dbGroup
  */
 class Table {
 
@@ -23,6 +25,7 @@ class Table {
         }
 
         $table = new Table();
+        $table->dbGroup = Config::get('database')->{$group};
         $table->name = $name;
         $table->db = Database::connect($group);
         $table->forge = Database::forge($group);
@@ -33,7 +36,8 @@ class Table {
         $sql = "CREATE TABLE IF NOT EXISTS `$this->name` (
                   `{$primaryKeyName}` {$primaryKeyType} ".($autoIncrement ? 'AUTO_INCREMENT' : '').",
                   PRIMARY KEY (`{$primaryKeyName}`)
-                ) ENGINE=InnoDB ".($autoIncrement ? 'AUTO_INCREMENT=1' : '')." DEFAULT CHARSET=utf8;";
+                ) ENGINE=InnoDB ".($autoIncrement ? 'AUTO_INCREMENT=1' : '')
+            ." CHARACTER SET {$this->dbGroup['charset']} COLLATE {$this->dbGroup['DBCollat']};";
         $this->db->query($sql);
         return $this;
     }
