@@ -44,9 +44,12 @@ class ModelDefinitionCache {
 
     public static function getFields($entity, $tableName = null) {
         $fields = static::getData($entity.'_fields');
-        if(!$fields) {
+        if(is_null($fields)) {
             $fieldData = ModelDefinitionCache::getFieldData($entity, $tableName);
-            foreach($fieldData as $field) $fields[] = $field->name;
+            $fields = [];
+            if($fieldData) {
+                foreach($fieldData as $field) $fields[] = $field->name;
+            }
             ModelDefinitionCache::setFields($entity, $fields);
         }
         return $fields;
@@ -58,7 +61,7 @@ class ModelDefinitionCache {
 
     public static function getFieldData($entity, $tableName = null) {
         $fieldData = static::getData($entity.'_field_data');
-        if(!$fieldData) {
+        if(is_null($fieldData)) {
             if(is_null($tableName)) {
 
                 foreach(OrmExtension::$modelNamespace as $modelNamespace) {
@@ -70,9 +73,16 @@ class ModelDefinitionCache {
                     }
                 }
             }
+
             $db = Database::connect();
-            $fieldData = $db->getFieldData($tableName);
-            ModelDefinitionCache::setFieldData($entity, $fieldData);
+            try {
+                $fieldData = $db->getFieldData($tableName);
+                ModelDefinitionCache::setFieldData($entity, $fieldData);
+            } catch(\Exception $e) {
+                // Ignore table doesn't exist
+                if($e->getCode() != 1146)
+                    throw $e;
+            }
         }
         return $fieldData;
     }

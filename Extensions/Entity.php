@@ -103,7 +103,7 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
     public function __get(string $key) {
         $result = parent::__get($key);
 
-        if(is_null($result)) {
+        if(is_null($result) && $key != 'id') {
             // Check for relation
             foreach($this->_getModel()->getRelations() as $relation) {
                 if($relation->getSimpleName() == singular($key)) {
