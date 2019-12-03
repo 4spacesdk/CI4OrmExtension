@@ -1,9 +1,9 @@
 <?php namespace OrmExtension\Extensions;
+
 use CodeIgniter\Database\BaseBuilder;
 use CodeIgniter\Database\ConnectionInterface;
 use CodeIgniter\Validation\ValidationInterface;
 use Config\OrmExtension;
-use DebugTool\Data;
 use OrmExtension\DataMapper\ModelDefinitionCache;
 use OrmExtension\DataMapper\QueryBuilder;
 use OrmExtension\DataMapper\ResultBuilder;
@@ -589,14 +589,15 @@ class Model extends \CodeIgniter\Model {
         $this->updatedData = [];
         if($this->entityToSave instanceof Entity) {
             $fields = $data['data'];
+            $original = $this->entityToSave->getOriginal();
             foreach($fields as $field => $value) {
                 $this->updatedData[$field] = [
-                    'old'   => isset($this->entityToSave->original[$field]) ? $this->entityToSave->original[$field] : null,
+                    'old'   => isset($original[$field]) ? $original[$field] : null,
                     'new'   => $fields[$field]
                 ];
             }
             if(empty($fields)) { // Set the id field, CI dont like empty updates
-                $fields[$this->getPrimaryKey()] = $this->entityToSave->original[$this->getPrimaryKey()];
+                $fields[$this->getPrimaryKey()] = $original[$this->getPrimaryKey()];
             }
             $data['data'] = $fields;
         }

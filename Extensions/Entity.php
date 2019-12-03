@@ -1,10 +1,9 @@
 <?php namespace OrmExtension\Extensions;
+
 use Config\OrmExtension;
-use DebugTool\Data;
 use IteratorAggregate;
 use OrmExtension\DataMapper\EntityTrait;
 use OrmExtension\DataMapper\ModelDefinitionCache;
-use OrmExtension\DataMapper\QueryBuilder;
 use OrmExtension\DataMapper\QueryBuilderInterface;
 use OrmExtension\DataMapper\RelationDef;
 
@@ -174,6 +173,13 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
         }
 
         return parent::setAttributes($data);
+    }
+
+    public function getOriginal($key = null) {
+        if($key)
+            return $this->original[$key];
+        else
+            return $this->original;
     }
 
     public function hasChanged(string $key = null, $checkRelations = false): bool {
