@@ -20,12 +20,14 @@ use OrmExtension\DataMapper\ModelDefinitionCache;
 class Table {
 
     public static function init($name, $group = null) {
+        /** @var Database $config */
+        $config = config('Database');
         if(!$group) {
-            $group = (new Database())->defaultGroup;
+            $group = $config->defaultGroup;
         }
 
         $table = new Table();
-        $table->dbGroup = Config::get('database')->{$group};
+        $table->dbGroup = $config->{$group};
         $table->name = $name;
         $table->db = Database::connect($group);
         $table->forge = Database::forge($group);
