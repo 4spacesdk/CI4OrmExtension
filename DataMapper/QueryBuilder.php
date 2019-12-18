@@ -333,7 +333,8 @@ trait QueryBuilder {
         // If no selects, select this table
         if(!$this->isSelecting()) $this->select($this->getTableName(). '.*');
 
-        //Data::debug($related);
+        $addSoftDeletionCondition = $related->useSoftDeletes;
+        $deletedField = $related->deletedField;
 
         if(($relation->getClass() == $relation->getName()) && ($this->getTableName() != $related->getTableName())) {
             $prefixedParentTable = $prefix . $related->getTableName();
@@ -347,6 +348,7 @@ trait QueryBuilder {
 
             if(!in_array($prefixedParentTable, $this->relatedTablesAdded)) {
                 $cond = "{$prefixedParentTable}.id = {$this_table}.{$relation->getJoinOtherAs()}";
+                if($addSoftDeletionCondition) $cond .= " AND {$prefixedParentTable}.{$deletedField} IS NULL";
                 $this->join("{$related->getTableName()} {$prefixedParentTable}", $cond, 'LEFT OUTER');
 
                 $this->relatedTablesAdded[] = $prefixedParentTable;
@@ -357,6 +359,7 @@ trait QueryBuilder {
 
             if(!in_array($prefixedParentTable, $this->relatedTablesAdded)) {
                 $cond = "{$this_table}.id = {$prefixedParentTable}.{$relation->getJoinSelfAs()}";
+                if($addSoftDeletionCondition) $cond .= " AND {$prefixedParentTable}.{$deletedField} IS NULL";
                 $this->join("{$related->getTableName()} {$prefixedParentTable}", $cond, 'LEFT OUTER');
 
                 $this->relatedTablesAdded[] = $prefixedParentTable;
