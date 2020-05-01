@@ -297,14 +297,14 @@ foreach($users as $user) {
 }
 ```
 
-A user 1 has multiple rolesm and we want to access only the role named admin. For this we have to access the model from the entity to do a `where`.
+A user can have multiple roles and we want to access only the role named admin. For this we have to access the model from the entity to do a `where`.
 ```php
 $userModel = new UserModel();
 $user = $userModel->find(1); 
-$role = $user->roles->getModel()
+$role = $user->roles->_getModel()
     ->where('name', 'admin')
     ->find();
-echo $role->admin; // "admin"
+echo $role->name; // "admin"
 ```
 
 
@@ -349,11 +349,11 @@ OrmExtension provides an extended soft deletion. Create a model and entity for `
 use OrmExtension\Extensions\Entity;
 
 /**
- * Class User
+ * Class Deletion
  * @package App\Entities
  * @property int $id
  * @property int $created_by_id
- * @property string|double $created_by
+ * @property string|double $created
  */
 class Deletion extends Entity {
 
@@ -365,7 +365,7 @@ class Deletion extends Entity {
 use OrmExtension\Extensions\Model;
 
 /**
- * Class UserModel
+ * Class DeletionModel
  * @package App\Models
  */
 class DeletionModel extends Model {
