@@ -12,7 +12,7 @@ class RelationDef {
     const HasOne = 1;
     const HasMany = 2;
 
-    private $parent;
+    private $parentClass;
     private $name;
     private $class;
     private $otherField;
@@ -24,41 +24,61 @@ class RelationDef {
 
     /**
      * RelationDef constructor.
-     * @param Model $parent
+     * @param Model $model
      * @param string $name
      * @param string|array $data
      * @param int $type
      */
-    public function __construct($parent, $name, $data, $type) {
-        $this->setParent($parent);
+    public function __construct($model, $name, $data, $type) {
+        $this->setParentClass($model);
         $this->setType($type);
         if(is_string($data)) {
             $this->setName($data);
             $this->setClass($data);
         } else if(is_array($data)) {
             $this->setName($name);
-            if(isset($data['class']))           $this->setClass($data['class']);
-            else $this->setClass($name);
-            if(isset($data['otherField']))      $this->setOtherField($data['otherField']);
-            if(isset($data['joinSelfAs']))      $this->setJoinSelfAs($data['joinSelfAs']);
-            else if($type == self::HasOne)      $this->setJoinSelfAs($name.'_id');
-            if(isset($data['joinOtherAs']))     $this->setJoinOtherAs($data['joinOtherAs']);
-            if(isset($data['joinTable']))       $this->setJoinTable($data['joinTable']);
-            if(isset($data['cascadeDelete']))   $this->setCascadeDelete($data['cascadeDelete']);
+            if(isset($data['class'])) {
+                $this->setClass($data['class']);
+            } else {
+                $this->setClass($name);
+            }
+            if(isset($data['otherField'])) {
+                $this->setOtherField($data['otherField']);
+            }
+            if(isset($data['joinSelfAs'])) {
+                $this->setJoinSelfAs($data['joinSelfAs']);
+            } else if($type == self::HasOne) {
+                $this->setJoinSelfAs($name . '_id');
+            }
+            if(isset($data['joinOtherAs'])) {
+                $this->setJoinOtherAs($data['joinOtherAs']);
+            }
+            if(isset($data['joinTable'])) {
+                $this->setJoinTable($data['joinTable']);
+            }
+            if(isset($data['cascadeDelete'])) {
+                $this->setCascadeDelete($data['cascadeDelete']);
+            }
         }
 
-        if(!isset($this->otherField)) $this->setOtherField(get_class($parent));
-        if(!isset($this->joinSelfAs)) $this->setJoinSelfAs($this->getSimpleOtherField().'_id');
-        if(!isset($this->joinOtherAs)) $this->setJoinOtherAs($this->getSimpleName().'_id');
+        if(!isset($this->otherField)) {
+            $this->setOtherField(get_class($model));
+        }
+        if(!isset($this->joinSelfAs)) {
+            $this->setJoinSelfAs($this->getSimpleOtherField().'_id');
+        }
+        if(!isset($this->joinOtherAs)) {
+            $this->setJoinOtherAs($this->getSimpleName().'_id');
+        }
 
         if(!isset($this->joinTable)) {
             $relationClassName = $this->getClass();
             /** @var Model $relationClass */
             $relationClass = new $relationClassName();
             if(! $relationClass instanceof Model) {
-                throw new Exception("Invalid relation {$this->getName()} for ".get_class($parent));
+                throw new Exception("Invalid relation {$this->getName()} for ".get_class($model));
             }
-            $joins = [$parent->getTableName(), $relationClass->getTableName()];
+            $joins = [$model->getTableName(), $relationClass->getTableName()];
             sort($joins);
             $this->setJoinTable(strtolower(implode('_', $joins)));
         }
@@ -235,14 +255,14 @@ class RelationDef {
      * @return Model
      */
     public function getParent(): Model {
-        return $this->parent;
+        return new $this->parentClass;
     }
 
     /**
      * @param Model $parent
      */
-    public function setParent(Model $parent): void {
-        $this->parent = $parent;
+    public function setParentClass(Model $parent): void {
+        $this->parentClass = get_class($parent);
     }
 
     // </editor-fold>
