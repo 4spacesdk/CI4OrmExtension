@@ -2,6 +2,7 @@
 
 use CodeIgniter\Database\BaseBuilder;
 use CodeIgniter\Database\ConnectionInterface;
+use CodeIgniter\Database\Exceptions\DataException;
 use CodeIgniter\Validation\ValidationInterface;
 use Config\OrmExtension;
 use OrmExtension\DataMapper\ModelDefinitionCache;
@@ -558,10 +559,22 @@ class Model extends \CodeIgniter\Model {
         if(empty($data)) return true;
 
         if(is_object($data) && isset($data->{$this->primaryKey})) {
-            parent::update($data->{$this->primaryKey}, $data);
+            try {
+                parent::update($data->{$this->primaryKey}, $data);
+            } catch (DataException $e) {
+                if ($e->getMessage() == 'There is no data to update.') {
+                    // Ignore empty update exceptions
+                }
+            }
             return $data->{$this->primaryKey};
         } elseif (is_array($data) && !empty($data[$this->primaryKey])) {
-            parent::update($data[$this->primaryKey], $data);
+            try {
+                parent::update($data[$this->primaryKey], $data);
+            } catch (DataException $e) {
+                if ($e->getMessage() == 'There is no data to update.') {
+                    // Ignore empty update exceptions
+                }
+            }
             return $data[$this->primaryKey];
         } else {
             return parent::insert($data, true);
