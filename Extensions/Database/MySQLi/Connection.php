@@ -199,7 +199,7 @@ class Connection extends BaseConnection implements ConnectionInterface
                         "Database: Unable to set the configured connection charset ('{$this->charset}').");
                     $this->mysqli->close();
 
-                    if ($this->db->debug)
+                    if ($this->DBDebug)
                     {
                         throw new DatabaseException('Unable to set client connection character set: ' . $this->charset);
                     }
@@ -322,8 +322,19 @@ class Connection extends BaseConnection implements ConnectionInterface
                 $res->free();
             }
         }
-
-        return $this->connID->query($this->prepQuery($sql));
+        try
+        {
+            return $this->connID->query($this->prepQuery($sql));
+        }
+        catch (\mysqli_sql_exception $e)
+        {
+            log_message('error', $e);
+            if ($this->DBDebug)
+            {
+                throw $e;
+            }
+        }
+        return false;
     }
 
     //--------------------------------------------------------------------
@@ -420,8 +431,6 @@ class Connection extends BaseConnection implements ConnectionInterface
             '\\' . '_',
         ], $str
         );
-
-        return $str;
     }
 
     //--------------------------------------------------------------------
@@ -487,6 +496,7 @@ class Connection extends BaseConnection implements ConnectionInterface
 
             sscanf($query[$i]->Type, '%[a-z](%d)', $retVal[$i]->type, $retVal[$i]->max_length);
 
+            $retVal[$i]->nullable    = $query[$i]->Null === 'YES';
             $retVal[$i]->default     = $query[$i]->Default;
             $retVal[$i]->primary_key = (int)($query[$i]->Key === 'PRI');
         }

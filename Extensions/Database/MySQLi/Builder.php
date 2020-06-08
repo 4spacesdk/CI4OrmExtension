@@ -16,6 +16,18 @@ class Builder extends BaseBuilder
     protected $escapeChar = '`';
 
     /**
+     * Specifies which sql statements
+     * support the ignore option.
+     *
+     * @var array
+     */
+    protected $supportedIgnoreStatements = [
+        'update' => 'IGNORE',
+        'insert' => 'IGNORE',
+        'delete' => 'IGNORE',
+    ];
+
+    /**
      * FROM tables
      *
      * Groups tables in FROM clauses if needed, so there is no confusion

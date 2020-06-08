@@ -53,6 +53,40 @@ class Builder extends BaseBuilder
         'RANDOM()',
     ];
 
+    /**
+     * Specifies which sql statements
+     * support the ignore option.
+     *
+     * @var array
+     */
+    protected $supportedIgnoreStatements = [
+        'insert' => 'ON CONFLICT DO NOTHING',
+    ];
+
+    //--------------------------------------------------------------------
+
+    /**
+     * Compile Ignore Statement
+     *
+     * Checks if the ignore option is supported by
+     * the Database Driver for the specific statement.
+     *
+     * @param string $statement
+     *
+     * @return string
+     */
+    protected function compileIgnore(string $statement)
+    {
+        $sql = parent::compileIgnore($statement);
+
+        if (! empty($sql))
+        {
+            $sql = ' ' . trim($sql);
+        }
+
+        return $sql;
+    }
+
     //--------------------------------------------------------------------
 
     /**
@@ -95,6 +129,8 @@ class Builder extends BaseBuilder
      * @param string  $column
      * @param integer $value
      *
+     * @throws DatabaseException
+     *
      * @return mixed
      */
     public function increment(string $column, int $value = 1)
@@ -113,6 +149,8 @@ class Builder extends BaseBuilder
      *
      * @param string  $column
      * @param integer $value
+     *
+     * @throws DatabaseException
      *
      * @return mixed
      */
@@ -154,7 +192,9 @@ class Builder extends BaseBuilder
             {
                 throw new DatabaseException('You must use the "set" method to update an entry.');
             }
+            // @codeCoverageIgnoreStart
             return false;
+            // @codeCoverageIgnoreEnd
         }
 
         $table = $this->QBFrom[0];
@@ -227,7 +267,7 @@ class Builder extends BaseBuilder
      *
      * @return string
      */
-    protected function _limit(string $sql): string
+    protected function _limit(string $sql, bool $offsetIgnore = false): string
     {
         return $sql . ' LIMIT ' . $this->QBLimit . ($this->QBOffset ? " OFFSET {$this->QBOffset}" : '');
     }
@@ -274,7 +314,7 @@ class Builder extends BaseBuilder
     protected function _updateBatch(string $table, array $values, string $index): string
     {
         $ids = [];
-        foreach ($values as $key => $val)
+        foreach ($values as $val)
         {
             $ids[] = $val[$index];
 

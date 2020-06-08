@@ -185,11 +185,23 @@ class Connection extends BaseConnection implements ConnectionInterface
      *
      * @param string $sql
      *
-     * @return resource
+     * @return mixed
      */
     public function execute(string $sql)
     {
-        return pg_query($this->connID, $sql);
+        try
+        {
+            return pg_query($this->connID, $sql);
+        }
+        catch (\ErrorException $e)
+        {
+            log_message('error', $e);
+            if ($this->DBDebug)
+            {
+                throw $e;
+            }
+        }
+        return false;
     }
 
     //--------------------------------------------------------------------
@@ -471,7 +483,7 @@ class Connection extends BaseConnection implements ConnectionInterface
     {
         $v = pg_version($this->connID);
         // 'server' key is only available since PostgreSQL 7.4
-        $v = $v['server'] ?? 0;
+        $v = explode(' ', $v['server'])[0] ?? 0;
 
         $table  = func_num_args() > 0 ? func_get_arg(0) : null;
         $column = func_num_args() > 1 ? func_get_arg(1) : null;
