@@ -121,7 +121,7 @@ class Model extends \CodeIgniter\Model {
      */
     public function whereBetween($key, $min = 0, $max = 0, $escape = null, $appendTable = true) {
         if($appendTable) $this->appendTable($key);
-        return parent::where("`$key` BETWEEN {$min} AND {$max}", null, $escape);
+        return parent::where("`$key` BETWEEN \"{$min}\" AND \"{$max}\"", null, $escape);
     }
 
     /**
@@ -134,7 +134,7 @@ class Model extends \CodeIgniter\Model {
      */
     public function whereNotBetween($key, $min = 0, $max = 0, $escape = false, $appendTable = true) {
         if($appendTable) $this->appendTable($key);
-        return parent::where("$key NOT BETWEEN {$min} AND {$max}", null, $escape);
+        return parent::where("$key NOT BETWEEN \"{$min}\" AND \"{$max}\"", null, $escape);
     }
 
     /**
