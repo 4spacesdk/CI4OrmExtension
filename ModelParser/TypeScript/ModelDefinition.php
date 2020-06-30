@@ -10,7 +10,7 @@ $imported = [];
 foreach($model->properties as $property) : ?>
 <?php if(!$property->isSimpleType && !in_array($property->typeScriptType, $imported)) :
         $imported[] = $property->typeScriptType; ?>
-import {<?=$property->typeScriptType?>, <?=$property->typeScriptType?>Interface} from '../<?=$property->typeScriptType?>';
+import {<?=$property->typeScriptType?>} from '../<?=$property->typeScriptType?>';
 <?php endif ?>
 <?php endforeach
 ?>
@@ -19,13 +19,7 @@ import {BaseModel} from '../BaseModel';
 import {Api} from '../../http/Api/Api';
 <?php } ?>
 
-export interface <?=$model->name?>DefinitionInterface {
-<?php foreach($model->properties as $property) : ?>
-    <?=$property->name?>?: <?=$property->typeScriptType?><?=$property->isSimpleType?'':'Interface'?><?=$property->isMany?"[]":""?>;
-<?php endforeach ?>
-}
-
-export class <?=$model->name?>Definition extends BaseModel implements <?=$model->name?>DefinitionInterface {
+export class <?=$model->name?>Definition extends BaseModel {
 <?php foreach($model->properties as $property) : ?>
     <?=$property->name?>?: <?=$property->typeScriptType?><?=$property->isSimpleType?'':''?><?=$property->isMany?"[]":""?>;
 <?php endforeach ?>
@@ -35,7 +29,7 @@ export class <?=$model->name?>Definition extends BaseModel implements <?=$model-
         this.populate(data);
     }
 
-    public populate(data?: any, patch: boolean = false) {
+    public populate(data?: any, patch = false) {
         if (!patch) {
 <?php foreach($model->properties as $property) : ?>
             delete this.<?=$property->name?>;
