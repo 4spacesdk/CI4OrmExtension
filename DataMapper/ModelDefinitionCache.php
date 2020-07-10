@@ -158,6 +158,9 @@ class ModelDefinitionCache {
     public function clearCache() {
         $this->memcache = [];
         $this->cache->clean();
+        if (is_dir($this->config->storePath)) {
+            rmdir($this->config->storePath);
+        }
     }
 
 
