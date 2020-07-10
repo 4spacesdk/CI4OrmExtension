@@ -21,8 +21,9 @@ class ModelDefinitionCache {
         if(static::$instance == null) {
             static::$instance = new ModelDefinitionCache();
         }
-        if(!isset(self::$instance->cache))
+        if(!isset(self::$instance->cache)) {
             static::$instance->init();
+        }
         return static::$instance;
     }
 
@@ -32,8 +33,9 @@ class ModelDefinitionCache {
     public function init() {
         $this->config            = new Cache();
         $this->config->storePath .= self::$directory;
-        if(!is_dir($this->config->storePath))
+        if (!is_dir($this->config->storePath)) {
             mkdir($this->config->storePath);
+        }
         $this->cache = Services::cache($this->config);
     }
 
@@ -80,8 +82,9 @@ class ModelDefinitionCache {
                 ModelDefinitionCache::setFieldData($entity, $fieldData);
             } catch(\Exception $e) {
                 // Ignore table doesn't exist
-                if($e->getCode() != 1146)
+                if($e->getCode() != 1146) {
                     throw $e;
+                }
             }
         }
         return $fieldData;
@@ -98,21 +101,22 @@ class ModelDefinitionCache {
      */
     public static function getRelations($entity) {
         $relations = static::getData($entity.'_relations');
-        if(!$relations) {
-
-            foreach(OrmExtension::$modelNamespace as $modelNamespace) {
+        if (!$relations) {
+            foreach (OrmExtension::$modelNamespace as $modelNamespace) {
                 $modelName = $modelNamespace . $entity . 'Model';
-                if(class_exists($modelName)) {
+                if (class_exists($modelName)) {
                     /** @var Model $model */
                     $model = new $modelName();
                     break;
                 }
             }
             $relations = [];
-            foreach($model->hasOne as $name => $hasOne)
+            foreach ($model->hasOne as $name => $hasOne) {
                 $relations[] = new RelationDef($model, $name, $hasOne, RelationDef::HasOne);
-            foreach($model->hasMany as $name => $hasMany)
+            }
+            foreach ($model->hasMany as $name => $hasMany) {
                 $relations[] = new RelationDef($model, $name, $hasMany, RelationDef::HasMany);
+            }
             ModelDefinitionCache::setRelations($entity, $relations);
         }
         return $relations;
@@ -124,8 +128,15 @@ class ModelDefinitionCache {
 
     private static function setData($name, $data, $ttl = YEAR) {
         $instance = ModelDefinitionCache::getInstance();
-        if(isset($instance->cache))
+        if (isset($instance->cache)) {
             $instance->cache->save($name, $data, $ttl);
+
+            // Change file permissions so other users can read and write
+            $cacheInfo = $instance->cache->getCacheInfo();
+            if (isset($cacheInfo[$name])) {
+                chmod($cacheInfo[$name]['server_path'], 0775);
+            }
+        }
     }
 
     private $memcache = [];
@@ -136,8 +147,9 @@ class ModelDefinitionCache {
                 $data = $instance->cache->get($name);
                 if($data) $instance->memcache[$name] = $data;
                 return $data;
-            } else
+            } else {
                 return $instance->memcache[$name];
+            }
         } catch(\Exception $e) {
             return null;
         }
