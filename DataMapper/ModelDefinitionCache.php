@@ -36,7 +36,7 @@ class ModelDefinitionCache {
         if (!is_dir($this->config->storePath)) {
             mkdir($this->config->storePath);
         }
-        $this->cache = Services::cache($this->config);
+        $this->cache = Services::cache($this->config, false);
     }
 
 
