@@ -39,6 +39,7 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
             foreach($relations as $relation) $relationName2Relation[$relation->getSimpleName()] = $relation;
 
             foreach($data as $key => $value) {
+                $key = $this->mapProperty($key);
                 $method = 'set' . str_replace(' ', '', ucwords(str_replace(['-', '_'], ' ', $key)));
 
                 if(method_exists($this, $method)) {
