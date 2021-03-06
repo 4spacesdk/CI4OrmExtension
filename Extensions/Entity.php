@@ -28,48 +28,60 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
      * that may or may not exist.
      *
      * @param array $data
-     * @return Entity
+     * @return $this
      */
-    public function fill(?array $data = NULL) {
-        if($data) {
-            $fields = $this->getTableFields();
-            $relations = ModelDefinitionCache::getRelations($this->getSimpleName());
-            /** @var RelationDef[] $relationName2Relation */
-            $relationName2Relation = [];
-            foreach($relations as $relation) $relationName2Relation[$relation->getSimpleName()] = $relation;
-
-            foreach($data as $key => $value) {
-                $key = $this->mapProperty($key);
-                $method = 'set' . str_replace(' ', '', ucwords(str_replace(['-', '_'], ' ', $key)));
-
-                if(method_exists($this, $method)) {
-                    $this->$method($value);
-                } else { // Does not require property to exist, properties are managed by OrmExtension from database columns
-                    if(in_array($key, $fields)) // Does require field to exists
-                        $this->$key = $value;
-                    else if(isset($relationName2Relation[singular($key)])) { // Auto-populate relation
-                        $relation = $relationName2Relation[singular($key)];
-                        switch($relation->getType()) {
-                            case RelationDef::HasOne:
-                                $entityName = $relation->getEntityName();
-                                $this->$key = new $entityName($value);
-                                break;
-                            case RelationDef::HasMany:
-                                $entityName = $relation->getEntityName();
-                                $this->{$key} = new $entityName();
-                                /** @var Entity $relationMany */
-                                $relationMany = $this->{$key};
-                                foreach($value as $v) {
-                                    $relationMany->add(new $entityName($v));
-                                }
-                                break;
-                        }
-                    }
-                }
-            }
+    public function fill(array $data = null) {
+        if (! is_array($data))
+        {
+            return $this;
         }
 
-//        $this->resetStoredFields();
+        foreach ($data as $key => $value)
+        {
+            $this->__set($key, $value);
+        }
+        return $this;
+
+//        if ($data) {
+//
+//            $relations = ModelDefinitionCache::getRelations($this->getSimpleName());
+//            /** @var RelationDef[] $relationFields */
+//            $relationFields = [];
+//            foreach ($relations as $relation) {
+//                $relationFields[$relation->getSimpleName()] = $relation;
+//            }
+//
+//            $fields = $this->getTableFields();
+//            foreach ($data as $key => $value) {
+//                $method = 'set' . str_replace(' ', '', ucwords(str_replace(['-', '_'], ' ', $key)));
+//
+//                if (method_exists($this, $method)) {
+//                    $this->$method($value);
+//                } else { // Does not require property to exist, properties are managed by OrmExtension from database columns
+//                    if (in_array($key, $fields)) { // Does require field to exists
+//                        $this->$key = $value;
+//                    } else if (isset($relationFields[singular($key)])) { // Auto-populate relation
+//                        $relation = $relationFields[singular($key)];
+//                        switch ($relation->getType()) {
+//                            case RelationDef::HasOne:
+//                                $entityName = $relation->getEntityName();
+//                                $this->$key = new $entityName($value);
+//                                break;
+//                            case RelationDef::HasMany:
+//                                $entityName = $relation->getEntityName();
+//                                $this->{$key} = new $entityName();
+//                                /** @var Entity $relationMany */
+//                                $relationMany = $this->{$key};
+//                                foreach ($value as $v) {
+//                                    $relationMany->add(new $entityName($v));
+//                                }
+//                                break;
+//                        }
+//                    }
+//                }
+//            }
+//        }
+
         return $this;
     }
 
@@ -83,10 +95,10 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
      * @return Model|QueryBuilderInterface
      */
     public function _getModel() {
-        if(!$this->_model) {
-            foreach(OrmExtension::$modelNamespace as $modelNamespace) {
+        if (!$this->_model) {
+            foreach (OrmExtension::$modelNamespace as $modelNamespace) {
                 $name = $modelNamespace . $this->getSimpleName() . 'Model';
-                if(class_exists($name)) {
+                if (class_exists($name)) {
                     $this->_model = new $name();
                     break;
                 }
@@ -103,17 +115,17 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
     public function __get(string $key) {
         $result = parent::__get($key);
 
-        if(is_null($result) && $key != 'id') {
+        if (is_null($result) && $key != $this->_getModel()->getPrimaryKey()) {
             // Check for relation
-            foreach($this->_getModel()->getRelations() as $relation) {
-                if($relation->getSimpleName() == singular($key)) {
+            foreach ($this->_getModel()->getRelations() as $relation) {
+                if ($relation->getSimpleName() == singular($key)) {
                     $className = $relation->getEntityName();
                     $this->{$key} = new $className();
                     /** @var Entity $entity */
                     $entity = $this->attributes[$key];
 
                     // Check for hasOne
-                    if(in_array($relation->getJoinSelfAs(), $this->getTableFields())) {
+                    if (in_array($relation->getJoinSelfAs(), $this->getTableFields())) {
                         $entity->_getModel()->where($entity->_getModel()->getPrimaryKey(), $this->{$relation->getJoinSelfAs()});
                     } else
                         $entity->_getModel()->whereRelated($relation->getOtherField(), $this->_getModel()->getPrimaryKey(), $this->{$this->_getModel()->getPrimaryKey()});
@@ -133,7 +145,6 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
      */
     public function __set(string $key, $value = null) {
         parent::__set($key, $value);
-        //if(isset($this->attributes[$key])) $this->$key = $this->attributes[$key];
         return $this;
     }
 
@@ -148,11 +159,11 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
         // Type casting
         $fieldData = ModelDefinitionCache::getFieldData($this->getSimpleName());
         $fieldName2Type = [];
-        foreach($fieldData as $field) $fieldName2Type[$field->name] = $field->type;
+        foreach ($fieldData as $field) $fieldName2Type[$field->name] = $field->type;
 
-        foreach($data as $field => $value) {
-            if(isset($fieldName2Type[$field])) {
-                switch($fieldName2Type[$field]) {
+        foreach ($data as $field => $value) {
+            if (isset($fieldName2Type[$field])) {
+                switch ($fieldName2Type[$field]) {
                     case 'int':
                         $data[$field] = is_null($value) ? null : (int)$value;
                         break;
@@ -177,19 +188,21 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
     }
 
     public function getOriginal($key = null) {
-        if($key)
+        if ($key) {
             return $this->original[$key];
-        else
+        } else {
             return $this->original;
+        }
     }
 
     public function hasChanged(string $key = null, $checkRelations = false): bool {
-        if($key === null && $checkRelations == false) {
+        if ($key === null && $checkRelations == false) {
             // CI4 will check original against attributes. Attributes holds everything, including relations
             // Remove relations before checking
             $tableFields = [];
-            foreach($this->getTableFields() as $tableField)
+            foreach ($this->getTableFields() as $tableField) {
                 $tableFields[$tableField] = $tableField;
+            }
             $original = array_intersect_key($this->original, $tableFields);
             $attributes = array_intersect_key($this->attributes, $tableFields);
             return $original !== $attributes;

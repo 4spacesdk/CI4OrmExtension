@@ -280,9 +280,7 @@ trait QueryBuilder {
     // <editor-fold desc="Fields">
 
     public function getTableFields() {
-        $entityName = $this->_getModel()->getEntityName();
-        $fields = ModelDefinitionCache::getFields($entityName);
-        return $fields;
+        return $this->_getModel()->allowedFields;
     }
 
     // </editor-fold>

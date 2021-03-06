@@ -17,6 +17,7 @@ use OrmExtension\Interfaces\OrmEventsInterface;
  * CodeIgniter Model Stuff
  * @property string $returnType
  * @property string $table
+ * @property string $entityName
  * @property string[] $allowedFields
  * @property bool $useTimestamps
  * @property array $afterFind
@@ -460,15 +461,18 @@ class Model extends \CodeIgniter\Model {
         }
         $result = $data['data'];
 
-        if($result instanceof Entity)
+        if($result instanceof Entity) {
             $result = [$result];
+        }
 
         $this->arrangeIncludedRelations($result);
 
         // Convert from array to single Entity
         if(is_array($result) && count($result) > 0) {
             $first = clone $result[0];
-            foreach($result as $item) $first->add($item);
+            foreach($result as $item) {
+                $first->add($item);
+            }
             $result = $first;
         } else {
             $result = new $this->returnType();
@@ -646,15 +650,29 @@ class Model extends \CodeIgniter\Model {
 
     protected $table        = null;
     protected $returnType   = null;
+    protected $entityName   = null;
 
     private function setCodeIgniterModelStuff() {
-        $this->table = $this->getTableName();
-
-        foreach(OrmExtension::$entityNamespace as $entityNamespace) {
-            $this->returnType = $entityNamespace . $this->getEntityName();
-            if(class_exists($this->returnType)) break;
+        if (!isset($this->table)) {
+            $this->table = $this->getTableName();
         }
-        $this->allowedFields = ModelDefinitionCache::getFields($this->getEntityName(), $this->table);
+        if (!isset($this->entityName)) {
+            $this->entityName = $this->getEntityName();
+        }
+
+        if (!isset($this->returnType)) {
+            foreach (OrmExtension::$entityNamespace as $entityNamespace) {
+                $this->returnType = $entityNamespace . $this->getEntityName();
+                if (class_exists($this->returnType)) {
+                    break;
+                }
+            }
+        }
+
+        if (!isset($this->allowedFields) || count($this->allowedFields) == 0) {
+            $this->allowedFields = ModelDefinitionCache::getFields($this->getEntityName(), $this->table);
+        }
+
         $this->afterFind[] = 'handleResult';
         $this->beforeUpdate[] = 'modifyUpdateFields';
         $this->beforeInsert[] = 'modifyInsertFields';

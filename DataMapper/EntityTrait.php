@@ -4,7 +4,6 @@ use ArrayIterator;
 use Config\Database;
 use DateTime;
 use DateTimeZone;
-use DebugTool\Data;
 use OrmExtension\Extensions\Entity;
 use OrmExtension\Extensions\Model;
 use OrmExtension\Interfaces\OrmEventsInterface;
@@ -214,7 +213,7 @@ trait EntityTrait {
         return $items;
     }
 
-    public function toArray(bool $onlyChanged = false, bool $cast = true): array {
+    public function toArray(bool $onlyChanged = false, bool $cast = true, bool $recursive = false): array {
         $item = [];
 
         // Fields
@@ -248,7 +247,7 @@ trait EntityTrait {
                             $foo->setTimeZone(new DateTimeZone("UTC"));
                             $item[$field] = $foo->format('c');
                         } catch(\Exception $e) {
-                            Data::debug(get_class($this), "ERROR", $e->getMessage());
+
                         }
                     } else $item[$field] = null;
                     break;
@@ -335,17 +334,14 @@ trait EntityTrait {
 
     // </editor-fold>
 
-
     public function getTableFields() {
-        $namespace = explode('\\', get_class($this));
-        $entityName = end($namespace);
-        $fields = ModelDefinitionCache::getFields($entityName);
-        return $fields;
+        return $this->_getModel()->getTableFields();
     }
 
     public function resetStoredFields() {
-        foreach($this->getTableFields() as $field)
+        foreach($this->getTableFields() as $field) {
             $this->stored[$field] = $this->{$field};
+        }
     }
 
 }
