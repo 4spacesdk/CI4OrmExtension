@@ -40,47 +40,47 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
         {
             $this->__set($key, $value);
         }
-        return $this;
 
-//        if ($data) {
-//
-//            $relations = ModelDefinitionCache::getRelations($this->getSimpleName());
-//            /** @var RelationDef[] $relationFields */
-//            $relationFields = [];
-//            foreach ($relations as $relation) {
-//                $relationFields[$relation->getSimpleName()] = $relation;
-//            }
-//
-//            $fields = $this->getTableFields();
-//            foreach ($data as $key => $value) {
-//                $method = 'set' . str_replace(' ', '', ucwords(str_replace(['-', '_'], ' ', $key)));
-//
-//                if (method_exists($this, $method)) {
-//                    $this->$method($value);
-//                } else { // Does not require property to exist, properties are managed by OrmExtension from database columns
-//                    if (in_array($key, $fields)) { // Does require field to exists
-//                        $this->$key = $value;
-//                    } else if (isset($relationFields[singular($key)])) { // Auto-populate relation
-//                        $relation = $relationFields[singular($key)];
-//                        switch ($relation->getType()) {
-//                            case RelationDef::HasOne:
-//                                $entityName = $relation->getEntityName();
-//                                $this->$key = new $entityName($value);
-//                                break;
-//                            case RelationDef::HasMany:
-//                                $entityName = $relation->getEntityName();
-//                                $this->{$key} = new $entityName();
-//                                /** @var Entity $relationMany */
-//                                $relationMany = $this->{$key};
-//                                foreach ($value as $v) {
-//                                    $relationMany->add(new $entityName($v));
-//                                }
-//                                break;
-//                        }
-//                    }
-//                }
-//            }
-//        }
+        // Fill relations
+        if ($data) {
+
+            $relations = ModelDefinitionCache::getRelations($this->getSimpleName());
+            /** @var RelationDef[] $relationFields */
+            $relationFields = [];
+            foreach ($relations as $relation) {
+                $relationFields[$relation->getSimpleName()] = $relation;
+            }
+
+            $fields = $this->getTableFields();
+            foreach ($data as $key => $value) {
+                $method = 'set' . str_replace(' ', '', ucwords(str_replace(['-', '_'], ' ', $key)));
+
+                if (method_exists($this, $method)) {
+                    $this->$method($value);
+                } else { // Does not require property to exist, properties are managed by OrmExtension from database columns
+                    if (in_array($key, $fields)) { // Does require field to exists
+                        $this->$key = $value;
+                    } else if (isset($relationFields[singular($key)])) { // Auto-populate relation
+                        $relation = $relationFields[singular($key)];
+                        switch ($relation->getType()) {
+                            case RelationDef::HasOne:
+                                $entityName = $relation->getEntityName();
+                                $this->$key = new $entityName($value);
+                                break;
+                            case RelationDef::HasMany:
+                                $entityName = $relation->getEntityName();
+                                $this->{$key} = new $entityName();
+                                /** @var Entity $relationMany */
+                                $relationMany = $this->{$key};
+                                foreach ($value as $v) {
+                                    $relationMany->add(new $entityName($v));
+                                }
+                                break;
+                        }
+                    }
+                }
+            }
+        }
 
         return $this;
     }
