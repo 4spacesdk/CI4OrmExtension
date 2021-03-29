@@ -24,6 +24,7 @@ class OrmExtension {
      * Provide Namespace for Xamarin models folder
      */
     public $xamarinModelsNamespace          = 'App.Models';
+    public $xamarinBaseModelNamespace       = 'App.Models';
 }
 ```
 Update the namespace to fit your project. Use arrays if you have multiple namespaces for models and entities.

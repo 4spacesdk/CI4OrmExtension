@@ -6,6 +6,7 @@
  */
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using <?=\CodeIgniter\Config\Config::get('OrmExtension')->xamarinBaseModelNamespace?>;
 
 namespace <?=\CodeIgniter\Config\Config::get('OrmExtension')->xamarinModelsNamespace?>.Definitions
 {
