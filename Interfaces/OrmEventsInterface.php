@@ -30,6 +30,12 @@ interface OrmEventsInterface {
      * @param Entity $entity
      * @param Entity $relation
      */
+    public function postAddRelation($entity, $relation);
+
+    /**
+     * @param Entity $entity
+     * @param Entity $relation
+     */
     public function postDeleteRelation($entity, $relation);
 
 }

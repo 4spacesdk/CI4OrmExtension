@@ -77,8 +77,9 @@ trait EntityTrait {
 
                 // Check if opposite relation is hasOne
                 $opposite = $relatedModel->getRelation($relation->getOtherField());
-                if(!empty($opposite) && $opposite[0]->getType() == RelationDef::HasOne)
+                if(!empty($opposite) && $opposite[0]->getType() == RelationDef::HasOne) {
                     $related->deleteRelation($this, $relation->getOtherField());
+                }
 
                 $this->{$relation->getJoinOtherAs()} = $related->{$relatedModel->getPrimaryKey()};
                 $this->save();
@@ -87,8 +88,9 @@ trait EntityTrait {
             if(in_array($relation->getJoinSelfAs(), $relatedModel->getTableFields())) {
 
                 // Check if this relation is hasOne
-                if($relation->getType() == RelationDef::HasOne)
+                if($relation->getType() == RelationDef::HasOne) {
                     $this->deleteRelation($related, $relationName);
+                }
 
                 $related->{$relation->getJoinSelfAs()} = $this->{$thisModel->getPrimaryKey()};
                 $related->save();
@@ -102,6 +104,10 @@ trait EntityTrait {
                     $relation->getJoinOtherAs() => $related->{$relatedModel->getPrimaryKey()}
                 ]);
 
+        }
+
+        if($thisModel instanceof OrmEventsInterface && $this instanceof Entity && $related instanceof Entity) {
+            $thisModel->postAddRelation($this, $related);
         }
     }
 
@@ -198,8 +204,9 @@ trait EntityTrait {
         unset($this->{$relation->getSimpleName()});
         //$this->resetStoredFields();
 
-        if($thisModel instanceof OrmEventsInterface && $this instanceof Entity && $related instanceof Entity)
+        if($thisModel instanceof OrmEventsInterface && $this instanceof Entity && $related instanceof Entity) {
             $thisModel->postDeleteRelation($this, $related);
+        }
     }
 
     // </editor-fold>
@@ -333,6 +340,7 @@ trait EntityTrait {
     }
 
     // </editor-fold>
+
 
     public function getTableFields() {
         return $this->_getModel()->getTableFields();
