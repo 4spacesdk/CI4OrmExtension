@@ -213,21 +213,32 @@ trait EntityTrait {
 
     // <editor-fold desc="Print">
 
-    public function allToArray() {
+    public function allToArray(bool $onlyChanged = false, bool $cast = true, bool $recursive = false, array $fieldsFilter = null) {
         $items = [];
         foreach($this as $item)
-            $items[] = $item->toArray();
+            $items[] = $item->toArray($onlyChanged, $cast, $recursive, $fieldsFilter);
         return $items;
     }
 
-    public function toArray(bool $onlyChanged = false, bool $cast = true, bool $recursive = false): array {
+    public function allToArrayWithFields(array $fieldsFilter = null, bool $onlyChanged = false, bool $cast = true, bool $recursive = false) {
+        return $this->allToArray($onlyChanged, $cast, $recursive, $fieldsFilter);
+    }
+
+    public function toArray(bool $onlyChanged = false, bool $cast = true, bool $recursive = false, array $fieldsFilter = null): array {
         $item = [];
 
         // Fields
         $fields = ModelDefinitionCache::getFieldData($this->getSimpleName());
         foreach($fields as $fieldData) {
             $field = $fieldData->name;
-            if(in_array($field, $this->hiddenFields)) continue;
+
+            if(in_array($field, $this->hiddenFields)) {
+                continue;
+            }
+
+            if ($fieldsFilter != null && !in_array($field, $fieldsFilter)) {
+                continue;
+            }
 
             switch($fieldData->type) {
                 case 'int':
