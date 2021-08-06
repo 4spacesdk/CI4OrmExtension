@@ -194,6 +194,18 @@ trait QueryBuilder {
 
     /**
      * @param Model $query
+     * @param null $value
+     * @return Model
+     */
+    public function orWhereSubQuery($query, $operator, $value = null, $escape = null) {
+        $model = $this->_getModel();
+        $field = $this->parseSubQuery($query);
+        $model->orWhere("{$field} {$operator}", $value, $escape, false);
+        return $model;
+    }
+
+    /**
+     * @param Model $query
      * @return mixed
      */
     protected function parseSubQuery($query) {
@@ -206,7 +218,7 @@ trait QueryBuilder {
 
 //        Data::sql($sql);
 
-        $this->bindMerging($sql, $query->getBinds());
+        $sql = $this->bindMerging($sql, $query->getBinds());
 
         $tableName = $model->db->protectIdentifiers($model->getTableName());
         $tableNameThisQuote = preg_quote($model->getTableName());
@@ -234,7 +246,7 @@ trait QueryBuilder {
         $pattern = "/FROM {$tablePattern}([,\\s])/i";
         $replacement = "FROM {$tableName} $tableSubQueryName$1";
         $sql = preg_replace($pattern, $replacement, $sql);
-        $sql = str_replace("\n", "\n\t", $sql);
+        $sql = str_replace("\n", " ", $sql);
 
 //        Data::sql($sql);
 

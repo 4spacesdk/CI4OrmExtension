@@ -20,7 +20,7 @@ class BaseBuilder extends \CodeIgniter\Database\BaseBuilder {
     public function bindMerging($sql, $binds) {
         foreach($binds as $key => [$value, $escape]) {
             $newKey = $this->setBind($key, $value, $escape);
-            str_replace($key, $newKey, $sql);
+            $sql = str_replace(":$key:", ":$newKey:", $sql);
         }
         return $sql;
     }
