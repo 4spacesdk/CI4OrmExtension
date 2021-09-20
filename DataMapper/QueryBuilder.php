@@ -21,11 +21,12 @@ trait QueryBuilder {
         // Handle deep relations
         $last = $this;
         $table = null;
-        $prefix = ''; $relationPrefix = '';
-        foreach($relations as $relation) {
+        $prefix = '';
+        $relationPrefix = '';
+        foreach ($relations as $relation) {
             $table = $last->addRelatedTable($relation, $prefix, $table, $fields);
-            $prefix .= plural($relation->getSimpleName()).'_';
-            $relationPrefix .= plural($relation->getSimpleName()).'/';
+            $prefix .= plural($relation->getSimpleName()) . '_';
+            $relationPrefix .= plural($relation->getSimpleName()) . '/';
 
             // Prepare next
             $builder = $last->_getBuilder();
@@ -36,7 +37,7 @@ trait QueryBuilder {
             $last->setSelecting($selecting);
             $last->relatedTablesAdded =& $relatedTablesAdded;
 
-            if(!$parent->hasIncludedRelation($relationPrefix)) {
+            if (!$parent->hasIncludedRelation($relationPrefix)) {
                 $parent->addIncludedRelation($relationPrefix, $relation);
                 $this->selectIncludedRelated($parent, $relation, $table, $prefix, $fields);
             }
@@ -59,12 +60,12 @@ trait QueryBuilder {
         /** @var Model $related */
         $related = new $relationClassName();
 
-        if(is_null($fields)) $fields = $related->getTableFields();
-        foreach($fields as $field) {
+        if (is_null($fields)) $fields = $related->getTableFields();
+        foreach ($fields as $field) {
             $new_field = $prefix . $field;
 
             // Prevent collisions
-            if(in_array($new_field, $parent->getTableFields())) continue;
+            if (in_array($new_field, $parent->getTableFields())) continue;
 
             $selection[] = "{$table}.{$field} AS {$new_field}";
         }
@@ -308,9 +309,9 @@ trait QueryBuilder {
         /** @var RelationDef $relation */
         $relation = null;
         $prefix = '';
-        foreach($relations as $relation) {
+        foreach ($relations as $relation) {
             $table = $last->addRelatedTable($relation, $prefix, $table);
-            $prefix .= plural($relation->getSimpleName()).'_';
+            $prefix .= plural($relation->getSimpleName()) . '_';
 
             // Prepare next
             $builder = $last->_getBuilder();
@@ -334,19 +335,19 @@ trait QueryBuilder {
      * @return string
      */
     public function addRelatedTable(RelationDef $relation, $prefix = '', $this_table = null) {
-        if(!$this_table) $this_table = $this->getTableName();
+        if (!$this_table) $this_table = $this->getTableName();
         //Data::debug("QueryBuilder::addRelatedTable", 'Name='.$relation->getSimpleName(), 'Prefix='.$prefix, 'Table='.$this_table);
 
         $related = $relation->getRelationClass();
         $relationShipTable = $relation->getRelationShipTable();
 
         // If no selects, select this table
-        if(!$this->isSelecting()) $this->select($this->getTableName(). '.*');
+        if (!$this->isSelecting()) $this->select($this->getTableName() . '.*');
 
         $addSoftDeletionCondition = $related->useSoftDeletes;
         $deletedField = $related->deletedField;
 
-        if(($relation->getClass() == $relation->getName()) && ($this->getTableName() != $related->getTableName())) {
+        if (($relation->getClass() == $relation->getName()) && ($this->getTableName() != $related->getTableName())) {
             $prefixedParentTable = $prefix . $related->getTableName();
             $prefixedRelatedTable = $prefix . $relationShipTable;
         } else { // Used when relation is custom named
@@ -354,43 +355,62 @@ trait QueryBuilder {
             $prefixedRelatedTable = $prefix . plural($relation->getSimpleName()) . '_' . $relationShipTable;
         }
 
-        if($relationShipTable == $this->getTableName() && in_array($relation->getJoinOtherAs(), $this->getTableFields())) {
+        if ($relationShipTable == $this->getTableName() && in_array($relation->getJoinOtherAs(), $this->getTableFields())) {
 
-            if(!in_array($prefixedParentTable, $this->relatedTablesAdded)) {
-                $cond = "{$prefixedParentTable}.{$relation->getJoinSelfAs()} = {$this_table}.{$relation->getJoinOtherAs()}";
-                if($addSoftDeletionCondition) $cond .= " AND {$prefixedParentTable}.{$deletedField} IS NULL";
-                $this->join("{$related->getTableName()} {$prefixedParentTable}", $cond, 'LEFT OUTER');
+            foreach ([$relation->getJoinSelfAs(), 'id'] as $joinSelfAs) {
+                if (in_array($joinSelfAs, $related->getTableFields())) {
+                    if (!in_array($prefixedParentTable, $this->relatedTablesAdded)) {
+                        $cond = "{$prefixedParentTable}.{$joinSelfAs} = {$this_table}.{$relation->getJoinOtherAs()}";
+                        if ($addSoftDeletionCondition) $cond .= " AND {$prefixedParentTable}.{$deletedField} IS NULL";
+                        $this->join("{$related->getTableName()} {$prefixedParentTable}", $cond, 'LEFT OUTER');
 
-                $this->relatedTablesAdded[] = $prefixedParentTable;
-
+                        $this->relatedTablesAdded[] = $prefixedParentTable;
+                    }
+                    break;
+                }
             }
 
-        } else if($relationShipTable == $related->getTableName() && in_array($relation->getJoinSelfAs(), $related->getTableFields())) {
+        } else if ($relationShipTable == $related->getTableName() && in_array($relation->getJoinSelfAs(), $related->getTableFields())) {
 
-            if(!in_array($prefixedParentTable, $this->relatedTablesAdded)) {
-                $cond = "{$this_table}.{$relation->getJoinOtherAs()} = {$prefixedParentTable}.{$relation->getJoinSelfAs()}";
-                if($addSoftDeletionCondition) {
-                    $cond .= " AND {$prefixedParentTable}.{$deletedField} IS NULL";
+            foreach ([$relation->getJoinOtherAs(), 'id'] as $joinOtherAs) {
+                if (in_array($joinOtherAs, $this->getTableFields())) {
+                    if (!in_array($prefixedParentTable, $this->relatedTablesAdded)) {
+                        $cond = "{$this_table}.{$joinOtherAs} = {$prefixedParentTable}.{$relation->getJoinSelfAs()}";
+                        if ($addSoftDeletionCondition) {
+                            $cond .= " AND {$prefixedParentTable}.{$deletedField} IS NULL";
+                        }
+                        $this->join("{$related->getTableName()} {$prefixedParentTable}", $cond, 'LEFT OUTER');
+
+                        $this->relatedTablesAdded[] = $prefixedParentTable;
+                    }
+                    break;
                 }
-                $this->join("{$related->getTableName()} {$prefixedParentTable}", $cond, 'LEFT OUTER');
-
-                $this->relatedTablesAdded[] = $prefixedParentTable;
             }
 
         } else {
 
-            if(!in_array($prefixedRelatedTable, $this->relatedTablesAdded)) {
-                $cond = "{$this_table}.{$relation->getJoinOtherAs()} = {$prefixedRelatedTable}.{$relation->getJoinSelfAs()}";
-                $this->join("{$relationShipTable} {$prefixedRelatedTable}", $cond, 'LEFT OUTER');
+            foreach ([$relation->getJoinOtherAs(), 'id'] as $joinOtherAs) {
+                if (in_array($joinOtherAs, $this->getTableFields())) {
+                    if (!in_array($prefixedRelatedTable, $this->relatedTablesAdded)) {
+                        $cond = "{$this_table}.{$joinOtherAs} = {$prefixedRelatedTable}.{$relation->getJoinSelfAs()}";
+                        $this->join("{$relationShipTable} {$prefixedRelatedTable}", $cond, 'LEFT OUTER');
 
-                $this->relatedTablesAdded[] = $prefixedRelatedTable;
+                        $this->relatedTablesAdded[] = $prefixedRelatedTable;
+                    }
+                    break;
+                }
             }
 
-            if(!in_array($prefixedParentTable, $this->relatedTablesAdded)) {
-                $cond = "{$prefixedParentTable}.{$relation->getJoinSelfAs()} = {$prefixedRelatedTable}.{$relation->getJoinOtherAs()}";
-                $this->join("{$related->getTableName()} {$prefixedParentTable}", $cond, 'LEFT OUTER');
+            foreach ([$relation->getJoinSelfAs(), 'id'] as $joinSelfAs) {
+                if (in_array($joinSelfAs, $related->getTableFields())) {
+                    if (!in_array($prefixedParentTable, $this->relatedTablesAdded)) {
+                        $cond = "{$prefixedParentTable}.{$joinSelfAs} = {$prefixedRelatedTable}.{$relation->getJoinOtherAs()}";
+                        $this->join("{$related->getTableName()} {$prefixedParentTable}", $cond, 'LEFT OUTER');
 
-                $this->relatedTablesAdded[] = $prefixedParentTable;
+                        $this->relatedTablesAdded[] = $prefixedParentTable;
+                    }
+                    break;
+                }
             }
 
         }
@@ -406,12 +426,12 @@ trait QueryBuilder {
      */
     public function getRelation($name, $useSimpleName = false) {
         // Handle deep relations
-        if(is_array($name)) {
+        if (is_array($name)) {
             $last = $this;
             $result = [];
-            foreach($name as $ref) {
+            foreach ($name as $ref) {
                 $relations = $last->getRelation($ref, $useSimpleName);
-                if(count($relations) == 0) {
+                if (count($relations) == 0) {
                     throw new \Exception("Failed to find relation $name for " . get_class($this));
                 }
                 $relation = $relations[0];
@@ -421,11 +441,11 @@ trait QueryBuilder {
             return $result;
         }
 
-        foreach($this->getRelations() as $relation) {
-            if($useSimpleName) {
-                if($relation->getSimpleName() == $name) return [$relation];
+        foreach ($this->getRelations() as $relation) {
+            if ($useSimpleName) {
+                if ($relation->getSimpleName() == $name) return [$relation];
             } else {
-                if($relation->getName() == $name) return [$relation];
+                if ($relation->getName() == $name) return [$relation];
             }
         }
 
