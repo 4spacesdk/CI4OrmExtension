@@ -357,7 +357,7 @@ trait QueryBuilder {
         if($relationShipTable == $this->getTableName() && in_array($relation->getJoinOtherAs(), $this->getTableFields())) {
 
             if(!in_array($prefixedParentTable, $this->relatedTablesAdded)) {
-                $cond = "{$prefixedParentTable}.id = {$this_table}.{$relation->getJoinOtherAs()}";
+                $cond = "{$prefixedParentTable}.{$relation->getJoinSelfAs()} = {$this_table}.{$relation->getJoinOtherAs()}";
                 if($addSoftDeletionCondition) $cond .= " AND {$prefixedParentTable}.{$deletedField} IS NULL";
                 $this->join("{$related->getTableName()} {$prefixedParentTable}", $cond, 'LEFT OUTER');
 
@@ -368,8 +368,10 @@ trait QueryBuilder {
         } else if($relationShipTable == $related->getTableName() && in_array($relation->getJoinSelfAs(), $related->getTableFields())) {
 
             if(!in_array($prefixedParentTable, $this->relatedTablesAdded)) {
-                $cond = "{$this_table}.id = {$prefixedParentTable}.{$relation->getJoinSelfAs()}";
-                if($addSoftDeletionCondition) $cond .= " AND {$prefixedParentTable}.{$deletedField} IS NULL";
+                $cond = "{$this_table}.{$relation->getJoinOtherAs()} = {$prefixedParentTable}.{$relation->getJoinSelfAs()}";
+                if($addSoftDeletionCondition) {
+                    $cond .= " AND {$prefixedParentTable}.{$deletedField} IS NULL";
+                }
                 $this->join("{$related->getTableName()} {$prefixedParentTable}", $cond, 'LEFT OUTER');
 
                 $this->relatedTablesAdded[] = $prefixedParentTable;
@@ -378,14 +380,14 @@ trait QueryBuilder {
         } else {
 
             if(!in_array($prefixedRelatedTable, $this->relatedTablesAdded)) {
-                $cond = "{$this_table}.id = {$prefixedRelatedTable}.{$relation->getJoinSelfAs()}";
+                $cond = "{$this_table}.{$relation->getJoinOtherAs()} = {$prefixedRelatedTable}.{$relation->getJoinSelfAs()}";
                 $this->join("{$relationShipTable} {$prefixedRelatedTable}", $cond, 'LEFT OUTER');
 
                 $this->relatedTablesAdded[] = $prefixedRelatedTable;
             }
 
             if(!in_array($prefixedParentTable, $this->relatedTablesAdded)) {
-                $cond = "{$prefixedParentTable}.id = {$prefixedRelatedTable}.{$relation->getJoinOtherAs()}";
+                $cond = "{$prefixedParentTable}.{$relation->getJoinSelfAs()} = {$prefixedRelatedTable}.{$relation->getJoinOtherAs()}";
                 $this->join("{$related->getTableName()} {$prefixedParentTable}", $cond, 'LEFT OUTER');
 
                 $this->relatedTablesAdded[] = $prefixedParentTable;
