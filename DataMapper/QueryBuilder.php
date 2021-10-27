@@ -186,10 +186,10 @@ trait QueryBuilder {
      * @param null $value
      * @return Model
      */
-    public function whereSubQuery($query, $value = null, $escape = null) {
+    public function whereSubQuery($query, $operator, $value = null, $escape = null) {
         $model = $this->_getModel();
         $field = $this->parseSubQuery($query);
-        $model->where($field, $value, $escape, false);
+        $model->where("{$field} {$operator}", $value, $escape, false);
         return $model;
     }
 
