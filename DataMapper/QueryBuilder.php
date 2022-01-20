@@ -335,7 +335,9 @@ trait QueryBuilder {
      * @return string
      */
     public function addRelatedTable(RelationDef $relation, $prefix = '', $this_table = null) {
-        if (!$this_table) $this_table = $this->getTableName();
+        if (!$this_table) {
+            $this_table = $this->getTableName();
+        }
         //Data::debug("QueryBuilder::addRelatedTable", 'Name='.$relation->getSimpleName(), 'Prefix='.$prefix, 'Table='.$this_table);
 
         $related = $relation->getRelationClass();
@@ -389,6 +391,7 @@ trait QueryBuilder {
 
         } else {
 
+            $match = null;
             foreach ([$relation->getJoinOtherAs(), 'id'] as $joinOtherAs) {
                 if (in_array($joinOtherAs, $this->getTableFields())) {
                     if (!in_array($prefixedRelatedTable, $this->relatedTablesAdded)) {
@@ -396,6 +399,7 @@ trait QueryBuilder {
                         $this->join("{$relationShipTable} {$prefixedRelatedTable}", $cond, 'LEFT OUTER');
 
                         $this->relatedTablesAdded[] = $prefixedRelatedTable;
+                        $match = $prefixedRelatedTable;
                     }
                     break;
                 }
@@ -408,9 +412,21 @@ trait QueryBuilder {
                         $this->join("{$related->getTableName()} {$prefixedParentTable}", $cond, 'LEFT OUTER');
 
                         $this->relatedTablesAdded[] = $prefixedParentTable;
+                        $match = $prefixedRelatedTable;
                     }
                     break;
                 }
+            }
+
+            // If we stil have not found a match, this is probably a custom join table
+            if (is_null($match)) {
+                $cond = "{$this_table}.{$this->getPrimaryKey()} = {$prefixedRelatedTable}.{$relation->getJoinSelfAs()}";
+                $this->join("{$relationShipTable} {$prefixedRelatedTable}", $cond, 'LEFT OUTER');
+                $this->relatedTablesAdded[] = $prefixedParentTable;
+
+                $cond = "{$prefixedParentTable}.{$related->getPrimaryKey()} = {$prefixedRelatedTable}.{$relation->getJoinOtherAs()}";
+                $this->join("{$related->getTableName()} {$prefixedParentTable}", $cond, 'LEFT OUTER');
+                $this->relatedTablesAdded[] = $prefixedParentTable;
             }
 
         }
