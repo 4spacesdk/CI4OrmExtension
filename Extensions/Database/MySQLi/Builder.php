@@ -1,4 +1,15 @@
-<?php namespace OrmExtension\Extensions\Database\MySQLi;
+<?php
+
+/**
+ * This file is part of CodeIgniter 4 framework.
+ *
+ * (c) CodeIgniter Foundation <admin@codeigniter.com>
+ *
+ * For the full copyright and license information, please view
+ * the LICENSE file that was distributed with this source code.
+ */
+
+namespace OrmExtension\Extensions\Database\MySQLi;
 
 use OrmExtension\Extensions\Database\BaseBuilder;
 
@@ -7,7 +18,6 @@ use OrmExtension\Extensions\Database\BaseBuilder;
  */
 class Builder extends BaseBuilder
 {
-
     /**
      * Identifier escape character
      *
@@ -34,13 +44,10 @@ class Builder extends BaseBuilder
      * about operator precedence.
      *
      * Note: This is only used (and overridden) by MySQL.
-     *
-     * @return string
      */
     protected function _fromTables(): string
     {
-        if (! empty($this->QBJoin) && count($this->QBFrom) > 1)
-        {
+        if (! empty($this->QBJoin) && count($this->QBFrom) > 1) {
             return '(' . implode(', ', $this->QBFrom) . ')';
         }
 

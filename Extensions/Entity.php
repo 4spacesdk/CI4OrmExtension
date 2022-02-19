@@ -94,7 +94,7 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
     /**
      * @return Model|QueryBuilderInterface
      */
-    public function _getModel() {
+    public function _getModel(): Model {
         if (!$this->_model) {
             foreach (OrmExtension::$modelNamespace as $modelNamespace) {
                 $name = $modelNamespace . $this->getSimpleName() . 'Model';
