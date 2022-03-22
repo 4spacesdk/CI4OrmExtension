@@ -421,10 +421,10 @@ trait QueryBuilder {
 
             // If we stil have not found a match, this is probably a custom join table
             if (is_null($match)) {
-                if (!in_array($prefixedParentTable, $this->relatedTablesAdded)) {
+                if (!in_array($prefixedRelatedTable, $this->relatedTablesAdded)) {
                     $cond = "{$this_table}.{$this->getPrimaryKey()} = {$prefixedRelatedTable}.{$relation->getJoinSelfAs()}";
                     $this->join("{$relationShipTable} {$prefixedRelatedTable}", $cond, 'LEFT OUTER');
-                    $this->relatedTablesAdded[] = $prefixedParentTable;
+                    $this->relatedTablesAdded[] = $prefixedRelatedTable;
                 }
 
                 if (!in_array($prefixedParentTable, $this->relatedTablesAdded)) {
