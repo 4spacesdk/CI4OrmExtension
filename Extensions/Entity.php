@@ -123,7 +123,8 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
                     $this->{$key} = new $className();
                     /** @var Entity $entity */
                     $entity = $this->attributes[$key];
-                    $entity->_getModel()->whereRelated($relation->getOtherField(), $this->_getModel()->getPrimaryKey(), $this->{$this->_getModel()->getPrimaryKey()});
+                    //$entity->_getModel()->whereRelated($relation->getOtherField(), $this->_getModel()->getPrimaryKey(), $this->{$this->_getModel()->getPrimaryKey()});
+                    $entity->_getModel()->whereRelated($relation->getOtherField(), $relation->getJoinSelfAs(), $this->{$this->_getModel()->getPrimaryKey()});
                     $result = $entity;
                     break;
                 }

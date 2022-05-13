@@ -436,7 +436,7 @@ trait QueryBuilder {
 
         }
 
-        return $prefixedParentTable;
+        return end($this->relatedTablesAdded);
     }
 
     /**
