@@ -39,7 +39,9 @@ trait EntityTrait {
     public function save($related = null, $relatedField = null) {
         if($related instanceof Entity) {
             if($related->exists()) {
-                $this->saveRelation($related, $relatedField);
+                foreach ($related as $relatedItem) {
+                    $this->saveRelation($relatedItem, $relatedField);
+                }
             }
         } else {
             $result = $this->_getModel()->save($this);
