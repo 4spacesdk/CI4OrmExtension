@@ -205,6 +205,13 @@ trait QueryBuilder {
         return $model;
     }
 
+    public function orderBySubQuery($query, $direction = '', $escape = null) {
+        $model = $this->_getModel();
+        $field = $this->parseSubQuery($query);
+        $model->orderBy($field, $direction, $escape, false);
+        return $model;
+    }
+
     /**
      * @param Model $query
      * @return mixed
