@@ -65,7 +65,8 @@ class RelationDef {
             $this->setOtherField(get_class($model));
         }
         if(!isset($this->joinSelfAs)) {
-            $this->setJoinSelfAs($this->getSimpleOtherField().'_id');
+//            $this->setJoinSelfAs($this->getSimpleOtherField().'_id');
+            $this->setJoinSelfAs($model->getPrimaryKey());
         }
         if(!isset($this->joinOtherAs)) {
             $this->setJoinOtherAs($this->getSimpleName().'_id');
