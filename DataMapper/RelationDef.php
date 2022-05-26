@@ -1,4 +1,5 @@
 <?php namespace OrmExtension\DataMapper;
+
 use DebugTool\Data;
 use Exception;
 use OrmExtension\Extensions\Model;
@@ -32,52 +33,59 @@ class RelationDef {
     public function __construct($model, $name, $data, $type) {
         $this->setParentClass($model);
         $this->setType($type);
-        if(is_string($data)) {
+        if (is_string($data)) {
             $this->setName($data);
             $this->setClass($data);
-        } else if(is_array($data)) {
+        } else if (is_array($data)) {
             $this->setName($name);
-            if(isset($data['class'])) {
+            if (isset($data['class'])) {
                 $this->setClass($data['class']);
             } else {
                 $this->setClass($name);
             }
-            if(isset($data['otherField'])) {
+            if (isset($data['otherField'])) {
                 $this->setOtherField($data['otherField']);
             }
-            if(isset($data['joinSelfAs'])) {
+            if (isset($data['joinSelfAs'])) {
                 $this->setJoinSelfAs($data['joinSelfAs']);
-            } else if($type == self::HasOne) {
-                $this->setJoinSelfAs($name . '_id');
+            } else if ($type == self::HasOne) {
+                $this->setJoinSelfAs("{$name}_{$model->getPrimaryKey()}");
             }
-            if(isset($data['joinOtherAs'])) {
+            if (isset($data['joinOtherAs'])) {
                 $this->setJoinOtherAs($data['joinOtherAs']);
             }
-            if(isset($data['joinTable'])) {
+            if (isset($data['joinTable'])) {
                 $this->setJoinTable($data['joinTable']);
             }
-            if(isset($data['cascadeDelete'])) {
+            if (isset($data['cascadeDelete'])) {
                 $this->setCascadeDelete($data['cascadeDelete']);
             }
         }
 
-        if(!isset($this->otherField)) {
+        if (!isset($this->otherField)) {
             $this->setOtherField(get_class($model));
         }
-        if(!isset($this->joinSelfAs)) {
+        if (!isset($this->joinSelfAs)) {
 //            $this->setJoinSelfAs($this->getSimpleOtherField().'_id');
             $this->setJoinSelfAs($model->getPrimaryKey());
         }
-        if(!isset($this->joinOtherAs)) {
-            $this->setJoinOtherAs($this->getSimpleName().'_id');
+        if (!isset($this->joinOtherAs)) {
+            switch ($type) {
+                case RelationDef::HasOne:
+                    $this->setJoinOtherAs("{$this->getSimpleName()}_{$model->getPrimaryKey()}");
+                    break;
+                case RelationDef::HasMany:
+                    $this->setJoinOtherAs($model->getPrimaryKey());
+                    break;
+            }
         }
 
-        if(!isset($this->joinTable)) {
+        if (!isset($this->joinTable)) {
             $relationClassName = $this->getClass();
             /** @var Model $relationClass */
             $relationClass = new $relationClassName();
-            if(! $relationClass instanceof Model) {
-                throw new Exception("Invalid relation {$this->getName()} for ".get_class($model));
+            if (!$relationClass instanceof Model) {
+                throw new Exception("Invalid relation {$this->getName()} for " . get_class($model));
             }
             $joins = [$model->getTableName(), $relationClass->getTableName()];
             sort($joins);
@@ -90,16 +98,16 @@ class RelationDef {
         $related = $this->getRelationClass();
 
         // See if the relationship is in parent table
-        if(array_key_exists($this->getName(), $parent->hasOne)
+        if (array_key_exists($this->getName(), $parent->hasOne)
             || in_array($this->getName(), $parent->hasOne)) {
-            if(in_array($this->getJoinOtherAs(), $parent->getTableFields())) {
+            if (in_array($this->getJoinOtherAs(), $parent->getTableFields())) {
                 return $parent->getTableName();
             }
         }
 
-        if(array_key_exists($this->getOtherField(), $related->hasOne)
+        if (array_key_exists($this->getOtherField(), $related->hasOne)
             || in_array($this->getOtherField(), $related->hasOne)) {
-            if(in_array($this->getJoinSelfAs(), $related->getTableFields()))
+            if (in_array($this->getJoinSelfAs(), $related->getTableFields()))
                 return $related->getTableName();
         }
 
@@ -108,8 +116,9 @@ class RelationDef {
     }
 
     private $relationClass;
+
     public function getRelationClass(): Model {
-        if(is_null($this->relationClass)) {
+        if (is_null($this->relationClass)) {
             $className = $this->getClass();
             $this->relationClass = new $className();
         }
@@ -119,7 +128,7 @@ class RelationDef {
     public function getSimpleName() {
         $namespace = explode('\\', $this->getName());
         $trim = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', end($namespace)));
-        if(strpos($trim, '_model') !== false)
+        if (strpos($trim, '_model') !== false)
             return substr($trim, 0, -6);
         else
             return $trim;
@@ -132,7 +141,7 @@ class RelationDef {
     public function getSimpleOtherField() {
         $namespace = explode('\\', $this->getOtherField());
         $trim = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', end($namespace)));
-        if(strpos($trim, '_model') !== false)
+        if (strpos($trim, '_model') !== false)
             return substr($trim, 0, -6);
         else
             return $trim;

@@ -1,6 +1,7 @@
 <?php namespace OrmExtension\Extensions;
 
 use Config\OrmExtension;
+use DebugTool\Data;
 use IteratorAggregate;
 use OrmExtension\DataMapper\EntityTrait;
 use OrmExtension\DataMapper\ModelDefinitionCache;
@@ -123,8 +124,16 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
                     $this->{$key} = new $className();
                     /** @var Entity $entity */
                     $entity = $this->attributes[$key];
-                    //$entity->_getModel()->whereRelated($relation->getOtherField(), $this->_getModel()->getPrimaryKey(), $this->{$this->_getModel()->getPrimaryKey()});
-                    $entity->_getModel()->whereRelated($relation->getOtherField(), $relation->getJoinSelfAs(), $this->{$this->_getModel()->getPrimaryKey()});
+//                    Data::debug(get_class($this), $relation->getName(), $relation->getJoinSelfAs(), $relation->getJoinOtherAs(), $this->{$relation->getJoinOtherAs()});
+//                    $entity->_getModel()->whereRelated($relation->getOtherField(), $this->_getModel()->getPrimaryKey(), $this->{$this->_getModel()->getPrimaryKey()});
+//                    $entity->_getModel()->whereRelated($relation->getOtherField(), $relation->getJoinSelfAs(), $this->{$this->_getModel()->getPrimaryKey()});
+                    $entity
+                        ->_getModel()
+                        ->whereRelated(
+                            $relation->getOtherField(),
+                            $relation->getJoinSelfAs(),
+                            $this->{$relation->getJoinOtherAs()}
+                        );
                     $result = $entity;
                     break;
                 }
