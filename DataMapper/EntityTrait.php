@@ -349,7 +349,7 @@ trait EntityTrait {
      * @return ArrayIterator|Traversable|Entity[]
      */
     public function getIterator() {
-        return new ArrayIterator(!is_null($this->all) ? $this->all : []);
+        return new ArrayIterator(!is_null($this->all) ? $this->all : ($this->exists() ? [$this] : []));
     }
 
     // </editor-fold>

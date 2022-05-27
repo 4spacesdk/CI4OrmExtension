@@ -65,20 +65,13 @@ class RelationDef {
         if (!isset($this->otherField)) {
             $this->setOtherField(get_class($model));
         }
-        if (!isset($this->joinSelfAs)) {
-//            $this->setJoinSelfAs($this->getSimpleOtherField().'_id');
-            $this->setJoinSelfAs($model->getPrimaryKey());
+        if(!isset($this->joinSelfAs)) {
+            $this->setJoinSelfAs("{$this->getSimpleOtherField()}_{$model->getPrimaryKey()}");
         }
-        if (!isset($this->joinOtherAs)) {
-            switch ($type) {
-                case RelationDef::HasOne:
-                    $this->setJoinOtherAs("{$this->getSimpleName()}_{$model->getPrimaryKey()}");
-                    break;
-                case RelationDef::HasMany:
-                    $this->setJoinOtherAs($model->getPrimaryKey());
-                    break;
-            }
+        if(!isset($this->joinOtherAs)) {
+            $this->setJoinOtherAs("{$this->getSimpleName()}_{$model->getPrimaryKey()}");
         }
+//        Data::debug('Def:', get_class($this->getParent()), $this->getName(), $this->getJoinSelfAs(), $this->getJoinOtherAs());
 
         if (!isset($this->joinTable)) {
             $relationClassName = $this->getClass();
@@ -94,6 +87,11 @@ class RelationDef {
     }
 
     public function getRelationShipTable() {
+        $model = $this->getRelationShipTableModel();
+        return $model ? $model->getTableName() : $this->getJoinTable();
+    }
+
+    public function getRelationShipTableModel() {
         $parent = $this->getParent();
         $related = $this->getRelationClass();
 
@@ -101,18 +99,18 @@ class RelationDef {
         if (array_key_exists($this->getName(), $parent->hasOne)
             || in_array($this->getName(), $parent->hasOne)) {
             if (in_array($this->getJoinOtherAs(), $parent->getTableFields())) {
-                return $parent->getTableName();
+                return $parent;
             }
         }
 
         if (array_key_exists($this->getOtherField(), $related->hasOne)
             || in_array($this->getOtherField(), $related->hasOne)) {
             if (in_array($this->getJoinSelfAs(), $related->getTableFields()))
-                return $related->getTableName();
+                return $related;
         }
 
         // No? Then it must be a join table
-        return $this->getJoinTable();
+        return null;
     }
 
     private $relationClass;
@@ -205,6 +203,13 @@ class RelationDef {
         $this->joinSelfAs = $joinSelfAs;
     }
 
+    public function getJoinSelfAsGuess(): array {
+        return [
+            $this->getJoinSelfAs(),
+            $this->getParent()->getPrimaryKey(),
+        ];
+    }
+
     /**
      * @return string
      */
@@ -217,6 +222,13 @@ class RelationDef {
      */
     public function setJoinOtherAs(string $joinOtherAs): void {
         $this->joinOtherAs = $joinOtherAs;
+    }
+
+    public function getJoinOtherAsGuess(): array {
+        return [
+            $this->getJoinOtherAs(),
+            $this->getParent()->getPrimaryKey(),
+        ];
     }
 
     /**

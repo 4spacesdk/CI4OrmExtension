@@ -80,56 +80,56 @@ trait QueryBuilder {
     public function whereRelated($relationName, $field, $value, $escape = null): Model {
         $table = $this->handleWhereRelated($relationName);
         $model = $this->_getModel();
-        $model->where("{$table}.{$field}", $value, $escape, false);
+        $model->where("{$table[0]}.{$field}", $value, $escape, false);
         return $model;
     }
 
     public function whereInRelated($relationName, $field, $value, $escape = null): Model {
         $table = $this->handleWhereRelated($relationName);
         $model = $this->_getModel();
-        $model->whereIn("{$table}.{$field}", $value, $escape, false);
+        $model->whereIn("{$table[0]}.{$field}", $value, $escape, false);
         return $model;
     }
 
     public function whereNotInRelated($relationName, $field, $value, $escape = null): Model {
         $table = $this->handleWhereRelated($relationName);
         $model = $this->_getModel();
-        $model->whereNotIn("{$table}.{$field}", $value, $escape, false);
+        $model->whereNotIn("{$table[0]}.{$field}", $value, $escape, false);
         return $model;
     }
 
     public function whereBetweenRelated($relationName, $field, $min, $max, $escape = null): Model {
         $table = $this->handleWhereRelated($relationName);
         $model = $this->_getModel();
-        $model->whereBetween("{$table}.{$field}", $min, $max, $escape, false);
+        $model->whereBetween("{$table[0]}.{$field}", $min, $max, $escape, false);
         return $model;
     }
 
     public function whereNotBetweenRelated($relationName, $field, $min, $max, $escape = false): Model {
         $table = $this->handleWhereRelated($relationName);
         $model = $this->_getModel();
-        $model->whereNotBetween("{$table}.{$field}", $min, $max, $escape, false);
+        $model->whereNotBetween("{$table[0]}.{$field}", $min, $max, $escape, false);
         return $model;
     }
 
     public function orWhereRelated($relationName, $field, $value, $escape = null): Model {
         $table = $this->handleWhereRelated($relationName);
         $model = $this->_getModel();
-        $model->orWhere("{$table}.{$field}", $value, $escape, false);
+        $model->orWhere("{$table[0]}.{$field}", $value, $escape, false);
         return $model;
     }
 
     public function orWhereInRelated($relationName, $field, $value, $escape = null): Model {
         $table = $this->handleWhereRelated($relationName);
         $model = $this->_getModel();
-        $model->orWhereIn("{$table}.{$field}", $value, $escape, false);
+        $model->orWhereIn("{$table[0]}.{$field}", $value, $escape, false);
         return $model;
     }
 
     public function orWhereNotInRelated($relationName, $field, $value, $escape = null): Model {
         $table = $this->handleWhereRelated($relationName);
         $model = $this->_getModel();
-        $model->orWhereNotIn("{$table}.{$field}", $value, $escape, false);
+        $model->orWhereNotIn("{$table[0]}.{$field}", $value, $escape, false);
         return $model;
     }
 
@@ -140,28 +140,28 @@ trait QueryBuilder {
     public function likeRelated($relationName, $field, $match = '', $side = 'both', $escape = null, $insensitiveSearch = false): Model {
         $table = $this->handleWhereRelated($relationName);
         $model = $this->_getModel();
-        $model->like("{$table}.{$field}", $match, $side, $escape, $insensitiveSearch, false);
+        $model->like("{$table[0]}.{$field}", $match, $side, $escape, $insensitiveSearch, false);
         return $model;
     }
 
     public function notLikeRelated($relationName, $field, $match = '', $side = 'both', $escape = null, $insensitiveSearch = false): Model {
         $table = $this->handleWhereRelated($relationName);
         $model = $this->_getModel();
-        $model->notLike("{$table}.{$field}", $match, $side, $escape, $insensitiveSearch, false);
+        $model->notLike("{$table[0]}.{$field}", $match, $side, $escape, $insensitiveSearch, false);
         return $model;
     }
 
     public function orLikeRelated($relationName, $field, $match = '', $side = 'both', $escape = null, $insensitiveSearch = false): Model {
         $table = $this->handleWhereRelated($relationName);
         $model = $this->_getModel();
-        $model->orLike("{$table}.{$field}", $match, $side, $escape, $insensitiveSearch, false);
+        $model->orLike("{$table[0]}.{$field}", $match, $side, $escape, $insensitiveSearch, false);
         return $model;
     }
 
     public function orNotLikeRelated($relationName, $field, $match = '', $side = 'both', $escape = null, $insensitiveSearch = false): Model {
         $table = $this->handleWhereRelated($relationName);
         $model = $this->_getModel();
-        $model->orNotLike("{$table}.{$field}", $match, $side, $escape, $insensitiveSearch, false);
+        $model->orNotLike("{$table[0]}.{$field}", $match, $side, $escape, $insensitiveSearch, false);
         return $model;
     }
 
@@ -268,28 +268,28 @@ trait QueryBuilder {
     public function groupByRelated($relationName, $by, $escape = null): Model {
         $table = $this->handleWhereRelated($relationName);
         $model = $this->_getModel();
-        $model->groupBy("{$table}.{$by}", $escape, false);
+        $model->groupBy("{$table[0]}.{$by}", $escape, false);
         return $model;
     }
 
     public function havingRelated($relationName, $key, $value, $escape = null): Model {
         $table = $this->handleWhereRelated($relationName);
         $model = $this->_getModel();
-        $model->having("{$table}.{$key}", $value, $escape, false);
+        $model->having("{$table[0]}.{$key}", $value, $escape, false);
         return $model;
     }
 
     public function orHavingRelated($relationName, $key, $value, $escape = null): Model {
         $table = $this->handleWhereRelated($relationName);
         $model = $this->_getModel();
-        $model->orHaving("{$table}.{$key}", $value, $escape, false);
+        $model->orHaving("{$table[0]}.{$key}", $value, $escape, false);
         return $model;
     }
 
     public function orderByRelated($relationName, $orderby, $direction = '', $escape = null): Model {
         $table = $this->handleWhereRelated($relationName);
         $model = $this->_getModel();
-        $model->orderBy("{$table}.{$orderby}", $direction, $escape, false);
+        $model->orderBy("{$table[0]}.{$orderby}", $direction, $escape, false);
         return $model;
     }
 
@@ -307,7 +307,7 @@ trait QueryBuilder {
 
     // <editor-fold desc="Relations">
 
-    private function handleWhereRelated($relationName) {
+    public function handleWhereRelated($relationName) {
         $relations = $this->getRelation($relationName);
 
         // Handle deep relations
@@ -328,10 +328,10 @@ trait QueryBuilder {
             $last->_setBuilder($builder);
             $last->setSelecting($selecting);
             $last->relatedTablesAdded =& $relatedTablesAdded;
-//            Data::debug($relatedTablesAdded);
+//            Data::debug(get_class($last), $table);
         }
 
-        return $table;
+        return [$table, $last];
     }
 
     private $relatedTablesAdded = [];
@@ -425,7 +425,7 @@ trait QueryBuilder {
 
                         $this->relatedTablesAdded[] = $prefixedParentTable;
                     }
-                    $match = $prefixedRelatedTable;
+                    $match = $prefixedParentTable;
                     break;
                 }
             }
