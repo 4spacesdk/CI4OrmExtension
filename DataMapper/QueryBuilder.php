@@ -352,7 +352,9 @@ trait QueryBuilder {
         $relationShipTable = $relation->getRelationShipTable();
 
         // If no selects, select this table
-        if (!$this->isSelecting()) $this->select($this->getTableName() . '.*');
+        if (!$this->isSelecting()) {
+            $this->select($this->getTableName() . '.*');
+        }
 
         $addSoftDeletionCondition = $related->useSoftDeletes;
         $deletedField = $related->deletedField;
@@ -376,6 +378,7 @@ trait QueryBuilder {
 
                         $this->relatedTablesAdded[] = $prefixedParentTable;
                     }
+                    $match = $prefixedParentTable;
                     break;
                 }
             }
@@ -393,6 +396,7 @@ trait QueryBuilder {
 
                         $this->relatedTablesAdded[] = $prefixedParentTable;
                     }
+                    $match = $prefixedParentTable;
                     break;
                 }
             }
@@ -439,11 +443,12 @@ trait QueryBuilder {
                     $this->join("{$related->getTableName()} {$prefixedParentTable}", $cond, 'LEFT OUTER');
                     $this->relatedTablesAdded[] = $prefixedParentTable;
                 }
+                $match = $prefixedParentTable;
             }
 
         }
 
-        return end($this->relatedTablesAdded);
+        return $match ?? '';
     }
 
     /**
