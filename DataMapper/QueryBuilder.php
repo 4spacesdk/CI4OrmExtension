@@ -403,8 +403,11 @@ trait QueryBuilder {
 
         } else {
 
+            // Use a join table. We have to do two joins now. First the join table and then the relation table.
+
+            $joinMatch = null;
             $match = null;
-            foreach ([$relation->getJoinOtherAs(), 'id'] as $joinOtherAs) {
+            foreach ($relation->getJoinOtherAsGuess() as $joinOtherAs) {
                 if (in_array($joinOtherAs, $this->getTableFields())) {
                     if (!in_array($prefixedRelatedTable, $this->relatedTablesAdded)) {
                         $cond = "{$this_table}.{$joinOtherAs} = {$prefixedRelatedTable}.{$relation->getJoinSelfAs()}";
@@ -412,12 +415,12 @@ trait QueryBuilder {
 
                         $this->relatedTablesAdded[] = $prefixedRelatedTable;
                     }
-                    $match = $prefixedRelatedTable;
+                    $joinMatch = $prefixedRelatedTable;
                     break;
                 }
             }
 
-            foreach ([$relation->getJoinSelfAs(), 'id'] as $joinSelfAs) {
+            foreach ($relation->getJoinSelfAsGuess() as $joinSelfAs) {
                 if (in_array($joinSelfAs, $related->getTableFields())) {
                     if (!in_array($prefixedParentTable, $this->relatedTablesAdded)) {
                         $cond = "{$prefixedParentTable}.{$joinSelfAs} = {$prefixedRelatedTable}.{$relation->getJoinOtherAs()}";
@@ -431,13 +434,15 @@ trait QueryBuilder {
             }
 
             // If we stil have not found a match, this is probably a custom join table
-            if (is_null($match)) {
+            if (is_null($joinMatch)) {
                 if (!in_array($prefixedRelatedTable, $this->relatedTablesAdded)) {
                     $cond = "{$this_table}.{$this->getPrimaryKey()} = {$prefixedRelatedTable}.{$relation->getJoinSelfAs()}";
                     $this->join("{$relationShipTable} {$prefixedRelatedTable}", $cond, 'LEFT OUTER');
                     $this->relatedTablesAdded[] = $prefixedRelatedTable;
                 }
+            }
 
+            if (is_null($match)) {
                 if (!in_array($prefixedParentTable, $this->relatedTablesAdded)) {
                     $cond = "{$prefixedParentTable}.{$related->getPrimaryKey()} = {$prefixedRelatedTable}.{$relation->getJoinOtherAs()}";
                     $this->join("{$related->getTableName()} {$prefixedParentTable}", $cond, 'LEFT OUTER');

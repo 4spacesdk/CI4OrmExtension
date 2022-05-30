@@ -135,18 +135,24 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
                     $field = null;
                     $value = null;
                     $relationShipTableFields = $lastJoinModel->getTableFields();
-                    foreach ($relation->getJoinSelfAsGuess() as $joinSelfAs) {
-                        if (in_array($joinSelfAs, $relationShipTableFields)) {
-                            $field = $joinSelfAs;
-                            break;
+
+                    $joinSelfAsGuess = $relation->getJoinSelfAsGuess();
+                    if (in_array($joinSelfAsGuess[0], $relationShipTableFields)) {
+                        $field = $joinSelfAsGuess[0];
+                    } else if (in_array($joinSelfAsGuess[1], $relationShipTableFields)) {
+                        $field = $joinSelfAsGuess[1];
+                        $value = $this->{$field};
+                    }
+
+                    if (is_null($value)) {
+                        $joinOtherAsGuess = $relation->getJoinOtherAsGuess();
+                        if (in_array($joinOtherAsGuess[0], $relationShipTableFields)) {
+                            $value = $this->{$joinOtherAsGuess[0]};
+                        } else if (in_array($joinOtherAsGuess[1], $relationShipTableFields)) {
+                            $value = $this->{$joinOtherAsGuess[1]};
                         }
                     }
-                    foreach ($relation->getJoinOtherAsGuess() as $joinOtherAs) {
-                        if (in_array($joinOtherAs, $relationShipTableFields)) {
-                            $value = $this->{$joinOtherAs};
-                            break;
-                        }
-                    }
+
                     if (is_null($field) || is_null($value)) {
                         // Undefined relationship table. We have to relay on relationship definitions
                         $field = $relation->getJoinSelfAs();
