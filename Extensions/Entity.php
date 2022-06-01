@@ -139,12 +139,11 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
                     $joinSelfAsGuess = $relation->getJoinSelfAsGuess();
                     if (in_array($joinSelfAsGuess[0], $relationShipTableFields)) {
                         $field = $joinSelfAsGuess[0];
+                        $value = $this->{$field};
                     } else if (in_array($joinSelfAsGuess[1], $relationShipTableFields)) {
                         $field = $joinSelfAsGuess[1];
                         $value = $this->{$field};
-                    }
-
-                    if (is_null($value)) {
+                    } else {
                         $joinOtherAsGuess = $relation->getJoinOtherAsGuess();
                         if (in_array($joinOtherAsGuess[0], $relationShipTableFields)) {
                             $value = $this->{$joinOtherAsGuess[0]};
