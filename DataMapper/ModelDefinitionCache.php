@@ -111,11 +111,13 @@ class ModelDefinitionCache {
                 }
             }
             $relations = [];
-            foreach ($model->hasOne as $name => $hasOne) {
-                $relations[] = new RelationDef($model, $name, $hasOne, RelationDef::HasOne);
-            }
-            foreach ($model->hasMany as $name => $hasMany) {
-                $relations[] = new RelationDef($model, $name, $hasMany, RelationDef::HasMany);
+            if (isset($model)) {
+                foreach ($model->hasOne as $name => $hasOne) {
+                    $relations[] = new RelationDef($model, $name, $hasOne, RelationDef::HasOne);
+                }
+                foreach ($model->hasMany as $name => $hasMany) {
+                    $relations[] = new RelationDef($model, $name, $hasMany, RelationDef::HasMany);
+                }
             }
             ModelDefinitionCache::setRelations($entity, $relations);
         }
