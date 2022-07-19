@@ -373,7 +373,9 @@ trait QueryBuilder {
                 if (in_array($joinSelfAs, $related->getTableFields())) {
                     if (!in_array($prefixedParentTable, $this->relatedTablesAdded)) {
                         $cond = "{$prefixedParentTable}.{$joinSelfAs} = {$this_table}.{$relation->getJoinOtherAs()}";
-                        if ($addSoftDeletionCondition) $cond .= " AND {$prefixedParentTable}.{$deletedField} IS NULL";
+                        if ($addSoftDeletionCondition) {
+                            $cond .= " AND {$prefixedParentTable}.{$deletedField} IS NULL";
+                        }
                         $this->join("{$related->getTableName()} {$prefixedParentTable}", $cond, 'LEFT OUTER');
 
                         $this->relatedTablesAdded[] = $prefixedParentTable;
@@ -424,6 +426,9 @@ trait QueryBuilder {
                 if (in_array($joinSelfAs, $related->getTableFields())) {
                     if (!in_array($prefixedParentTable, $this->relatedTablesAdded)) {
                         $cond = "{$prefixedParentTable}.{$joinSelfAs} = {$prefixedRelatedTable}.{$relation->getJoinOtherAs()}";
+                        if ($addSoftDeletionCondition) {
+                            $cond .= " AND {$prefixedParentTable}.{$deletedField} IS NULL";
+                        }
                         $this->join("{$related->getTableName()} {$prefixedParentTable}", $cond, 'LEFT OUTER');
 
                         $this->relatedTablesAdded[] = $prefixedParentTable;
