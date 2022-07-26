@@ -243,6 +243,7 @@ trait EntityTrait {
             }
 
             switch($fieldData->type) {
+                case 'bigint':
                 case 'int':
                     $item[$field] = is_null($this->{$field}) ? null : (int)$this->{$field};
                     break;
