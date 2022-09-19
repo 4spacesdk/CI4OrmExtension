@@ -14,7 +14,7 @@ trait QueryBuilder {
      * @param null $fields
      * @return Model
      */
-    public function includeRelated($relationName, $fields = null): Model {
+    public function includeRelated($relationName, $fields = null, bool $withDeleted = false): Model {
         $parent = $this->_getModel();
         $relations = $this->getRelation($relationName);
 
@@ -24,7 +24,7 @@ trait QueryBuilder {
         $prefix = '';
         $relationPrefix = '';
         foreach ($relations as $relation) {
-            $table = $last->addRelatedTable($relation, $prefix, $table, $fields);
+            $table = $last->addRelatedTable($relation, $prefix, $table, $withDeleted);
             $prefix .= plural($relation->getSimpleName()) . '_';
             $relationPrefix .= plural($relation->getSimpleName()) . '/';
 
@@ -342,7 +342,7 @@ trait QueryBuilder {
      * @param string $this_table
      * @return string
      */
-    public function addRelatedTable(RelationDef $relation, $prefix = '', $this_table = null) {
+    public function addRelatedTable(RelationDef $relation, $prefix = '', $this_table = null, bool $withDeleted = false) {
         if (!$this_table) {
             $this_table = $this->getTableName();
         }
@@ -356,7 +356,7 @@ trait QueryBuilder {
             $this->select($this->getTableName() . '.*');
         }
 
-        $addSoftDeletionCondition = $related->useSoftDeletes;
+        $addSoftDeletionCondition = !$withDeleted && $related->useSoftDeletes;
         $deletedField = $related->deletedField;
 
         if (($relation->getClass() == $relation->getName()) && ($this->getTableName() != $related->getTableName())) {
