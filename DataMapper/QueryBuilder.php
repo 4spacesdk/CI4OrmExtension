@@ -418,14 +418,10 @@ trait QueryBuilder {
                         $this->relatedTablesAdded[] = $prefixedRelatedTable;
                     }
                     $joinMatch = $prefixedRelatedTable;
-                    break;
-                }
-            }
 
-            foreach ($relation->getJoinSelfAsGuess() as $joinSelfAs) {
-                if (in_array($joinSelfAs, $related->getTableFields())) {
+                    // Second join
                     if (!in_array($prefixedParentTable, $this->relatedTablesAdded)) {
-                        $cond = "{$prefixedParentTable}.{$joinSelfAs} = {$prefixedRelatedTable}.{$relation->getJoinOtherAs()}";
+                        $cond = "{$prefixedParentTable}.{$related->getPrimaryKey()} = {$prefixedRelatedTable}.{$relation->getJoinOtherAs()}";
                         if ($addSoftDeletionCondition) {
                             $cond .= " AND {$prefixedParentTable}.{$deletedField} IS NULL";
                         }
@@ -438,7 +434,7 @@ trait QueryBuilder {
                 }
             }
 
-            // If we stil have not found a match, this is probably a custom join table
+            // If we still have not found a match, this is probably a custom join table
             if (is_null($joinMatch)) {
                 if (!in_array($prefixedRelatedTable, $this->relatedTablesAdded)) {
                     $cond = "{$this_table}.{$this->getPrimaryKey()} = {$prefixedRelatedTable}.{$relation->getJoinSelfAs()}";
