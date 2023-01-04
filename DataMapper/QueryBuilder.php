@@ -226,7 +226,7 @@ trait QueryBuilder {
 
 //        Data::sql($sql);
 
-        $sql = $this->bindMerging($sql, $query->getBinds());
+        $sql = $this->bindMerging($sql, $query->getBindKeyCount(), $query->getBinds());
 
         $tableName = $model->db->protectIdentifiers($model->getTableName());
         $tableNameThisQuote = preg_quote($model->getTableName());
