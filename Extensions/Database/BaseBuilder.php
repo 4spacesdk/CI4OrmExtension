@@ -2,6 +2,10 @@
 
 class BaseBuilder extends \CodeIgniter\Database\BaseBuilder {
 
+    public function getBindKeyCount(): array {
+        return $this->bindsKeyCount;
+    }
+
     /**
      * @param mixed $key
      * @param null $value
@@ -14,10 +18,12 @@ class BaseBuilder extends \CodeIgniter\Database\BaseBuilder {
 
     /**
      * @param string $sql
+     * @param array $bindKeyCount
      * @param array $binds
      * @return string
      */
-    public function bindMerging($sql, $binds) {
+    public function bindMerging($sql, $bindKeyCount, $binds) {
+        $this->bindsKeyCount = array_merge($this->bindsKeyCount, $bindKeyCount);
         foreach($binds as $key => [$value, $escape]) {
             $newKey = $this->setBind($key, $value, $escape);
             $sql = str_replace(":$key:", ":$newKey:", $sql);
