@@ -24,7 +24,7 @@ class BaseBuilder extends \CodeIgniter\Database\BaseBuilder {
      */
     public function bindMerging($sql, $bindKeyCount, $binds) {
         // Ensure my keys are part of the bindsKeyCount
-        // If not, CI4 will overwrite vaules https://github.com/codeigniter4/CodeIgniter4/issues/7049
+        // If not, CI4 will overwrite values https://github.com/codeigniter4/CodeIgniter4/issues/7049
         foreach ($binds as $key => $value) {
             if (!isset($bindKeyCount[$key])) {
                 $bindKeyCount[$key] = 1;
