@@ -277,6 +277,8 @@ trait EntityTrait {
                     default:
                         $item[$fieldName] = $this->{$fieldName};
                 }
+            } else {
+                $item[$fieldName] = $this->{$fieldName};
             }
         }
 
