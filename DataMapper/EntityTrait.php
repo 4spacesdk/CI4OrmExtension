@@ -232,48 +232,53 @@ trait EntityTrait {
         // Fields
         $fields = ModelDefinitionCache::getFieldData($this->getSimpleName());
         foreach($fields as $fieldData) {
-            $field = $fieldData->name;
+            $fieldName = $fieldData->name;
 
-            if(in_array($field, $this->hiddenFields)) {
+            if(in_array($fieldName, $this->hiddenFields)) {
                 continue;
             }
 
-            if ($fieldsFilter != null && !in_array($field, $fieldsFilter)) {
+            if ($fieldsFilter != null && !in_array($fieldName, $fieldsFilter)) {
                 continue;
             }
 
-            switch($fieldData->type) {
-                case 'bigint':
-                case 'int':
-                    $item[$field] = is_null($this->{$field}) ? null : (int)$this->{$field};
-                    break;
-                case 'float':
-                case 'double':
-                case 'decimal':
-                    $item[$field] = (double)$this->{$field};
-                    break;
-                case 'tinyint':
-                    $item[$field] = (bool)$this->{$field};
-                    break;
-                case 'varchar':
-                case 'text':
-                case 'time':
-                    $item[$field] = (string)$this->{$field};
-                    break;
-                case 'datetime':
-                    if($this->{$field} != null && $this->{$field} != "0000-00-00 00:00:00") {
-                        $item[$field] = (string)strtotime($this->{$field});
-                        try {
-                            $foo = new DateTime($this->{$field}, new DateTimeZone("Europe/Copenhagen"));
-                            $foo->setTimeZone(new DateTimeZone("UTC"));
-                            $item[$field] = $foo->format('c');
-                        } catch(\Exception $e) {
+            $field = $this->{$fieldName};
+            if (is_string($field)) {
+                switch($fieldData->type) {
+                    case 'bigint':
+                    case 'int':
+                        $item[$fieldName] = is_null($this->{$fieldName}) ? null : (int)$this->{$fieldName};
+                        break;
+                    case 'float':
+                    case 'double':
+                    case 'decimal':
+                        $item[$fieldName] = (double)$this->{$fieldName};
+                        break;
+                    case 'tinyint':
+                        $item[$fieldName] = (bool)$this->{$fieldName};
+                        break;
+                    case 'varchar':
+                    case 'text':
+                    case 'time':
+                        $item[$fieldName] = (string)$this->{$fieldName};
+                        break;
+                    case 'datetime':
+                        if($this->{$fieldName} != null && $this->{$fieldName} != "0000-00-00 00:00:00") {
+                            $item[$fieldName] = (string)strtotime($this->{$fieldName});
+                            try {
+                                $foo = new DateTime($this->{$fieldName}, new DateTimeZone("Europe/Copenhagen"));
+                                $foo->setTimeZone(new DateTimeZone("UTC"));
+                                $item[$fieldName] = $foo->format('c');
+                            } catch(\Exception $e) {
 
-                        }
-                    } else $item[$field] = null;
-                    break;
-                default:
-                    $item[$field] = $this->{$field};
+                            }
+                        } else $item[$fieldName] = null;
+                        break;
+                    default:
+                        $item[$fieldName] = $this->{$fieldName};
+                }
+            } else {
+                $item[$fieldName] = $this->{$fieldName};
             }
         }
 
@@ -281,16 +286,16 @@ trait EntityTrait {
         /** @var RelationDef[] $relations */
         $relations = ModelDefinitionCache::getRelations($this->getSimpleName());
         foreach($relations as $relation) {
-            $field = $relation->getSimpleName();
+            $fieldName = $relation->getSimpleName();
             switch($relation->getType()) {
                 case RelationDef::HasOne:
-                    if(isset($this->{$field}) && $this->{$field}->exists())
-                        $item[$field] = $this->{$field}->toArray();
+                    if(isset($this->{$fieldName}) && $this->{$fieldName}->exists())
+                        $item[$fieldName] = $this->{$fieldName}->toArray();
                     break;
                 case RelationDef::HasMany:
-                    $field = plural($field);
-                    if(isset($this->{$field}) && $this->{$field}->exists())
-                        $item[$field] = $this->{$field}->allToArray();
+                    $fieldName = plural($fieldName);
+                    if(isset($this->{$fieldName}) && $this->{$fieldName}->exists())
+                        $item[$fieldName] = $this->{$fieldName}->allToArray();
                     break;
             }
         }
