@@ -1,5 +1,7 @@
 # CodeIgniter 4 OrmExtension
 
+[![Latest Stable Version](http://poser.pugx.org/4spacesdk/ci4ormextension/v)](https://packagist.org/packages/4spacesdk/ci4ormextension) [![Total Downloads](http://poser.pugx.org/4spacesdk/ci4ormextension/downloads)](https://packagist.org/packages/4spacesdk/ci4ormextension) [![Latest Unstable Version](http://poser.pugx.org/4spacesdk/ci4ormextension/v/unstable)](https://packagist.org/packages/4spacesdk/ci4ormextension) [![License](http://poser.pugx.org/4spacesdk/ci4ormextension/license)](https://packagist.org/packages/4spacesdk/ci4ormextension) [![PHP Version Require](http://poser.pugx.org/4spacesdk/ci4ormextension/require/php)](https://packagist.org/packages/4spacesdk/ci4ormextension)
+
 ## What is CodeIgniter 4 OrmExtension?
 OrmExtension is an Object Relational Mapper written in PHP for CodeIgniter 4. 
 It is designed to map your Database tables into easy to work with objects, fully aware of the relationships between each other.
