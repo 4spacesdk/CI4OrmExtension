@@ -352,9 +352,9 @@ trait EntityTrait {
     }
 
     /**
-     * @return ArrayIterator|Traversable|Entity[]
+     * @return ArrayIterator
      */
-    public function getIterator() {
+    public function getIterator(): ArrayIterator {
         return new ArrayIterator(!is_null($this->all) ? $this->all : ($this->exists() ? [$this] : []));
     }
 

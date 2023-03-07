@@ -27,15 +27,10 @@ class ModelDefinitionCache {
         return static::$instance;
     }
 
-    private static $directory = 'OrmExtension';
     private $config;
 
     public function init() {
         $this->config            = new Cache();
-        $this->config->storePath .= self::$directory;
-        if (!is_dir($this->config->storePath)) {
-            mkdir($this->config->storePath);
-        }
         $this->cache = Services::cache($this->config, false);
     }
 
