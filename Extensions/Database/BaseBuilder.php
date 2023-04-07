@@ -31,7 +31,7 @@ class BaseBuilder extends \CodeIgniter\Database\BaseBuilder {
             }
         }
 
-        $this->bindsKeyCount = array_merge($this->bindsKeyCount, $bindKeyCount);
+        $this->bindsKeyCount = array_merge($bindKeyCount, $this->bindsKeyCount);
         foreach($binds as $key => [$value, $escape]) {
             $newKey = $this->setBind($key, $value, $escape);
             $sql = str_replace(":$key:", ":$newKey:", $sql);
