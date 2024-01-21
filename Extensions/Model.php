@@ -683,6 +683,7 @@ class Model extends \CodeIgniter\Model {
     }
 
     public function getTableName() {
+        helper('inflector');
         return strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', plural($this->getEntityName())));
     }
 
