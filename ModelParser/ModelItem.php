@@ -64,6 +64,8 @@ class ModelItem {
             $item->properties[] = new PropertyItem('created_by', 'User', false, false);
             $item->properties[] = new PropertyItem('updated_by_id', 'int', true, false);
             $item->properties[] = new PropertyItem('updated_by', 'User', false, false);
+            $item->properties[] = new PropertyItem('deletion_id', 'int', true, false);
+            $item->properties[] = new PropertyItem('deletion', 'Deletion', false, false);
         }
 
         return $item;
