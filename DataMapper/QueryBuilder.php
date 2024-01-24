@@ -137,29 +137,29 @@ trait QueryBuilder {
 
     // <editor-fold desc="Like">
 
-    public function likeRelated($relationName, $field, $match = '', $side = 'both', $escape = null, $insensitiveSearch = false): Model {
-        $table = $this->handleWhereRelated($relationName);
+    public function likeRelated($relationName, $field, $match = '', $side = 'both', $escape = null, $insensitiveSearch = false, bool $withDeleted = false): Model {
+        $table = $this->handleWhereRelated($relationName, $withDeleted);
         $model = $this->_getModel();
         $model->like("{$table[0]}.{$field}", $match, $side, $escape, $insensitiveSearch, false);
         return $model;
     }
 
-    public function notLikeRelated($relationName, $field, $match = '', $side = 'both', $escape = null, $insensitiveSearch = false): Model {
-        $table = $this->handleWhereRelated($relationName);
+    public function notLikeRelated($relationName, $field, $match = '', $side = 'both', $escape = null, $insensitiveSearch = false, bool $withDeleted = false): Model {
+        $table = $this->handleWhereRelated($relationName, $withDeleted);
         $model = $this->_getModel();
         $model->notLike("{$table[0]}.{$field}", $match, $side, $escape, $insensitiveSearch, false);
         return $model;
     }
 
-    public function orLikeRelated($relationName, $field, $match = '', $side = 'both', $escape = null, $insensitiveSearch = false): Model {
-        $table = $this->handleWhereRelated($relationName);
+    public function orLikeRelated($relationName, $field, $match = '', $side = 'both', $escape = null, $insensitiveSearch = false, bool $withDeleted = false): Model {
+        $table = $this->handleWhereRelated($relationName, $withDeleted);
         $model = $this->_getModel();
         $model->orLike("{$table[0]}.{$field}", $match, $side, $escape, $insensitiveSearch, false);
         return $model;
     }
 
-    public function orNotLikeRelated($relationName, $field, $match = '', $side = 'both', $escape = null, $insensitiveSearch = false): Model {
-        $table = $this->handleWhereRelated($relationName);
+    public function orNotLikeRelated($relationName, $field, $match = '', $side = 'both', $escape = null, $insensitiveSearch = false, bool $withDeleted = false): Model {
+        $table = $this->handleWhereRelated($relationName, $withDeleted);
         $model = $this->_getModel();
         $model->orNotLike("{$table[0]}.{$field}", $match, $side, $escape, $insensitiveSearch, false);
         return $model;
@@ -307,7 +307,7 @@ trait QueryBuilder {
 
     // <editor-fold desc="Relations">
 
-    public function handleWhereRelated($relationName) {
+    public function handleWhereRelated($relationName, bool $withDeleted = false) {
         $relations = $this->getRelation($relationName);
 
         // Handle deep relations
@@ -317,7 +317,7 @@ trait QueryBuilder {
         $relation = null;
         $prefix = '';
         foreach ($relations as $relation) {
-            $table = $last->addRelatedTable($relation, $prefix, $table);
+            $table = $last->addRelatedTable($relation, $prefix, $table, $withDeleted);
             $prefix .= plural($relation->getSimpleName()) . '_';
 
             // Prepare next
