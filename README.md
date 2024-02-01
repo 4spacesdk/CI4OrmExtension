@@ -36,6 +36,7 @@ Step 3)
 Add this line to your `app/Config/Events.php` file 
 ```php
 Events::on('pre_system', [\OrmExtension\Hooks\PreController::class, 'execute']);
+Events::on('pre_command', [\OrmExtension\Hooks\PreController::class, 'execute']);
 ```
 
 NB!
