@@ -17,7 +17,7 @@ use OrmExtension\DataMapper\RelationDef;
  *
  * @property int $id
  */
-class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
+class Entity extends \CodeIgniter\Entity\Entity implements IteratorAggregate {
     use EntityTrait;
 
     public $hiddenFields = [];
@@ -177,7 +177,7 @@ class Entity extends \CodeIgniter\Entity implements IteratorAggregate {
     /**
      * @param string $key
      * @param mixed $value
-     * @return \CodeIgniter\Entity|Entity
+     * @return \CodeIgniter\Entity\Entity|Entity
      */
     public function __set(string $key, $value = null) {
         parent::__set($key, $value);
