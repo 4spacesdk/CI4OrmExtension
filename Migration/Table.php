@@ -1,7 +1,6 @@
 <?php namespace OrmExtension\Migration;
 
 use CodeIgniter\CLI\CLI;
-use CodeIgniter\Config\Config;
 use CodeIgniter\Database\BaseConnection;
 use CodeIgniter\Database\Forge;
 use Config\Database;

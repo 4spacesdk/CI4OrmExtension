@@ -8,9 +8,9 @@ use OrmExtension\ModelParser\ModelItem; ?>
  * Time: <?=date('H:i')?>.
  */
 using System;
-using <?=\CodeIgniter\Config\Config::get('OrmExtension')->xamarinModelsNamespace?>.Definitions;
+using <?=config('OrmExtension')->xamarinModelsNamespace?>.Definitions;
 
-namespace <?=\CodeIgniter\Config\Config::get('OrmExtension')->xamarinModelsNamespace?>
+namespace <?=config('OrmExtension')->xamarinModelsNamespace?>
 {
     public class <?=$model->name?> : <?=$model->name?>Definition
     {
