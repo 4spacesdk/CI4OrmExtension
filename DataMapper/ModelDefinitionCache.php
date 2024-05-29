@@ -29,6 +29,8 @@ class ModelDefinitionCache {
 
     private $config;
 
+    public $cache;
+
     public function init() {
         $this->config            = new Cache();
         $this->cache = Services::cache($this->config, false);
