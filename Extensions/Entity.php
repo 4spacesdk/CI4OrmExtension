@@ -114,6 +114,7 @@ class Entity extends \CodeIgniter\Entity\Entity implements IteratorAggregate {
      * @return mixed|null
      */
     public function __get(string $key) {
+        helper('inflector');
         $result = parent::__get($key);
 
         if (is_null($result) && $key != $this->_getModel()->getPrimaryKey()) {
