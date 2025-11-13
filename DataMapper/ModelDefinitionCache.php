@@ -31,11 +31,28 @@ class ModelDefinitionCache {
 
     public $cache;
 
+    private function getCacheStorePath(): string {
+        if (isset($this->config->file['storePath'])) {
+            return $this->config->file['storePath'];
+        } else if (isset($this->config->storePath)) {
+            return $this->config->storePath;
+        } else {
+            return WRITEPATH . 'cache/';
+        }
+    }
+
     public function init() {
         $this->config            = new Cache();
-        $this->config->file['storePath'] .= 'OrmExtension';
-        if (!is_dir($this->config->file['storePath'])) {
-            mkdir($this->config->file['storePath'], 0775, true);
+
+        // Append OrmExtension to cache path
+        if (isset($this->config->file['storePath'])) {
+            $this->config->file['storePath'] .= 'OrmExtension';
+        } else if (isset($this->config->storePath)) {
+            $this->config->storePath .= 'OrmExtension';
+        }
+
+        if (!is_dir($this->getCacheStorePath())) {
+            mkdir($this->getCacheStorePath(), 0775, true);
         }
         $this->cache = Services::cache($this->config, false);
     }
@@ -161,8 +178,8 @@ class ModelDefinitionCache {
     public function clearCache($rmDir = false) {
         $this->memcache = [];
         $this->cache->clean();
-        if ($rmDir && is_dir($this->config->file['storePath'])) {
-            rmdir($this->config->file['storePath']);
+        if ($rmDir && is_dir($this->getCacheStorePath())) {
+            rmdir($this->getCacheStorePath());
         }
     }
 
