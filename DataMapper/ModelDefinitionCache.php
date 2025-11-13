@@ -33,6 +33,10 @@ class ModelDefinitionCache {
 
     public function init() {
         $this->config            = new Cache();
+        $this->config->file['storePath'] .= 'OrmExtension';
+        if (!is_dir($this->config->file['storePath'])) {
+            mkdir($this->config->file['storePath'], 0775, true);
+        }
         $this->cache = Services::cache($this->config, false);
     }
 
@@ -157,8 +161,8 @@ class ModelDefinitionCache {
     public function clearCache($rmDir = false) {
         $this->memcache = [];
         $this->cache->clean();
-        if ($rmDir && is_dir($this->config->storePath)) {
-            rmdir($this->config->storePath);
+        if ($rmDir && is_dir($this->config->file['storePath'])) {
+            rmdir($this->config->file['storePath']);
         }
     }
 

@@ -19,14 +19,14 @@ Create new file `app/Config/OrmExtension.php` and add this content
 ```php
 <?php namespace Config;
 class OrmExtension {
-    public static $modelNamespace = ['App\Models\\'];
-    public static $entityNamespace = ['App\Entities\\'];
+    public static array $modelNamespace = ['App\Models\\'];
+    public static array $entityNamespace = ['App\Entities\\'];
 
     /*
      * Provide Namespace for Xamarin models folder
      */
-    public $xamarinModelsNamespace          = 'App.Models';
-    public $xamarinBaseModelNamespace       = 'App.Models';
+    public string $xamarinModelsNamespace = 'App.Models';
+    public string $xamarinBaseModelNamespace = 'App.Models';
 }
 ```
 Update the namespace to fit your project. Use arrays if you have multiple namespaces for models and entities.
@@ -231,7 +231,7 @@ $users = $userModel
 ```
 
 #### Result
-The return from `find()` has been changed. `Find` will always return a entity class related to the calling model. It will never be null or an array of entities. This is a good think - because now we have some consistent to work with. The entity is traversable, so we can use it in a loop!
+The return from `find()` has been changed. `Find` will always return a entity class related to the calling model. It will never be null or an array of entities. This is a good thing - because now we have some consistent to work with. The entity is traversable, so we can use it in a loop!
 Check these examples:
 ```php
 $userModel = new UserModel();
@@ -323,7 +323,7 @@ class UserModel {
 class BookModel {
     public $hasOne = [
         ColorModel::class
-    ],
+    ];
     public $hasMany = [
         UserModel::class
     ];
