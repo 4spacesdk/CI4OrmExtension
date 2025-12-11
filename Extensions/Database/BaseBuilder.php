@@ -12,7 +12,7 @@ class BaseBuilder extends \CodeIgniter\Database\BaseBuilder {
      * @param bool $escape
      * @return \CodeIgniter\Database\BaseBuilder|BaseBuilder
      */
-    public function where($key, $value = null, bool $escape = null) {
+    public function where($key, $value = null, ?bool $escape = null) {
         return parent::where($key, $value, $escape);
     }
 

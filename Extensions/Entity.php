@@ -31,7 +31,7 @@ class Entity extends \CodeIgniter\Entity\Entity implements IteratorAggregate {
      * @param array $data
      * @return $this
      */
-    public function fill(array $data = null) {
+    public function fill(?array $data = null) {
         if (! is_array($data))
         {
             return $this;
@@ -232,7 +232,7 @@ class Entity extends \CodeIgniter\Entity\Entity implements IteratorAggregate {
         }
     }
 
-    public function hasChanged(string $key = null, $checkRelations = false): bool {
+    public function hasChanged(?string $key = null, $checkRelations = false): bool {
         if ($key === null && $checkRelations == false) {
             // CI4 will check original against attributes. Attributes holds everything, including relations
             // Remove relations before checking
