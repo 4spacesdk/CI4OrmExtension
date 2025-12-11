@@ -36,7 +36,7 @@ use OrmExtension\Interfaces\OrmEventsInterface;
  */
 class Model extends \CodeIgniter\Model {
 
-    public function __construct(ConnectionInterface $db = null, ValidationInterface $validation = null) {
+    public function __construct(?ConnectionInterface $db = null, ?ValidationInterface $validation = null) {
         $this->setCodeIgniterModelStuff();
         parent::__construct($db, $validation);
     }
@@ -81,7 +81,7 @@ class Model extends \CodeIgniter\Model {
      * @param boolean $appendTable
      * @return BaseBuilder|Model
      */
-    public function select($select = '*', bool $escape = null, $appendTable = true): Model {
+    public function select($select = '*', ?bool $escape = null, bool $appendTable = true): Model {
         $this->selecting = true;
         if($appendTable) {
             if(strpos($select, '.') === false) {
@@ -107,7 +107,7 @@ class Model extends \CodeIgniter\Model {
      * @param bool $appendTable
      * @return BaseBuilder|Model
      */
-    public function where($key, $value = null, bool $escape = null, $appendTable = true) {
+    public function where($key, $value = null, ?bool $escape = null, bool $appendTable = true) {
         if($appendTable) $this->appendTable($key);
         return parent::where($key, $value, $escape);
     }
@@ -120,7 +120,7 @@ class Model extends \CodeIgniter\Model {
      * @param bool $appendTable
      * @return BaseBuilder|Model
      */
-    public function whereBetween($key, $min = 0, $max = 0, $escape = null, $appendTable = true) {
+    public function whereBetween($key, $min = 0, $max = 0, $escape = null, bool $appendTable = true) {
         if($appendTable) $this->appendTable($key);
         return parent::where("`$key` BETWEEN \"{$min}\" AND \"{$max}\"", null, $escape);
     }
@@ -133,7 +133,7 @@ class Model extends \CodeIgniter\Model {
      * @param bool $appendTable
      * @return BaseBuilder|Model
      */
-    public function whereNotBetween($key, $min = 0, $max = 0, $escape = false, $appendTable = true) {
+    public function whereNotBetween($key, $min = 0, $max = 0, $escape = false, bool $appendTable = true) {
         if($appendTable) $this->appendTable($key);
         return parent::where("$key NOT BETWEEN \"{$min}\" AND \"{$max}\"", null, $escape);
     }
@@ -145,7 +145,7 @@ class Model extends \CodeIgniter\Model {
      * @param boolean $appendTable
      * @return BaseBuilder|Model
      */
-    public function whereIn(string $key = null, $values = null, bool $escape = null, $appendTable = true) {
+    public function whereIn(?string $key = null, $values = null, ?bool $escape = null, bool $appendTable = true) {
         if($appendTable) $this->appendTable($key);
         if($values instanceof Entity) {
             $ids = [];
@@ -163,7 +163,7 @@ class Model extends \CodeIgniter\Model {
      * @param boolean $appendTable
      * @return BaseBuilder|Model
      */
-    public function whereNotIn(string $key = null, $values = null, bool $escape = null, $appendTable = true) {
+    public function whereNotIn(?string $key = null, $values = null, ?bool $escape = null, bool $appendTable = true) {
         if($appendTable) $this->appendTable($key);
         if($values instanceof Entity) {
             $ids = [];
@@ -184,7 +184,7 @@ class Model extends \CodeIgniter\Model {
      * @param boolean $appendTable
      * @return BaseBuilder|Model
      */
-    public function orWhere($key, $value = null, bool $escape = null, $appendTable = true) {
+    public function orWhere($key, $value = null, ?bool $escape = null, bool $appendTable = true) {
         if($appendTable) $this->appendTable($key);
         return parent::orWhere($key, $value, $escape);
     }
@@ -197,7 +197,7 @@ class Model extends \CodeIgniter\Model {
      * @param bool $appendTable
      * @return BaseBuilder|Model
      */
-    public function orWhereBetween($key, $min = 0, $max = 0, $escape = null, $appendTable = true) {
+    public function orWhereBetween($key, $min = 0, $max = 0, $escape = null, bool $appendTable = true) {
         if($appendTable) $this->appendTable($key);
         return parent::orWhere("`$key` BETWEEN {$min} AND {$max}", null, $escape);
     }
@@ -210,7 +210,7 @@ class Model extends \CodeIgniter\Model {
      * @param bool $appendTable
      * @return BaseBuilder|Model
      */
-    public function orWhereNotBetween($key, $min = 0, $max = 0, $escape = false, $appendTable = true) {
+    public function orWhereNotBetween($key, $min = 0, $max = 0, $escape = false, bool $appendTable = true) {
         if($appendTable) $this->appendTable($key);
         return parent::orWhere("$key NOT BETWEEN {$min} AND {$max}", null, $escape);
     }
@@ -222,7 +222,7 @@ class Model extends \CodeIgniter\Model {
      * @param boolean $appendTable
      * @return BaseBuilder|Model
      */
-    public function orWhereIn(string $key = null, array $values = null, bool $escape = null, $appendTable = true) {
+    public function orWhereIn(?string $key = null, ?array $values = null, ?bool $escape = null, bool $appendTable = true) {
         if($appendTable) $this->appendTable($key);
         return parent::orWhereIn($key, $values, $escape);
     }
@@ -234,7 +234,7 @@ class Model extends \CodeIgniter\Model {
      * @param boolean $appendTable
      * @return BaseBuilder|Model
      */
-    public function orWhereNotIn(string $key = null, array $values = null, bool $escape = null, $appendTable = true) {
+    public function orWhereNotIn(?string $key = null, ?array $values = null, ?bool $escape = null, bool $appendTable = true) {
         if($appendTable) $this->appendTable($key);
         return parent::orWhereNotIn($key, $values, $escape);
     }
@@ -253,7 +253,7 @@ class Model extends \CodeIgniter\Model {
      * @param bool $appendTable
      * @return BaseBuilder|Model
      */
-    public function like($field, string $match = '', string $side = 'both', bool $escape = null, bool $insensitiveSearch = false, $appendTable = true) {
+    public function like($field, string $match = '', string $side = 'both', ?bool $escape = null, bool $insensitiveSearch = false, bool $appendTable = true) {
         if($appendTable) $this->appendTable($field);
         return parent::like($field, $match, $side, $escape, $insensitiveSearch);
     }
@@ -267,7 +267,7 @@ class Model extends \CodeIgniter\Model {
      * @param bool $appendTable
      * @return BaseBuilder|Model
      */
-    public function notLike($field, string $match = '', string $side = 'both', bool $escape = null, bool $insensitiveSearch = false, $appendTable = true) {
+    public function notLike($field, string $match = '', string $side = 'both', ?bool $escape = null, bool $insensitiveSearch = false, bool $appendTable = true) {
         if($appendTable) $this->appendTable($field);
         return parent::notLike($field, $match, $side, $escape, $insensitiveSearch);
     }
@@ -281,7 +281,7 @@ class Model extends \CodeIgniter\Model {
      * @param bool $appendTable
      * @return BaseBuilder|Model
      */
-    public function orLike($field, string $match = '', string $side = 'both', bool $escape = null, bool $insensitiveSearch = false, $appendTable = true) {
+    public function orLike($field, string $match = '', string $side = 'both', ?bool $escape = null, bool $insensitiveSearch = false, bool $appendTable = true) {
         if($appendTable) $this->appendTable($field);
         return parent::orLike($field, $match, $side, $escape, $insensitiveSearch);
     }
@@ -295,7 +295,7 @@ class Model extends \CodeIgniter\Model {
      * @param bool $appendTable
      * @return BaseBuilder|Model
      */
-    public function orNotLike($field, string $match = '', string $side = 'both', bool $escape = null, bool $insensitiveSearch = false, $appendTable = true) {
+    public function orNotLike($field, string $match = '', string $side = 'both', ?bool $escape = null, bool $insensitiveSearch = false, bool $appendTable = true) {
         if($appendTable) $this->appendTable($field);
         return parent::orNotLike($field, $match, $side, $escape, $insensitiveSearch);
     }
@@ -310,7 +310,7 @@ class Model extends \CodeIgniter\Model {
      * @param boolean $appendTable
      * @return BaseBuilder|Model
      */
-    public function groupBy($by, bool $escape = null, $appendTable = true) {
+    public function groupBy($by, ?bool $escape = null, bool $appendTable = true) {
         if($appendTable) $this->appendTable($by);
         return parent::groupBy($by, $escape);
     }
@@ -322,7 +322,7 @@ class Model extends \CodeIgniter\Model {
      * @param boolean $appendTable
      * @return BaseBuilder|Model
      */
-    public function having($key, $value = null, bool $escape = null, $appendTable = true) {
+    public function having($key, $value = null, ?bool $escape = null, bool $appendTable = true) {
         if($appendTable) $this->appendTable($key);
         return parent::having($key, $value, $escape);
     }
@@ -334,7 +334,7 @@ class Model extends \CodeIgniter\Model {
      * @param boolean $appendTable
      * @return BaseBuilder|Model
      */
-    public function orHaving($key, $value = null, bool $escape = null, $appendTable = true) {
+    public function orHaving($key, $value = null, ?bool $escape = null, bool $appendTable = true) {
         if($appendTable) $this->appendTable($key);
         return parent::orHaving($key, $value, $escape);
     }
@@ -346,7 +346,7 @@ class Model extends \CodeIgniter\Model {
      * @param boolean $appendTable
      * @return BaseBuilder|Model
      */
-    public function orderBy(string $orderBy, string $direction = '', bool $escape = null, $appendTable = true) {
+    public function orderBy(string $orderBy, string $direction = '', ?bool $escape = null, bool $appendTable = true) {
         if($appendTable) $this->appendTable($orderBy);
 
         if(is_null($direction) || $direction == 'null') {

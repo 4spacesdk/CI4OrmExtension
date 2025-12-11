@@ -215,18 +215,18 @@ trait EntityTrait {
 
     // <editor-fold desc="Print">
 
-    public function allToArray(bool $onlyChanged = false, bool $cast = true, bool $recursive = false, array $fieldsFilter = null) {
+    public function allToArray(bool $onlyChanged = false, bool $cast = true, bool $recursive = false, ?array $fieldsFilter = null) {
         $items = [];
         foreach($this as $item)
             $items[] = $item->toArray($onlyChanged, $cast, $recursive, $fieldsFilter);
         return $items;
     }
 
-    public function allToArrayWithFields(array $fieldsFilter = null, bool $onlyChanged = false, bool $cast = true, bool $recursive = false) {
+    public function allToArrayWithFields(?array $fieldsFilter = null, bool $onlyChanged = false, bool $cast = true, bool $recursive = false) {
         return $this->allToArray($onlyChanged, $cast, $recursive, $fieldsFilter);
     }
 
-    public function toArray(bool $onlyChanged = false, bool $cast = true, bool $recursive = false, array $fieldsFilter = null): array {
+    public function toArray(bool $onlyChanged = false, bool $cast = true, bool $recursive = false, ?array $fieldsFilter = null): array {
         $item = [];
 
         // Fields
