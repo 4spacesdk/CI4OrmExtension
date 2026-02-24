@@ -247,4 +247,23 @@ class Entity extends \CodeIgniter\Entity\Entity implements IteratorAggregate {
             return parent::hasChanged($key);
     }
 
+    public function __call($method, $args) {
+        if (strpos($method, "get") === 0) {
+            $maybeRelationName = lcfirst(substr($method, 3));
+            $maybeRelationNameSingular = singular($maybeRelationName);
+
+            // Check for relation
+            foreach ($this->_getModel()->getRelations() as $relation) {
+                if ($relation->getSimpleName() == $maybeRelationNameSingular) {
+                    if (!isset($this->$maybeRelationName)) {
+                        $this->$maybeRelationName->find();
+                    }
+                    return $this->$maybeRelationName;
+                }
+            }
+        }
+
+        return parent::$method(...$args);
+    }
+
 }
