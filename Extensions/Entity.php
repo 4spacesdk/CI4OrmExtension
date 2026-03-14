@@ -221,7 +221,7 @@ class Entity extends \CodeIgniter\Entity\Entity implements IteratorAggregate {
             }
         }
 
-        return parent::setAttributes($data);
+        return parent::injectRawData($data);
     }
 
     public function getOriginal($key = null) {
