@@ -242,43 +242,45 @@ trait EntityTrait {
                 continue;
             }
 
+            // Read the value once. Each $this->{$fieldName} goes through __get(), so re-reading
+            // it inside the branches below tripled the number of magic property lookups per field.
             $field = $this->{$fieldName};
             if (is_string($field)) {
                 switch($fieldData->type) {
                     case 'bigint':
                     case 'int':
-                        $item[$fieldName] = is_null($this->{$fieldName}) ? null : (int)$this->{$fieldName};
+                        // $field is a string here, so it can never be null.
+                        $item[$fieldName] = (int)$field;
                         break;
                     case 'float':
                     case 'double':
                     case 'decimal':
-                        $item[$fieldName] = (double)$this->{$fieldName};
+                        $item[$fieldName] = (float)$field;
                         break;
                     case 'tinyint':
-                        $item[$fieldName] = (bool)$this->{$fieldName};
+                        $item[$fieldName] = (bool)$field;
                         break;
                     case 'varchar':
                     case 'text':
                     case 'time':
-                        $item[$fieldName] = (string)$this->{$fieldName};
+                        $item[$fieldName] = (string)$field;
                         break;
                     case 'datetime':
-                        if($this->{$fieldName} != null && $this->{$fieldName} != "0000-00-00 00:00:00") {
-                            $item[$fieldName] = (string)strtotime($this->{$fieldName});
+                        if($field != null && $field != "0000-00-00 00:00:00") {
                             try {
-                                $foo = new DateTime($this->{$fieldName}, new DateTimeZone("Europe/Copenhagen"));
+                                $foo = new DateTime($field, new DateTimeZone("Europe/Copenhagen"));
                                 $foo->setTimeZone(new DateTimeZone("UTC"));
                                 $item[$fieldName] = $foo->format('c');
                             } catch(\Exception $e) {
-
+                                $item[$fieldName] = (string)strtotime($field);
                             }
                         } else $item[$fieldName] = null;
                         break;
                     default:
-                        $item[$fieldName] = $this->{$fieldName};
+                        $item[$fieldName] = $field;
                 }
             } else {
-                $item[$fieldName] = $this->{$fieldName};
+                $item[$fieldName] = $field;
             }
         }
 

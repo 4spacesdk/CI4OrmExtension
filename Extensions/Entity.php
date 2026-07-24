@@ -118,6 +118,13 @@ class Entity extends \CodeIgniter\Entity\Entity implements IteratorAggregate {
         $result = parent::__get($key);
 
         if (is_null($result) && $key != $this->_getModel()->getPrimaryKey()) {
+            // A table column that happens to be null can never be a relation, so return before
+            // the scan below. Every nullable column of every entity would otherwise walk the
+            // full relation list, comparing regex-derived names, which dominated serialisation.
+            if (in_array($key, $this->_getModel()->getTableFields(), true)) {
+                return $result;
+            }
+
             // Check for relation
             foreach ($this->_getModel()->getRelations() as $relation) {
                 if ($relation->getSimpleName() == singular($key)) {
@@ -207,7 +214,7 @@ class Entity extends \CodeIgniter\Entity\Entity implements IteratorAggregate {
                     case 'float':
                     case 'double':
                     case 'decimal':
-                        $data[$field] = is_null($value) ? null : (double)$value;
+                        $data[$field] = is_null($value) ? null : (float)$value;
                         break;
                     case 'tinyint':
                         $data[$field] = (bool)$value;
