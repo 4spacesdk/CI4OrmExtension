@@ -20,6 +20,8 @@ class RelationDef {
     private $joinSelfAs;
     private $joinOtherAs;
     private $joinTable;
+
+    private $explicitJoinTable = false;
     private $cascadeDelete = true;
     private $type;
 
@@ -56,6 +58,7 @@ class RelationDef {
             }
             if (isset($data['joinTable'])) {
                 $this->setJoinTable($data['joinTable']);
+                $this->explicitJoinTable = true;
             }
             if (isset($data['cascadeDelete'])) {
                 $this->setCascadeDelete($data['cascadeDelete']);
@@ -225,10 +228,23 @@ class RelationDef {
     }
 
     public function getJoinOtherAsGuess(): array {
+        // joinOtherAs names a column in the join table, not in the parent, so it is only a
+        // sensible guess for a relation whose link might actually live in the parent table.
+        // With a declared join table the parent always links through its own primary key.
+        if ($this->explicitJoinTable) {
+            return [
+                $this->getParent()->getPrimaryKey(),
+            ];
+        }
+
         return [
             $this->getJoinOtherAs(),
             $this->getParent()->getPrimaryKey(),
         ];
+    }
+
+    public function hasExplicitJoinTable(): bool {
+        return $this->explicitJoinTable;
     }
 
     /**
