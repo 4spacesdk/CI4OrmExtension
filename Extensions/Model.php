@@ -435,9 +435,11 @@ class Model extends \CodeIgniter\Model {
      * @return array|object|null|Entity
      */
     public function find($id = null) {
+        $this->applyRelationBinding();
         $result = parent::find($id);
         // Clear
         $this->setSelecting(false);
+        $this->forgetQueryState();
         return $result;
     }
 

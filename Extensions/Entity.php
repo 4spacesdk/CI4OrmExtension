@@ -166,9 +166,12 @@ class Entity extends \CodeIgniter\Entity\Entity implements IteratorAggregate {
                         $value = $this->{$relation->getJoinOtherAs()};
                     }
 
+                    // Bound rather than applied once: this entity is cached on `$this`, so
+                    // every later read of the relation hands back the same one, and the
+                    // condition has to survive each query it runs.
                     $entity
                         ->_getModel()
-                        ->whereRelated(
+                        ->bindToRelation(
                             $relation->getOtherField(),
                             $field,
                             $value

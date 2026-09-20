@@ -337,6 +337,60 @@ trait QueryBuilder {
     private $relatedTablesAdded = [];
 
     /**
+     * The condition that ties this model to one owner's relation, kept so that it can be
+     * applied to more than the first query.
+     *
+     * @var array|null [$relationName, $field, $value]
+     */
+    private $relationBinding = null;
+
+    private $relationBindingApplied = false;
+
+    /**
+     * Tie this model to one owner's relation, for every query it runs rather than the first.
+     *
+     * `whereRelated()` writes the join and the condition straight into the builder, and a
+     * query resets the builder behind it - so a second `find()` on the same model used to
+     * run with no condition at all: `SELECT *` over the whole table, leaving the entity
+     * holding the first row it got back, which belongs to somebody else. Guarding the call
+     * with `exists()` only helps when the first one found something; when the related row
+     * is missing, the guard is open and the second call is the one that answers wrongly.
+     *
+     * @return Model
+     */
+    public function bindToRelation($relationName, $field, $value) {
+        $this->relationBinding = [$relationName, $field, $value];
+        $this->applyRelationBinding();
+        return $this->_getModel();
+    }
+
+    /**
+     * Put the binding back on the builder, unless this query already carries it.
+     */
+    public function applyRelationBinding() {
+        if (is_null($this->relationBinding) || $this->relationBindingApplied) {
+            return;
+        }
+
+        [$relationName, $field, $value] = $this->relationBinding;
+        $this->whereRelated($relationName, $field, $value);
+        $this->relationBindingApplied = true;
+    }
+
+    /**
+     * Drop what belongs to the query that just ran.
+     *
+     * The builder is reset once a query has run, so the bookkeeping beside it has to go as
+     * well: `relatedTablesAdded` is what keeps a join from being written twice, and a join
+     * it still remembers after the reset is one the next query will not have - the
+     * condition would name a table nothing joined.
+     */
+    public function forgetQueryState() {
+        $this->relatedTablesAdded = [];
+        $this->relationBindingApplied = false;
+    }
+
+    /**
      * @param RelationDef $relation
      * @param string $prefix
      * @param string $this_table

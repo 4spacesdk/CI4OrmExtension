@@ -21,10 +21,22 @@ trait EntityTrait {
 
     // <editor-fold desc="Find">
 
+    /**
+     * `$this` becomes what the query answered with.
+     *
+     * Everything the result carries is copied over - except the model behind it. The result
+     * of a query that found nothing is a brand new entity whose model is not built yet, so
+     * copying that one over threw away the model this entity was asked through, binding and
+     * all, and the next call built a fresh one with no condition on it. A relation loaded
+     * through `Entity::__get()` is exactly that case, and it is why a second `find()` on a
+     * relation whose row is missing used to answer with the first row of the whole table.
+     */
     public function find($id = null) {
         $entity = $this->_getModel()->find($id);
-        foreach(get_object_vars($entity) as $name => $value)
+        foreach(get_object_vars($entity) as $name => $value) {
+            if($name == '_model') continue;
             $this->{$name} = $value;
+        }
         return $entity;
     }
 
