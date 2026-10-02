@@ -698,6 +698,20 @@ class Model extends \CodeIgniter\Model {
         return $this->primaryKey;
     }
 
+    /**
+     * The column that marks a row deleted, or null when rows are deleted for real.
+     */
+    public function getDeletedField(): ?string {
+        return $this->useSoftDeletes ? $this->deletedField : null;
+    }
+
+    /**
+     * The entity class find() answers with, an empty one of it when it finds nothing.
+     */
+    public function getEntityClass(): string {
+        return $this->returnType;
+    }
+
     // </editor-fold>
 
 }

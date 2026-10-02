@@ -337,6 +337,43 @@ trait QueryBuilder {
     private $relatedTablesAdded = [];
 
     /**
+     * For these rows of this model, the ids of their related rows - each pair the relation's join
+     * makes, as [this row's id, the related row's id], without the rows themselves. A related
+     * row that is deleted or not there makes no pair.
+     *
+     * Asked on a model of its own, which is left with no query state.
+     *
+     * @param string|array $relationName as for whereRelated()
+     * @param array $ids
+     * @return array[]
+     */
+    public function findRelatedIds($relationName, array $ids): array {
+        if (count($ids) == 0) {
+            return [];
+        }
+        $model = $this->_getModel();
+        $db = $model->db;
+        $table = $model->getTableName();
+        $primaryKey = $model->getPrimaryKey();
+
+        $model->select($db->protectIdentifiers("{$table}.{$primaryKey}") . ' AS orm_base_id', false, false);
+        [$alias, $related] = $this->handleWhereRelated($relationName);
+        $relatedKey = $db->protectIdentifiers("{$alias}.{$related->getPrimaryKey()}");
+        $model->select("{$relatedKey} AS orm_related_id", false, false);
+        $builder = $model->builder();
+        $builder->whereIn("{$table}.{$primaryKey}", $ids);
+        $builder->where("{$relatedKey} IS NOT NULL", null, false);
+
+        $pairs = [];
+        foreach ($builder->get()->getResultArray() as $row) {
+            $pairs[] = [$row['orm_base_id'], $row['orm_related_id']];
+        }
+        $model->setSelecting(false);
+        $this->forgetQueryState();
+        return $pairs;
+    }
+
+    /**
      * The condition that ties this model to one owner's relation, kept so that it can be
      * applied to more than the first query.
      *
@@ -421,94 +458,57 @@ trait QueryBuilder {
             $prefixedRelatedTable = $prefix . plural($relation->getSimpleName()) . '_' . $relationShipTable;
         }
 
-        if ($relationShipTable == $this->getTableName() && in_array($relation->getJoinOtherAs(), $this->getTableFields())) {
-
-            foreach ([$relation->getJoinSelfAs(), 'id'] as $joinSelfAs) {
-                if (in_array($joinSelfAs, $related->getTableFields())) {
-                    if (!in_array($prefixedParentTable, $this->relatedTablesAdded)) {
-                        $cond = "{$prefixedParentTable}.{$joinSelfAs} = {$this_table}.{$relation->getJoinOtherAs()}";
-                        if ($addSoftDeletionCondition) {
-                            $cond .= " AND {$prefixedParentTable}.{$deletedField} IS NULL";
-                        }
-                        $this->join("{$related->getTableName()} {$prefixedParentTable}", $cond, 'LEFT OUTER');
-
-                        $this->relatedTablesAdded[] = $prefixedParentTable;
-                    }
-                    $match = $prefixedParentTable;
-                    break;
-                }
-            }
-
-        } else if ($relationShipTable == $related->getTableName() && in_array($relation->getJoinSelfAs(), $related->getTableFields())) {
-
-            foreach ([$relation->getJoinOtherAs(), 'id'] as $joinOtherAs) {
-                if (in_array($joinOtherAs, $this->getTableFields())) {
-                    if (!in_array($prefixedParentTable, $this->relatedTablesAdded)) {
-                        $cond = "{$this_table}.{$joinOtherAs} = {$prefixedParentTable}.{$relation->getJoinSelfAs()}";
-                        if ($addSoftDeletionCondition) {
-                            $cond .= " AND {$prefixedParentTable}.{$deletedField} IS NULL";
-                        }
-                        $this->join("{$related->getTableName()} {$prefixedParentTable}", $cond, 'LEFT OUTER');
-
-                        $this->relatedTablesAdded[] = $prefixedParentTable;
-                    }
-                    $match = $prefixedParentTable;
-                    break;
-                }
-            }
-
-        } else {
-
-            // Use a join table. We have to do two joins now. First the join table and then the relation table.
-
-            $joinMatch = null;
-            $match = null;
-            foreach ($relation->getJoinOtherAsGuess() as $joinOtherAs) {
-                if (in_array($joinOtherAs, $this->getTableFields())) {
-                    if (!in_array($prefixedRelatedTable, $this->relatedTablesAdded)) {
-                        $cond = "{$this_table}.{$joinOtherAs} = {$prefixedRelatedTable}.{$relation->getJoinSelfAs()}";
-                        $this->join("{$relationShipTable} {$prefixedRelatedTable}", $cond, 'LEFT OUTER');
-
-                        $this->relatedTablesAdded[] = $prefixedRelatedTable;
-                    }
-                    $joinMatch = $prefixedRelatedTable;
-
-                    // Second join
-                    if (!in_array($prefixedParentTable, $this->relatedTablesAdded)) {
-                        $cond = "{$prefixedParentTable}.{$related->getPrimaryKey()} = {$prefixedRelatedTable}.{$relation->getJoinOtherAs()}";
-                        if ($addSoftDeletionCondition) {
-                            $cond .= " AND {$prefixedParentTable}.{$deletedField} IS NULL";
-                        }
-                        $this->join("{$related->getTableName()} {$prefixedParentTable}", $cond, 'LEFT OUTER');
-
-                        $this->relatedTablesAdded[] = $prefixedParentTable;
-                    }
-                    $match = $prefixedParentTable;
-                    break;
-                }
-            }
-
-            // If we still have not found a match, this is probably a custom join table
-            if (is_null($joinMatch)) {
-                if (!in_array($prefixedRelatedTable, $this->relatedTablesAdded)) {
-                    $cond = "{$this_table}.{$this->getPrimaryKey()} = {$prefixedRelatedTable}.{$relation->getJoinSelfAs()}";
-                    $this->join("{$relationShipTable} {$prefixedRelatedTable}", $cond, 'LEFT OUTER');
-                    $this->relatedTablesAdded[] = $prefixedRelatedTable;
-                }
-            }
-
-            if (is_null($match)) {
-                if (!in_array($prefixedParentTable, $this->relatedTablesAdded)) {
-                    $cond = "{$prefixedParentTable}.{$related->getPrimaryKey()} = {$prefixedRelatedTable}.{$relation->getJoinOtherAs()}";
-                    $this->join("{$related->getTableName()} {$prefixedParentTable}", $cond, 'LEFT OUTER');
-                    $this->relatedTablesAdded[] = $prefixedParentTable;
-                }
-                $match = $prefixedParentTable;
-            }
-
+        // Which columns, RelationLink says; anything else that has to find the same rows asks it too
+        $link = RelationLink::of($this->_getModel(), $relation);
+        if (is_null($link)) {
+            return '';
         }
 
-        return $match ?? '';
+        switch ($link->kind) {
+            case RelationLink::InBase:
+                if (!in_array($prefixedParentTable, $this->relatedTablesAdded)) {
+                    $cond = "{$prefixedParentTable}.{$link->relatedColumn} = {$this_table}.{$link->baseColumn}";
+                    if ($addSoftDeletionCondition) {
+                        $cond .= " AND {$prefixedParentTable}.{$deletedField} IS NULL";
+                    }
+                    $this->join("{$related->getTableName()} {$prefixedParentTable}", $cond, 'LEFT OUTER');
+
+                    $this->relatedTablesAdded[] = $prefixedParentTable;
+                }
+                return $prefixedParentTable;
+
+            case RelationLink::InRelated:
+                if (!in_array($prefixedParentTable, $this->relatedTablesAdded)) {
+                    $cond = "{$this_table}.{$link->baseColumn} = {$prefixedParentTable}.{$link->relatedColumn}";
+                    if ($addSoftDeletionCondition) {
+                        $cond .= " AND {$prefixedParentTable}.{$deletedField} IS NULL";
+                    }
+                    $this->join("{$related->getTableName()} {$prefixedParentTable}", $cond, 'LEFT OUTER');
+
+                    $this->relatedTablesAdded[] = $prefixedParentTable;
+                }
+                return $prefixedParentTable;
+
+            default:
+                // Use a join table. We have to do two joins now. First the join table and then the relation table.
+                if (!in_array($prefixedRelatedTable, $this->relatedTablesAdded)) {
+                    $cond = "{$this_table}.{$link->baseColumn} = {$prefixedRelatedTable}.{$link->tableBaseColumn}";
+                    $this->join("{$relationShipTable} {$prefixedRelatedTable}", $cond, 'LEFT OUTER');
+
+                    $this->relatedTablesAdded[] = $prefixedRelatedTable;
+                }
+                if (!in_array($prefixedParentTable, $this->relatedTablesAdded)) {
+                    $cond = "{$prefixedParentTable}.{$related->getPrimaryKey()} = {$prefixedRelatedTable}.{$link->tableRelatedColumn}";
+                    // A custom join table, found by the primary key, never left out deleted rows
+                    if ($addSoftDeletionCondition && $link->guessed) {
+                        $cond .= " AND {$prefixedParentTable}.{$deletedField} IS NULL";
+                    }
+                    $this->join("{$related->getTableName()} {$prefixedParentTable}", $cond, 'LEFT OUTER');
+
+                    $this->relatedTablesAdded[] = $prefixedParentTable;
+                }
+                return $prefixedParentTable;
+        }
     }
 
     /**

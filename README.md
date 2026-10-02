@@ -344,6 +344,22 @@ $users = $userModel
 ```
 To access deep relations, simply put them in an array. 
 
+### Related ids and how a relation is joined
+`findRelatedIds()` answers which related rows belong to some rows, as pairs of ids, without
+fetching either - on a model of its own, as it leaves no query state:
+```php
+$pairs = (new UserModel())->findRelatedIds([BookModel::class], [1, 2, 3]);
+// [[1, 7], [1, 9], [3, 7]]: user 1 has books 7 and 9, user 3 has book 7
+```
+
+`RelationLink::of($model, $relation)` says which columns tie a model's rows to a relation's rows -
+in the model's table, in the related table, or through a join table - exactly as the joins of
+`whereRelated()` and `includeRelated()` use them. Code that has to find the same rows another way,
+such as a sub query, asks it rather than reading the relation's definition itself.
+
+`$model->getDeletedField()` is the column that marks a row deleted, or null, and
+`$model->getEntityClass()` the entity class `find()` answers with.
+
 
 ### Soft deletion
 OrmExtension provides an extended soft deletion. Create a model and entity for `Deletion`.  
