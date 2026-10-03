@@ -18,30 +18,34 @@ class ModelItem {
 
     public $properties = [];
 
+    /** @var string the entity's or interface's full class name */
+    public $className;
+
     /**
      * @param $path
      * @return bool|ModelItem
      */
     public static function parse($path) {
         $item = new ModelItem();
-        $item->path = $path;
 
-        $isEntity = true;
-        try {
-            $rc = new \ReflectionClass("\App\Entities\\{$path}");
-            try {
-                $item->isResource = $rc->implementsInterface('\RestExtension\ResourceEntityInterface');
-            } catch(Exception $e) {
-
+        // A full class name, from any entity or interface namespace; a short name is the app's
+        $classes = class_exists($path) || interface_exists($path) ? [$path] : ["\\App\\Entities\\{$path}", "\\App\\Interfaces\\{$path}"];
+        $rc = null;
+        foreach ($classes as $class) {
+            if (class_exists($class) || interface_exists($class)) {
+                $rc = new \ReflectionClass($class);
+                break;
             }
-        } catch(\Exception $e) {
-            try {
-                $rc = new \ReflectionClass("\App\Interfaces\\{$path}");
-            } catch(\Exception $e) {
-                return false;
-            }
-            $isEntity = false;
         }
+        if ($rc === null) {
+            return false;
+        }
+        $isEntity = !$rc->isInterface();
+        if ($isEntity) {
+            $item->isResource = $rc->implementsInterface('\\RestExtension\\ResourceEntityInterface');
+        }
+        $item->className = $rc->getName();
+        $item->path = $rc->getShortName();
         $item->name = substr($rc->getName(), strrpos($rc->getName(), '\\') + 1);
 
         $comments = $rc->getDocComment();
@@ -75,11 +79,16 @@ class ModelItem {
      * @return bool|ApiItem
      */
     public function getApiItem() {
-        $entityName = "\App\Entities\\{$this->path}";
+        $entityName = $this->className;
         /** @var Entity $entity */
         $entity = new $entityName();
+        // The controller's class as it has always been put together: the namespace and the path
+        // as they are, without a separator between them
+        $config = config('RestExtension');
+        $namespace = $config->apiControllerNamespace ?? '';
+        $namespace = is_array($namespace) ? (string)reset($namespace) : (string)$namespace;
         try {
-            return ApiItem::parse($entity->getResourcePath());
+            return ApiItem::parse($namespace . $entity->getResourcePath());
         } catch(\ReflectionException $e) {
         }
         return false;

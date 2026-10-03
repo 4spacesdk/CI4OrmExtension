@@ -344,6 +344,29 @@ $users = $userModel
 ```
 To access deep relations, simply put them in an array. 
 
+### Exporting entities from more namespaces
+The model export (TypeScript, Xamarin, Swagger) reads `App\Entities`. To export the entities of
+a composer package with the app's, list the namespaces in `Config\OrmExtension`:
+```php
+public static $exportNamespace = ['App\Entities\\', 'Spant\Entities\\'];
+public static $exportInterfaceNamespace = ['App\Interfaces\\', 'Spant\Interfaces\\'];
+```
+Their directories come from CodeIgniter's autoloader. A name both namespaces have is the first's.
+
+### Extending a package's model
+A package can bring its own models and entities, in namespaces of their own listed after the
+app's: `$modelNamespace = ['App\\Models\\', 'Spant\\Models\\']`. The app extends one under the same
+name to add relations:
+```php
+namespace App\Models;
+
+class UserModel extends \Spant\Models\UserModel {
+    public $hasMany = [...parent::HAS_MANY, NoteModel::class];
+}
+```
+Every relation to the package's `UserModel` - its own models' too - then gets the app's, and a
+relation to it finds the package's entity, which the app does not have to repeat.
+
 ### Related ids and how a relation is joined
 `findRelatedIds()` answers which related rows belong to some rows, as pairs of ids, without
 fetching either - on a model of its own, as it leaves no query state:

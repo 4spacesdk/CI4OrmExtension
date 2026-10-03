@@ -135,26 +135,37 @@ class ModelParser {
 
 
     /**
-     * @param $model
+     * @param string $model a full class name
      * @return ModelItem
      */
     private static function parseModels($model) {
-        return ModelItem::parse(substr($model, 0, -4));
+        return ModelItem::parse($model);
     }
 
+    /**
+     * The entities to export: those of App\Entities, and of every namespace in
+     * Config\OrmExtension::$exportNamespace when it says more. With $includeInterfaces the
+     * interfaces of App\Interfaces, or of Config\OrmExtension::$exportInterfaceNamespace.
+     *
+     * Not $entityNamespace: RestExtension adds its own log entities to that, which no app exports.
+     *
+     * @return string[] full class names
+     */
     private static function loadModels($includeInterfaces = false) {
-        $files = scandir(APPPATH. 'Entities');
-        if($includeInterfaces && is_dir(APPPATH. 'Interfaces')) {
-            $files = array_merge($files, scandir(APPPATH . 'Interfaces'));
-        }
-
-        $models = [];
-        foreach($files as $file) {
-            if($file[0] != '_' && substr($file, -3) == 'php') {
-                $models[] = $file;
-            }
+        $models = Namespaces::classes(self::namespaces('exportNamespace', 'App\\Entities'));
+        if ($includeInterfaces) {
+            $models = array_merge($models, Namespaces::classes(self::namespaces('exportInterfaceNamespace', 'App\\Interfaces')));
         }
         return $models;
+    }
+
+    /**
+     * @return string[]
+     */
+    private static function namespaces($property, $default) {
+        $config = '\\Config\\OrmExtension';
+        $namespaces = class_exists($config) && property_exists($config, $property) ? $config::$$property : $default;
+        return is_array($namespaces) ? $namespaces : [$namespaces];
     }
 
     private static function loadStatics() {

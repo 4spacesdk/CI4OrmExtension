@@ -65,6 +65,10 @@ class RelationDef {
             }
         }
 
+        // An app that extends a package's model under the same name, in a model namespace listed
+        // before the package's, is the model every relation to the package's model gets
+        $this->setClass(self::overridden($this->getClass()));
+
         if (!isset($this->otherField)) {
             $this->setOtherField(get_class($model));
         }
@@ -106,14 +110,62 @@ class RelationDef {
             }
         }
 
-        if (array_key_exists($this->getOtherField(), $related->hasOne)
-            || in_array($this->getOtherField(), $related->hasOne)) {
+        if (self::lists($related->hasOne, $this->getOtherField())) {
             if (in_array($this->getJoinSelfAs(), $related->getTableFields()))
                 return $related;
         }
 
         // No? Then it must be a join table
         return null;
+    }
+
+    /**
+     * The model a relation to $class gets: the first model namespace's model by the same name,
+     * when it extends $class - App\\Models\\UserModel for a package's UserModel - or $class.
+     *
+     * @param string $class
+     * @return string
+     */
+    public static function overridden($class) {
+        $class = ltrim($class, '\\');
+        if (!class_exists('\\Config\\OrmExtension') || !class_exists($class)) {
+            return $class;
+        }
+        $short = substr(strrchr('\\' . $class, '\\'), 1);
+        foreach ((array)\Config\OrmExtension::$modelNamespace as $namespace) {
+            $candidate = trim($namespace, '\\') . '\\' . $short;
+            if ($candidate === $class) {
+                return $class;
+            }
+            if (class_exists($candidate) && is_subclass_of($candidate, $class)) {
+                return $candidate;
+            }
+        }
+        return $class;
+    }
+
+    /**
+     * Whether a model's hasOne or hasMany lists this relation's other side, by its name, or by a
+     * model it extends: the package's UserModel lists a user that is the app's UserModel.
+     *
+     * @param array $relations
+     * @param string $otherField
+     * @return bool
+     */
+    private static function lists(array $relations, $otherField) {
+        if (array_key_exists($otherField, $relations) || in_array($otherField, $relations)) {
+            return true;
+        }
+        if (!class_exists($otherField)) {
+            return false;
+        }
+        foreach ($relations as $key => $value) {
+            $listed = is_string($key) ? $key : $value;
+            if (is_string($listed) && class_exists($listed) && is_a($otherField, $listed, true)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private $relationClass;
@@ -136,7 +188,14 @@ class RelationDef {
     }
 
     public function getEntityName() {
-        return substr(str_replace('Models', 'Entities', $this->getClass()), 0, -5);
+        $derived = substr(str_replace('Models', 'Entities', $this->getClass()), 0, -5);
+        if (class_exists($derived)) {
+            return $derived;
+        }
+        // A model whose entity is not beside it - App\Models\UserModel extending a package's
+        // model, with the package's entity - names it as its own find() does
+        $entity = $this->getRelationClass()->getEntityClass();
+        return class_exists($entity) ? $entity : $derived;
     }
 
     public function getSimpleOtherField() {
