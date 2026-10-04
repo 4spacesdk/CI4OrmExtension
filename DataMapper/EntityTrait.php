@@ -280,7 +280,10 @@ trait EntityTrait {
                     case 'datetime':
                         if($field != null && $field != "0000-00-00 00:00:00") {
                             try {
-                                $foo = new DateTime($field, new DateTimeZone("Europe/Copenhagen"));
+                                // A DATETIME has no zone of its own: it is in the zone it was written in.
+                                // The models and setAttributes() write with date(), so in PHP's default
+                                // zone, which CodeIgniter sets from Config\App::$appTimezone.
+                                $foo = new DateTime($field, new DateTimeZone(date_default_timezone_get()));
                                 $foo->setTimeZone(new DateTimeZone("UTC"));
                                 $item[$fieldName] = $foo->format('c');
                             } catch(\Exception $e) {
