@@ -73,6 +73,47 @@ class ModelParser {
         return $json;
     }
 
+    /**
+     * The models' OpenAPI 3.0 schemas, by name, for components.schemas. Unlike generateSwagger(), a
+     * relation is a `$ref`, so with $references the schemas are those named and every schema they
+     * refer to, in turn - and a name no model or static schema has is an object of that name, so
+     * no `$ref` points at nothing.
+     *
+     * The static schemas of APPPATH/Schemas, and of its $scope folder, are put in as they are. A
+     * model's own schema is used over a static one by its name, unless $overrideWithStatic.
+     *
+     * @param string[]|null $references
+     * @param string|null $scope
+     * @param bool $overrideWithStatic
+     * @return array
+     */
+    public function generateOpenApi($references = null, $scope = null, $overrideWithStatic = false) {
+        $pool = self::staticSchemas($scope);
+        foreach($this->models as $model) {
+            if($overrideWithStatic && isset($pool[$model->name])) continue;
+            $pool[$model->name] = $model->toOpenApi();
+        }
+        return OpenApi::closure($pool, $references);
+    }
+
+    /**
+     * The static schemas of APPPATH/Schemas and of its $scope folder, by name - the file name
+     * without .json. One of the scope's is used over one of the same name in APPPATH/Schemas.
+     *
+     * @param string|null $scope
+     * @return array
+     */
+    public static function staticSchemas($scope = null) {
+        $schemas = [];
+        $paths = $scope ? [self::$staticPath, self::$staticPath . '/' . $scope] : [self::$staticPath];
+        foreach($paths as $path) {
+            foreach(self::loadStatics($path) as $file) {
+                $schemas[substr($file, 0, -5)] = json_decode(file_get_contents($path . '/' . $file));
+            }
+        }
+        return $schemas;
+    }
+
     private function appendSchemaReferencesRecursively($name, &$list) {
         if(in_array($name, $list)) return;
         $list[] = $name;
@@ -168,10 +209,11 @@ class ModelParser {
         return is_array($namespaces) ? $namespaces : [$namespaces];
     }
 
-    private static function loadStatics() {
+    private static function loadStatics($path = null) {
+        $path = $path ?? self::$staticPath;
         $schemas = [];
-        if(is_dir(self::$staticPath)) {
-            $files = scandir(self::$staticPath);
+        if(is_dir($path)) {
+            $files = scandir($path);
             foreach($files as $file) {
                 if($file[0] != '_' && substr($file, -4) == 'json') {
                     $schemas[] = $file;

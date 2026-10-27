@@ -435,6 +435,17 @@ $parser = ModelParser::run();
 $schemes = $parser->generateSwagger();
 ```
 Attach `$schemes` to swagger components and you have all your models documented.
+
+For OpenAPI 3.0, `generateOpenApi()` gives the schemas of `components.schemas` with a relation as a
+`$ref` to the related model's schema and a property's comment (`@property string $name what it
+is called`) as its description:
+```php
+$schemas = ModelParser::run()->generateOpenApi(['Deployment']);
+```
+With a list of names, the schemas are those named and every schema they refer to, in turn. A name
+no model or static schema has is an object by that name, so no `$ref` points at nothing.
+`OpenApi::schema('?int')` is the schema of one PHPDoc type; RestExtension's `generateOpenApi()`
+builds a whole document with it.
 ```php
 $parser = ModelParser::run();
 $parser->generateTypeScript();

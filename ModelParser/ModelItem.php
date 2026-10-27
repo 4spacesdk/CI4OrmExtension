@@ -106,4 +106,16 @@ class ModelItem {
         return $item;
     }
 
+    /**
+     * The model's OpenAPI 3.0 schema. Unlike toSwagger(), a relation is a `$ref` to the related
+     * model's schema, and a property's comment is its description.
+     */
+    public function toOpenApi() {
+        $properties = [];
+        foreach($this->properties as $property) {
+            $properties[$property->name] = $property->toOpenApi();
+        }
+        return OpenApi::objectSchema($this->name, $properties);
+    }
+
 }

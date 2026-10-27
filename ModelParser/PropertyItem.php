@@ -124,6 +124,16 @@ class PropertyItem {
         return $item;
     }
 
+    /**
+     * The property's OpenAPI 3.0 schema, its comment the description. A relation under Many is a
+     * list of the related model.
+     */
+    public function toOpenApi() {
+        $type = $this->rawType;
+        if($this->isMany && substr($type, -2) != '[]') $type .= '[]';
+        return OpenApi::schema($type, $this->comment);
+    }
+
     public function getCamelName() {
         return camelize($this->name);
     }
