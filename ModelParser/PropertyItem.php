@@ -4,19 +4,29 @@
  * User: martin
  * Date: 25/11/2018
  * Time: 12.20
- *
- * @property string $name
- * @property string $rawType
- * @property string $typeScriptType
- * @property string $xamarinType
- * @property string $comment
- * @property bool $isSimpleType
- * @property bool $isMany
  */
 class PropertyItem {
 
+    /** @var string */
+    public $name;
+
+    /** @var string */
+    public $rawType;
+
+    /** @var string */
+    public $typeScriptType;
+
+    /** @var string */
+    public $xamarinType;
+
+    /** @var string */
     public $comment = null;
+
+    /** @var bool */
     public $isSimpleType = true;
+
+    /** @var bool */
+    public $isMany;
 
     public function __construct($name = "", $type = "", $isSimpleType = true, $isMany = false) {
         $this->name = $name;

@@ -7,10 +7,11 @@ use DebugTool\Data;
  * User: martin
  * Date: 25/11/2018
  * Time: 12.15
- *
- * @property ModelItem[] $models
  */
 class ModelParser {
+
+    /** @var ModelItem[] */
+    public $models;
 
     private static $staticPath = APPPATH. 'Schemas';
     private static $interfacesPath = APPPATH. 'Interfaces';

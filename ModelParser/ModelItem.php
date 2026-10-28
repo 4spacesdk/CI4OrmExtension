@@ -8,15 +8,20 @@ use RestExtension\Core\Entity;
  * User: martin
  * Date: 25/11/2018
  * Time: 12.18
- *
- * @property string $path
- * @property string $name
- * @property PropertyItem[] $properties
- * @property boolean $isResource
  */
 class ModelItem {
 
+    /** @var string */
+    public $path;
+
+    /** @var string */
+    public $name;
+
+    /** @var PropertyItem[] */
     public $properties = [];
+
+    /** @var boolean */
+    public $isResource;
 
     /** @var string the entity's or interface's full class name */
     public $className;
